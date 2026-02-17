@@ -18,7 +18,10 @@ function renderSummaryHtml(data: ReturnType<typeof wizardSchema.parse>) {
       <li><strong>Tecnologia:</strong> ${data.printTechnology}</li>
       <li><strong>Ribbon:</strong> ${data.ribbonType}</li>
       <li><strong>Mida:</strong> ${data.labelWidthMm} x ${data.labelHeightMm} mm</li>
-      <li><strong>Canuto:</strong> ${data.rollCoreMm} mm</li>
+      <li><strong>Tipus d'etiqueta:</strong> ${data.labelFlowType}</li>
+      <li><strong>Tipus de tall:</strong> ${data.hasCut ? data.cutType : "Sense tall"}</li>
+      <li><strong>Mandril:</strong> ${data.rollCoreMm === "external" ? "Bobinat extern" : `${data.rollCoreMm} mm`}</li>
+      <li><strong>Diametre bobina:</strong> ${data.rollOuterDiameterMm} mm</li>
       <li><strong>Gap:</strong> ${data.gapMm} mm</li>
       <li><strong>Marca negra:</strong> ${data.hasBlackMark ? `Sí (${data.blackMarkPosition})` : "No"}</li>
       <li><strong>Adhesiu:</strong> ${data.adhesive}</li>

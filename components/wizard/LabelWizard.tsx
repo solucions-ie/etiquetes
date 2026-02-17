@@ -9,13 +9,31 @@ import { StepContact } from "./steps/StepContact";
 import { StepPrinter } from "./steps/StepPrinter";
 import { StepDimensions } from "./steps/StepDimensions";
 import { StepMaterial } from "./steps/StepMaterial";
-import { LabelPreviewSvg } from "@/components/preview/LabelPreviewSvg";
+import { WizardStagePreview } from "@/components/preview/WizardStagePreview";
+
+const printerMaxWidthMm: Record<WizardValues["printerType"], number> = {
+  "industrial-24-7": 180,
+  "print-engine": 180,
+  "industrial-mid": 114,
+  desktop: 114,
+  portable: 112,
+  "portable-small": 80
+};
 
 const stepFields: Array<(keyof WizardValues)[]> = [
-  ["company", "contactName", "email", "phone"],
   ["printerType", "printTechnology", "ribbonType"],
-  ["labelWidthMm", "labelHeightMm", "rollCoreMm", "gapMm"],
-  ["labelUse", "adhesive", "finish", "hasBlackMark", "blackMarkPosition", "quantity"]
+  [
+    "labelWidthMm",
+    "labelHeightMm",
+    "labelFlowType",
+    "hasCut",
+    "cutType",
+    "rollCoreMm",
+    "rollOuterDiameterMm",
+    "gapMm"
+  ],
+  ["labelUse", "adhesive", "finish", "quantity"],
+  ["company", "contactName", "email", "phone"]
 ];
 
 export function LabelWizard() {
@@ -54,13 +72,78 @@ export function LabelWizard() {
     }
   }, [setValue, values.printTechnology, values.ribbonType]);
 
+  useEffect(() => {
+    // Tipus d'avanç definit al pas 2: gap / marca negra / continu.
+    if (values.labelFlowType === "gap") {
+      if (values.hasBlackMark) setValue("hasBlackMark", false);
+      if (values.blackMarkPosition !== "none") setValue("blackMarkPosition", "none");
+      if (values.gapMm <= 0) setValue("gapMm", 2);
+    }
+
+    if (values.labelFlowType === "black-mark") {
+      if (!values.hasBlackMark) setValue("hasBlackMark", true);
+      if (values.blackMarkPosition === "none") setValue("blackMarkPosition", "back");
+      if (values.gapMm !== 0) setValue("gapMm", 0);
+    }
+
+    if (values.labelFlowType === "continuous") {
+      if (values.hasBlackMark) setValue("hasBlackMark", false);
+      if (values.blackMarkPosition !== "none") setValue("blackMarkPosition", "none");
+      if (values.gapMm !== 0) setValue("gapMm", 0);
+      if (values.hasCut) setValue("hasCut", false);
+      if (values.cutType !== "none") setValue("cutType", "none");
+    }
+  }, [
+    setValue,
+    values.labelFlowType,
+    values.hasBlackMark,
+    values.blackMarkPosition,
+    values.gapMm,
+    values.hasCut,
+    values.cutType
+  ]);
+
+  useEffect(() => {
+    if (values.hasCut && values.cutType === "none" && values.labelFlowType !== "continuous") {
+      setValue("cutType", "trepat");
+      return;
+    }
+
+    if (!values.hasCut && values.cutType !== "none") {
+      setValue("cutType", "none");
+    }
+  }, [setValue, values.hasCut, values.cutType, values.labelFlowType]);
+
+  useEffect(() => {
+    const isPortable =
+      values.printerType === "portable-small" || values.printerType === "portable";
+
+    // Portatils: sense ribbon i sense transferencia termica.
+    if (isPortable) {
+      if (values.printTechnology !== "direct-thermal") {
+        setValue("printTechnology", "direct-thermal");
+      }
+      if (values.ribbonType !== "none") {
+        setValue("ribbonType", "none");
+      }
+    }
+  }, [setValue, values.printerType, values.printTechnology, values.ribbonType]);
+
+  useEffect(() => {
+    // En canviar d'impressora, carreguem mida per defecte:
+    // amplada maxima compatible + 50 mm d'alcada.
+    const defaultWidth = printerMaxWidthMm[values.printerType];
+    setValue("labelWidthMm", defaultWidth, { shouldValidate: true });
+    setValue("labelHeightMm", 50, { shouldValidate: true });
+  }, [setValue, values.printerType]);
+
   const stepTitle = useMemo(
     () =>
       [
-        "Dades de contacte",
-        "Impressora i tecnologia",
+        "Tipus d'impressora",
         "Mides i bobina",
-        "Material i condicions"
+        "Material i condicions",
+        "Dades de contacte"
       ][step],
     [step]
   );
@@ -135,14 +218,21 @@ export function LabelWizard() {
             transition={{ duration: 0.2 }}
             className="rounded-2xl border border-slate-200 bg-slate-50 p-4"
           >
-            {step === 0 && <StepContact register={register} errors={errors} />}
-            {step === 1 && (
+            {step === 0 && (
               <StepPrinter register={register} errors={errors} watch={watch} />
             )}
-            {step === 2 && <StepDimensions register={register} errors={errors} />}
-            {step === 3 && (
+            {step === 1 && (
+              <StepDimensions
+                register={register}
+                errors={errors}
+                watch={watch}
+                setValue={setValue}
+              />
+            )}
+            {step === 2 && (
               <StepMaterial register={register} errors={errors} watch={watch} />
             )}
+            {step === 3 && <StepContact register={register} errors={errors} />}
           </motion.div>
         </AnimatePresence>
 
@@ -190,14 +280,26 @@ export function LabelWizard() {
           Es recalcula automàticament segons les opcions seleccionades.
         </p>
         <div className="mt-4">
-          <LabelPreviewSvg
+          <WizardStagePreview
+            step={step}
             values={{
+              printerType: values.printerType,
+              printTechnology: values.printTechnology,
+              ribbonType: values.ribbonType,
+              labelFlowType: values.labelFlowType,
+              hasCut: values.hasCut,
+              cutType: values.cutType,
               labelWidthMm: values.labelWidthMm,
               labelHeightMm: values.labelHeightMm,
+              labelFlowType: values.labelFlowType,
               gapMm: values.gapMm,
               hasBlackMark: values.hasBlackMark,
               blackMarkPosition: values.blackMarkPosition,
-              rollCoreMm: values.rollCoreMm
+              rollCoreMm: values.rollCoreMm,
+              rollOuterDiameterMm: values.rollOuterDiameterMm,
+              adhesive: values.adhesive,
+              finish: values.finish,
+              quantity: values.quantity
             }}
           />
         </div>

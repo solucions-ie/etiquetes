@@ -10,8 +10,6 @@ type StepMaterialProps = {
 };
 
 export function StepMaterial({ register, errors, watch }: StepMaterialProps) {
-  const hasBlackMark = watch("hasBlackMark");
-
   return (
     <div className="space-y-4">
       <div>
@@ -39,31 +37,6 @@ export function StepMaterial({ register, errors, watch }: StepMaterialProps) {
             <option value="matte">Mate</option>
             <option value="gloss">Brillant</option>
           </select>
-        </div>
-      </div>
-
-      <div className="rounded-xl border border-slate-300 p-4">
-        <label className="text-sm font-medium text-slate-700">
-          <input type="checkbox" className="mr-2" {...register("hasBlackMark")} />
-          Porta marca negra?
-        </label>
-
-        <div className="mt-3">
-          <label className="field-label">Posició marca negra</label>
-          <select
-            className="field-input"
-            disabled={!hasBlackMark}
-            {...register("blackMarkPosition")}
-          >
-            <option value="none">Sense marca</option>
-            <option value="front">Part frontal</option>
-            <option value="back">Part posterior</option>
-          </select>
-          {errors.blackMarkPosition && (
-            <p className="field-error">
-              {errors.blackMarkPosition.message as string}
-            </p>
-          )}
         </div>
       </div>
 

@@ -51,7 +51,8 @@ npm run dev
 
 ## Lògica condicional inclosa
 
-- Impressora `desktop` limita amplada màxima recomanada.
+- El primer pas és el tipus d'impressora (amb 6 modalitats il·lustrades).
+- Impressora portàtil limita amplada màxima recomanada.
 - Si hi ha marca negra, la posició és obligatòria.
 - Si no hi ha marca negra, la posició es força a `none`.
 - En tèrmica directa, `ribbonType` es força a `none`.
