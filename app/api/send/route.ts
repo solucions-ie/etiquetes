@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { wizardSchema } from "@/lib/schemas/wizard";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
 // Si prefereixes SendGrid, aquí es pot substituir aquesta instància per
 // "@sendgrid/mail" mantenint la mateixa estructura de payload.
 
@@ -46,6 +45,7 @@ export async function POST(request: Request) {
       );
     }
 
+    const resend = new Resend(process.env.RESEND_API_KEY);
     const summaryHtml = renderSummaryHtml(data);
 
     await Promise.all([
