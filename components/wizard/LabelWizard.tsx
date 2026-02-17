@@ -291,7 +291,6 @@ export function LabelWizard() {
               cutType: values.cutType,
               labelWidthMm: values.labelWidthMm,
               labelHeightMm: values.labelHeightMm,
-              labelFlowType: values.labelFlowType,
               gapMm: values.gapMm,
               hasBlackMark: values.hasBlackMark,
               blackMarkPosition: values.blackMarkPosition,
