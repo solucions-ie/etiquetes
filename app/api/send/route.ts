@@ -85,7 +85,7 @@ export async function POST(request: Request) {
     const resend = new Resend(process.env.RESEND_API_KEY);
     const summaryHtml = renderSummaryHtml(data);
 
-    await Promise.all([
+    const [customerResult, internalResult] = await Promise.all([
       resend.emails.send({
         from: fromEmail,
         to: data.email,
@@ -107,6 +107,19 @@ export async function POST(request: Request) {
         `
       })
     ]);
+
+    const customerError = (customerResult as { error?: { message?: string } }).error;
+    const internalError = (internalResult as { error?: { message?: string } }).error;
+
+    if (customerError || internalError) {
+      const messages = [customerError?.message, internalError?.message]
+        .filter(Boolean)
+        .join(" | ");
+      return NextResponse.json(
+        { error: messages || "Resend ha rebutjat un o mes enviaments." },
+        { status: 400 }
+      );
+    }
 
     return NextResponse.json({ ok: true });
   } catch (error) {
