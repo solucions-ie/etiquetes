@@ -37,34 +37,129 @@ function adhesiveLabel(adhesive: ReturnType<typeof wizardSchema.parse>["adhesive
   return map[adhesive];
 }
 
-function renderSummaryHtml(data: ReturnType<typeof wizardSchema.parse>) {
+function printTechLabel(type: ReturnType<typeof wizardSchema.parse>["printTechnology"]) {
+  return type === "direct-thermal" ? "Tèrmica directa" : "Transferència tèrmica";
+}
+
+function ribbonLabel(type: ReturnType<typeof wizardSchema.parse>["ribbonType"]) {
+  const map: Record<ReturnType<typeof wizardSchema.parse>["ribbonType"], string> = {
+    none: "Sense ribbon",
+    cera: "Cera",
+    "cera-resina": "Cera/Resina",
+    resina: "Resina",
+    unknown: "No ho sé"
+  };
+  return map[type];
+}
+
+function flowTypeLabel(type: ReturnType<typeof wizardSchema.parse>["labelFlowType"]) {
+  const map: Record<ReturnType<typeof wizardSchema.parse>["labelFlowType"], string> = {
+    gap: "Gap",
+    "black-mark": "Marca negra",
+    continuous: "Continu"
+  };
+  return map[type];
+}
+
+function cutTypeLabel(data: ReturnType<typeof wizardSchema.parse>) {
+  return data.hasCut ? data.cutType : "Sense tall";
+}
+
+function escapeHtml(value: string) {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function summaryRows(data: ReturnType<typeof wizardSchema.parse>) {
   const adhesiveText =
-    data.materialType === "paper-thermal-direct-ticket" ||
-    data.materialType === "plastic-artyval"
+    data.materialType === "paper-thermal-direct-ticket" || data.materialType === "plastic-artyval"
       ? "No aplica (sense adhesiu)"
       : adhesiveLabel(data.adhesive);
 
+  const rows: Array<[string, string]> = [
+    ["Empresa", data.company],
+    ["Contacte", data.contactName],
+    ["Email", data.email],
+    ["Telèfon", data.phone || "No informat"],
+    ["Impressora", printerLabel(data.printerType)],
+    ["Material", materialLabel(data.materialType)],
+    ["Tecnologia", printTechLabel(data.printTechnology)],
+    ["Ribbon", ribbonLabel(data.ribbonType)],
+    ["Mida", `${data.labelWidthMm} x ${data.labelHeightMm} mm`],
+    ["Avanç", flowTypeLabel(data.labelFlowType)],
+    ["Tipus de tall", cutTypeLabel(data)],
+    ["Mandril", data.rollCoreMm === "external" ? "Bobinat extern" : `${data.rollCoreMm} mm`],
+    ["Diàmetre bobina", `${data.rollOuterDiameterMm} mm`],
+    ["Gap", `${data.gapMm} mm`],
+    ["Marca negra", data.hasBlackMark ? `Sí (${data.blackMarkPosition})` : "No"],
+    ["Adhesiu", adhesiveText],
+    ["Quantitat", String(data.quantity)]
+  ];
+
+  return rows
+    .map(
+      ([label, value]) => `
+        <tr>
+          <td style="padding:8px 10px;border-bottom:1px solid #e2e8f0;color:#334155;font-size:13px;font-weight:600;vertical-align:top;white-space:nowrap;">${escapeHtml(label)}</td>
+          <td style="padding:8px 10px;border-bottom:1px solid #e2e8f0;color:#0f172a;font-size:13px;">${escapeHtml(value)}</td>
+        </tr>
+      `
+    )
+    .join("");
+}
+
+function renderEmailHtml(params: {
+  title: string;
+  intro: string;
+  data: ReturnType<typeof wizardSchema.parse>;
+  showGreeting?: boolean;
+}) {
+  const { title, intro, data, showGreeting = false } = params;
+
+  const previewBadges = [
+    `${data.labelWidthMm} x ${data.labelHeightMm} mm`,
+    printTechLabel(data.printTechnology),
+    flowTypeLabel(data.labelFlowType)
+  ]
+    .map(
+      (item) =>
+        `<span style="display:inline-block;background:#eef2ff;border:1px solid #dbeafe;color:#1e3a8a;border-radius:999px;padding:6px 10px;font-size:12px;margin:0 6px 6px 0;">${escapeHtml(item)}</span>`
+    )
+    .join("");
+
   return `
-    <h2>Resum de sollicitud d'etiqueta</h2>
-    <ul>
-      <li><strong>Empresa:</strong> ${data.company}</li>
-      <li><strong>Contacte:</strong> ${data.contactName}</li>
-      <li><strong>Email:</strong> ${data.email}</li>
-      <li><strong>Telefon:</strong> ${data.phone || "No informat"}</li>
-      <li><strong>Impressora:</strong> ${printerLabel(data.printerType)}</li>
-      <li><strong>Material:</strong> ${materialLabel(data.materialType)}</li>
-      <li><strong>Tecnologia:</strong> ${data.printTechnology}</li>
-      <li><strong>Ribbon:</strong> ${data.ribbonType}</li>
-      <li><strong>Mida:</strong> ${data.labelWidthMm} x ${data.labelHeightMm} mm</li>
-      <li><strong>Tipus d'etiqueta:</strong> ${data.labelFlowType}</li>
-      <li><strong>Tipus de tall:</strong> ${data.hasCut ? data.cutType : "Sense tall"}</li>
-      <li><strong>Mandril:</strong> ${data.rollCoreMm === "external" ? "Bobinat extern" : `${data.rollCoreMm} mm`}</li>
-      <li><strong>Diametre bobina:</strong> ${data.rollOuterDiameterMm} mm</li>
-      <li><strong>Gap:</strong> ${data.gapMm} mm</li>
-      <li><strong>Marca negra:</strong> ${data.hasBlackMark ? `Si (${data.blackMarkPosition})` : "No"}</li>
-      <li><strong>Adhesiu:</strong> ${adhesiveText}</li>
-      <li><strong>Quantitat:</strong> ${data.quantity}</li>
-    </ul>
+    <div style="margin:0;padding:24px;background:#f1f5f9;font-family:Arial,Helvetica,sans-serif;color:#0f172a;">
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:760px;margin:0 auto;background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;">
+        <tr>
+          <td style="background:#1c323b;padding:18px 20px;">
+            <img src="https://etiquetes.s-ie.cat/logo-sie.png" alt="S-IE" style="height:34px;width:auto;display:block;" />
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:20px;">
+            ${showGreeting ? `<p style="margin:0 0 8px 0;font-size:14px;color:#334155;">Hola ${escapeHtml(data.contactName)},</p>` : ""}
+            <h1 style="margin:0 0 8px 0;font-size:20px;line-height:1.3;color:#0f172a;">${escapeHtml(title)}</h1>
+            <p style="margin:0 0 16px 0;font-size:14px;line-height:1.5;color:#475569;">${escapeHtml(intro)}</p>
+
+            <div style="margin:0 0 14px 0;">${previewBadges}</div>
+
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;background:#fff;">
+              <tbody>
+                ${summaryRows(data)}
+              </tbody>
+            </table>
+
+            <p style="margin:16px 0 0 0;font-size:13px;color:#64748b;line-height:1.5;">
+              Missatge enviat des del formulari d'etiquetes de S-IE.
+            </p>
+          </td>
+        </tr>
+      </table>
+    </div>
   `;
 }
 
@@ -72,8 +167,10 @@ export async function POST(request: Request) {
   try {
     const json = await request.json();
     const data = wizardSchema.parse(json);
+
     const secretaryEmail = process.env.SECRETARY_EMAIL;
     const fromEmail = process.env.FROM_EMAIL;
+    const replyToEmail = process.env.REPLY_TO_EMAIL || "info@s-ie.cat";
 
     if (!secretaryEmail || !fromEmail || !process.env.RESEND_API_KEY) {
       return NextResponse.json(
@@ -83,28 +180,30 @@ export async function POST(request: Request) {
     }
 
     const resend = new Resend(process.env.RESEND_API_KEY);
-    const summaryHtml = renderSummaryHtml(data);
 
     const [customerResult, internalResult] = await Promise.all([
       resend.emails.send({
         from: fromEmail,
         to: data.email,
-        subject: "Confirmacio: sollicitud d'etiqueta rebuda",
-        html: `
-          <p>Hola ${data.contactName},</p>
-          <p>Hem rebut la teva sollicitud d'etiqueta. Aquest es el resum:</p>
-          ${summaryHtml}
-          <p>L'equip de S-IE es posara en contacte amb tu.</p>
-        `
+        replyTo: replyToEmail,
+        subject: "Confirmació: sol·licitud d'etiqueta rebuda",
+        html: renderEmailHtml({
+          title: "Hem rebut la teva sol·licitud",
+          intro: "Aquest és el resum de la configuració enviada. L'equip de S-IE revisarà la informació i et contactarà.",
+          data,
+          showGreeting: true
+        })
       }),
       resend.emails.send({
         from: fromEmail,
         to: secretaryEmail,
-        subject: `Nova sollicitud d'etiqueta - ${data.company}`,
-        html: `
-          <p>Nova peticio rebuda des del formulari d'etiquetes.</p>
-          ${summaryHtml}
-        `
+        replyTo: replyToEmail,
+        subject: `Nova sol·licitud d'etiqueta - ${data.company}`,
+        html: renderEmailHtml({
+          title: "Nova sol·licitud rebuda",
+          intro: "S'ha registrat una nova petició des del formulari d'etiquetes.",
+          data
+        })
       })
     ]);
 
@@ -116,7 +215,7 @@ export async function POST(request: Request) {
         .filter(Boolean)
         .join(" | ");
       return NextResponse.json(
-        { error: messages || "Resend ha rebutjat un o mes enviaments." },
+        { error: messages || "Resend ha rebutjat un o més enviaments." },
         { status: 400 }
       );
     }
@@ -130,4 +229,3 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Error inesperat." }, { status: 500 });
   }
 }
-
