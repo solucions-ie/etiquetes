@@ -1,19 +1,48 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { wizardSchema } from "@/lib/schemas/wizard";
 
-// Si prefereixes SendGrid, aquí es pot substituir aquesta instància per
-// "@sendgrid/mail" mantenint la mateixa estructura de payload.
+function printerLabel(printerType: "desktop" | "industrial") {
+  return printerType === "desktop" ? "Sobretaula" : "Industrial";
+}
+
+function materialLabel(materialType: ReturnType<typeof wizardSchema.parse>["materialType"]) {
+  const map: Record<ReturnType<typeof wizardSchema.parse>["materialType"], string> = {
+    "paper-couche": "Paper couche (brillant o mat)",
+    "paper-thermal-direct": "Paper termic directe",
+    "paper-thermal-eco": "Paper termic eco",
+    "paper-thermal-protected": "Paper termic protegit",
+    "paper-no-thermal-treatment": "Paper sense tractament termic",
+    "paper-inkjet": "Paper inkjet",
+    "plastic-pp": "PP (polipropile)",
+    "plastic-pe": "PE (polietile)",
+    "plastic-pet": "PET (poliester)",
+    "plastic-pvc": "PVC (vinil)",
+    "plastic-artyval": "Paper sintetic Artyval",
+    "textile-polyamide": "Poliamida (nylon)"
+  };
+  return map[materialType];
+}
+
+function adhesiveLabel(adhesive: ReturnType<typeof wizardSchema.parse>["adhesive"]) {
+  const map: Record<ReturnType<typeof wizardSchema.parse>["adhesive"], string> = {
+    acrylic: "Acrilic (base aigua)",
+    hotmelt: "Hotmelt (base cautxu)",
+    solvent: "Solvent (formules especials)"
+  };
+  return map[adhesive];
+}
 
 function renderSummaryHtml(data: ReturnType<typeof wizardSchema.parse>) {
   return `
-    <h2>Resum de sol.licitud d'etiqueta</h2>
+    <h2>Resum de sollicitud d'etiqueta</h2>
     <ul>
       <li><strong>Empresa:</strong> ${data.company}</li>
       <li><strong>Contacte:</strong> ${data.contactName}</li>
       <li><strong>Email:</strong> ${data.email}</li>
-      <li><strong>Telèfon:</strong> ${data.phone || "No informat"}</li>
-      <li><strong>Impressora:</strong> ${data.printerType}</li>
+      <li><strong>Telefon:</strong> ${data.phone || "No informat"}</li>
+      <li><strong>Impressora:</strong> ${printerLabel(data.printerType)}</li>
+      <li><strong>Material:</strong> ${materialLabel(data.materialType)}</li>
       <li><strong>Tecnologia:</strong> ${data.printTechnology}</li>
       <li><strong>Ribbon:</strong> ${data.ribbonType}</li>
       <li><strong>Mida:</strong> ${data.labelWidthMm} x ${data.labelHeightMm} mm</li>
@@ -22,11 +51,9 @@ function renderSummaryHtml(data: ReturnType<typeof wizardSchema.parse>) {
       <li><strong>Mandril:</strong> ${data.rollCoreMm === "external" ? "Bobinat extern" : `${data.rollCoreMm} mm`}</li>
       <li><strong>Diametre bobina:</strong> ${data.rollOuterDiameterMm} mm</li>
       <li><strong>Gap:</strong> ${data.gapMm} mm</li>
-      <li><strong>Marca negra:</strong> ${data.hasBlackMark ? `Sí (${data.blackMarkPosition})` : "No"}</li>
-      <li><strong>Adhesiu:</strong> ${data.adhesive}</li>
-      <li><strong>Acabat:</strong> ${data.finish}</li>
+      <li><strong>Marca negra:</strong> ${data.hasBlackMark ? `Si (${data.blackMarkPosition})` : "No"}</li>
+      <li><strong>Adhesiu:</strong> ${adhesiveLabel(data.adhesive)}</li>
       <li><strong>Quantitat:</strong> ${data.quantity}</li>
-      <li><strong>Ús:</strong> ${data.labelUse}</li>
     </ul>
   `;
 }
@@ -52,20 +79,20 @@ export async function POST(request: Request) {
       resend.emails.send({
         from: fromEmail,
         to: data.email,
-        subject: "Confirmació: sol.licitud d'etiqueta rebuda",
+        subject: "Confirmacio: sollicitud d'etiqueta rebuda",
         html: `
           <p>Hola ${data.contactName},</p>
-          <p>Hem rebut la teva sol.licitud d'etiqueta. Aquest és el resum:</p>
+          <p>Hem rebut la teva sollicitud d'etiqueta. Aquest es el resum:</p>
           ${summaryHtml}
-          <p>L'equip de S-IE es posarà en contacte amb tu.</p>
+          <p>L'equip de S-IE es posara en contacte amb tu.</p>
         `
       }),
       resend.emails.send({
         from: fromEmail,
         to: secretaryEmail,
-        subject: `Nova sol.licitud d'etiqueta - ${data.company}`,
+        subject: `Nova sollicitud d'etiqueta - ${data.company}`,
         html: `
-          <p>Nova petició rebuda des del wizard d'etiquetes.</p>
+          <p>Nova peticio rebuda des del formulari d'etiquetes.</p>
           ${summaryHtml}
         `
       })
@@ -80,3 +107,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Error inesperat." }, { status: 500 });
   }
 }
+

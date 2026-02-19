@@ -6,17 +6,23 @@ export const wizardSchema = z
     contactName: z.string().min(2, "Indica el nom de contacte."),
     email: z.string().email("Correu invàlid."),
     phone: z.string().min(6, "Telèfon massa curt.").optional().or(z.literal("")),
-    printerType: z.enum([
-      "portable-small",
-      "portable",
-      "desktop",
-      "industrial-mid",
-      "industrial-24-7",
-      "print-engine"
-    ]),
+    printerType: z.enum(["desktop", "industrial"]),
     printTechnology: z.enum(["direct-thermal", "thermal-transfer"]),
     ribbonType: z.enum(["none", "cera", "cera-resina", "resina", "unknown"]),
-    labelUse: z.enum(["product", "shipping", "warehouse", "other"]),
+    materialType: z.enum([
+      "paper-couche",
+      "paper-thermal-direct",
+      "paper-thermal-eco",
+      "paper-thermal-protected",
+      "paper-no-thermal-treatment",
+      "paper-inkjet",
+      "plastic-pp",
+      "plastic-pe",
+      "plastic-pet",
+      "plastic-pvc",
+      "plastic-artyval",
+      "textile-polyamide"
+    ]),
     labelFlowType: z.enum(["gap", "black-mark", "continuous"]),
     hasCut: z.boolean(),
     cutType: z.enum([
@@ -36,37 +42,24 @@ export const wizardSchema = z
     gapMm: z.coerce.number().min(0),
     hasBlackMark: z.boolean(),
     blackMarkPosition: z.enum(["none", "front", "back"]),
-    adhesive: z.enum(["permanent", "removable", "freezer"]),
-    finish: z.enum(["matte", "gloss"]),
+    adhesive: z.enum(["acrylic", "hotmelt", "solvent"]),
     quantity: z.coerce.number().min(100, "Quantitat mínima: 100.")
   })
   .superRefine((data, ctx) => {
     const maxWidthByPrinter: Record<typeof data.printerType, number> = {
-      "portable-small": 80,
-      portable: 112,
       desktop: 114,
-      "industrial-mid": 114,
-      "industrial-24-7": 180,
-      "print-engine": 180
+      industrial: 180
     };
     const coreByPrinter: Record<typeof data.printerType, string[]> = {
-      "portable-small": ["12.5", "19", "25.4"],
-      portable: ["12.5", "19", "25.4"],
       desktop: ["25.4", "40"],
-      "industrial-mid": ["25.4", "40", "76"],
-      "industrial-24-7": ["76"],
-      "print-engine": ["external"]
+      industrial: ["40", "76"]
     };
     const outerRollRangeByPrinter: Record<
       typeof data.printerType,
       { min: number; max: number }
     > = {
-      "portable-small": { min: 25, max: 66 },
-      portable: { min: 25, max: 66 },
       desktop: { min: 40, max: 120 },
-      "industrial-mid": { min: 76, max: 230 },
-      "industrial-24-7": { min: 76, max: 230 },
-      "print-engine": { min: 76, max: 230 }
+      industrial: { min: 76, max: 230 }
     };
 
     if (data.labelWidthMm > maxWidthByPrinter[data.printerType]) {
@@ -74,17 +67,6 @@ export const wizardSchema = z
         code: z.ZodIssueCode.custom,
         path: ["labelWidthMm"],
         message: `Aquesta impressora admet fins a ${maxWidthByPrinter[data.printerType]} mm d'amplada.`
-      });
-    }
-
-    if (
-      (data.printerType === "portable-small" || data.printerType === "portable") &&
-      data.printTechnology !== "direct-thermal"
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["printTechnology"],
-        message: "En impressora portatil, la tecnologia ha de ser termica directa."
       });
     }
 
@@ -165,10 +147,10 @@ export const defaultWizardValues: WizardValues = {
   contactName: "",
   email: "",
   phone: "",
-  printerType: "portable",
+  printerType: "desktop",
   printTechnology: "direct-thermal",
   ribbonType: "none",
-  labelUse: "product",
+  materialType: "paper-couche",
   labelFlowType: "gap",
   hasCut: false,
   cutType: "none",
@@ -179,7 +161,6 @@ export const defaultWizardValues: WizardValues = {
   gapMm: 2,
   hasBlackMark: false,
   blackMarkPosition: "none",
-  adhesive: "permanent",
-  finish: "matte",
+  adhesive: "acrylic",
   quantity: 1000
 };

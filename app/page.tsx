@@ -16,11 +16,11 @@ export default function HomePage() {
             etiquetes.s-ie.cat
           </p>
           <h1 className="mt-2 text-2xl font-bold text-ink md:text-3xl">
-            Assistent d&apos;identificació d&apos;etiquetes
+            Formulari d&apos;identificacio d&apos;etiquetes
           </h1>
           <p className="mt-3 max-w-2xl text-sm text-slate-600">
-            Respon el formulari per passos i t&apos;ajudarem a definir el format
-            exacte de l&apos;etiqueta que necessites.
+            Completa el formulari i t&apos;ajudarem a definir el format exacte de
+            l&apos;etiqueta que necessites.
           </p>
           <div className="mt-8">
             <LabelWizard />
