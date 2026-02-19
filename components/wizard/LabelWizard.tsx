@@ -104,7 +104,14 @@ export function LabelWizard() {
       });
 
       if (!response.ok) {
-        throw new Error("No s'han pogut enviar els correus.");
+        let apiError = "No s'han pogut enviar els correus.";
+        try {
+          const payload = (await response.json()) as { error?: string };
+          if (payload?.error) apiError = payload.error;
+        } catch {
+          // Ignore parse errors and keep generic message.
+        }
+        throw new Error(apiError);
       }
       setSent(true);
     } catch (error) {
