@@ -8,12 +8,13 @@ function printerLabel(printerType: "desktop" | "industrial") {
 
 function materialLabel(materialType: ReturnType<typeof wizardSchema.parse>["materialType"]) {
   const map: Record<ReturnType<typeof wizardSchema.parse>["materialType"], string> = {
-    "paper-couche": "Paper couche (brillant o mat)",
-    "paper-thermal-direct": "Paper termic directe",
-    "paper-thermal-eco": "Paper termic eco",
-    "paper-thermal-protected": "Paper termic protegit",
-    "paper-no-thermal-treatment": "Paper sense tractament termic",
-    "paper-inkjet": "Paper inkjet",
+    "paper-thermal-eco": "Etiqueta tèrmica eco",
+    "paper-thermal-protected": "Etiqueta tèrmica protegida",
+    "paper-thermal-direct-ticket": "Etiqueta tèrmica directa tiquet (sense adhesiu)",
+    "paper-couche": "Etiqueta couche",
+    "paper-matte": "Etiqueta mate",
+    "paper-inkjet-gloss": "Etiqueta inkjet brillant",
+    "paper-inkjet-matte": "Etiqueta inkjet mate",
     "plastic-pp": "PP (polipropile)",
     "plastic-pe": "PE (polietile)",
     "plastic-pet": "PET (poliester)",
@@ -34,6 +35,11 @@ function adhesiveLabel(adhesive: ReturnType<typeof wizardSchema.parse>["adhesive
 }
 
 function renderSummaryHtml(data: ReturnType<typeof wizardSchema.parse>) {
+  const adhesiveText =
+    data.materialType === "paper-thermal-direct-ticket"
+      ? "No aplica (sense adhesiu)"
+      : adhesiveLabel(data.adhesive);
+
   return `
     <h2>Resum de sollicitud d'etiqueta</h2>
     <ul>
@@ -52,7 +58,7 @@ function renderSummaryHtml(data: ReturnType<typeof wizardSchema.parse>) {
       <li><strong>Diametre bobina:</strong> ${data.rollOuterDiameterMm} mm</li>
       <li><strong>Gap:</strong> ${data.gapMm} mm</li>
       <li><strong>Marca negra:</strong> ${data.hasBlackMark ? `Si (${data.blackMarkPosition})` : "No"}</li>
-      <li><strong>Adhesiu:</strong> ${adhesiveLabel(data.adhesive)}</li>
+      <li><strong>Adhesiu:</strong> ${adhesiveText}</li>
       <li><strong>Quantitat:</strong> ${data.quantity}</li>
     </ul>
   `;

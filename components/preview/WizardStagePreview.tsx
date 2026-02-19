@@ -278,7 +278,7 @@ export function WizardStagePreview({ values, register, errors }: WizardStagePrev
                 className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs"
                 {...register("printTechnology")}
               >
-                <option value="direct-thermal">Termica directa</option>
+                <option value="direct-thermal">Tèrmica directa</option>
                 <option value="thermal-transfer">Transferencia</option>
               </select>
             </div>
