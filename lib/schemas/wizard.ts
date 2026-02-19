@@ -46,7 +46,7 @@ export const wizardSchema = z
     gapMm: z.coerce.number().min(0),
     hasBlackMark: z.boolean(),
     blackMarkPosition: z.enum(["none", "front", "back"]),
-    adhesive: z.enum(["acrylic", "hotmelt", "solvent"]),
+    adhesive: z.enum(["acrylic", "hotmelt", "removable"]),
     quantity: z.coerce.number().min(100, "Quantitat mínima: 100.")
   })
   .superRefine((data, ctx) => {

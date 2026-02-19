@@ -154,10 +154,10 @@ const ADHESIVES: AdhesiveInfo[] = [
     uses: "Alimentacio, logistica de fresc, superfices complexes."
   },
   {
-    id: "solvent",
-    name: "Solvent (formules especials)",
-    description: "Adhesiu d'altes prestacions per necessitats molt concretes, amb cost mes alt.",
-    uses: "Casos tecnics especials on cal maxima resistencia."
+    id: "removable",
+    name: "Removible",
+    description: "Permet retirar l'etiqueta amb facilitat i minimitza residus d'adhesiu.",
+    uses: "Promocions, preus temporals i etiquetatge de curta durada."
   }
 ];
 

@@ -32,7 +32,7 @@ function adhesiveLabel(adhesive: ReturnType<typeof wizardSchema.parse>["adhesive
   const map: Record<ReturnType<typeof wizardSchema.parse>["adhesive"], string> = {
     acrylic: "Acrilic (base aigua)",
     hotmelt: "Hotmelt (base cautxu)",
-    solvent: "Solvent (formules especials)"
+    removable: "Removible"
   };
   return map[adhesive];
 }
