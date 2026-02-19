@@ -12,7 +12,7 @@ type StepMaterialProps = {
 
 type MaterialInfo = {
   id: WizardValues["materialType"];
-  family: "Etiqueta de paper" | "Sintètic" | "Textil";
+  family: "Etiqueta de paper" | "Sintètic" | "Tèxtil";
   name: string;
   description: string;
   uses: string;
@@ -30,128 +30,128 @@ const MATERIALS: MaterialInfo[] = [
     id: "paper-thermal-eco",
     family: "Etiqueta de paper",
     name: "Etiqueta tèrmica eco",
-    description: "Opcio economica per usos temporals; mes sensible a calor, humitat i fregament.",
+    description: "Opció econòmica per a usos temporals; més sensible a la calor, la humitat i el fregament.",
     uses: "Promocions curtes, etiquetatge temporal, flux intern."
   },
   {
     id: "paper-thermal-protected",
     family: "Etiqueta de paper",
     name: "Etiqueta tèrmica protegida",
-    description: "Amb capa de proteccio superficial per millorar durada en entorns freds o humits.",
-    uses: "Alimentacio, refrigerat, preparacio de comandes."
+    description: "Amb capa de protecció superficial per millorar la durada en entorns freds o humits.",
+    uses: "Alimentació, refrigerat, preparació de comandes."
   },
   {
     id: "paper-thermal-direct-ticket",
     family: "Etiqueta de paper",
     name: "Paper tèrmic - Tiquet (sense adhesiu)",
-    description: "Impressio sense ribbon i sense adhesiu, orientada a tiqueteria; baixa resistencia a calor i llum solar.",
+    description: "Impressió sense ribbon i sense adhesiu, orientada a la tiqueteria; baixa resistència a la calor i la llum solar.",
     uses: "Tickets, torns, comprovants i tiquet de caixa."
   },
   {
     id: "paper-couche",
     family: "Etiqueta de paper",
     name: "Etiqueta couche",
-    description: "Bona qualitat d'impressio i acabat net; ideal per aplicacions d'interior o de curta durada.",
-    uses: "Producte general, retail, identificacio interna."
+    description: "Bona qualitat d'impressió i acabat net; ideal per a aplicacions d'interior o de curta durada.",
+    uses: "Producte general, retail, identificació interna."
   },
   {
     id: "paper-matte",
     family: "Etiqueta de paper",
     name: "Etiqueta mate",
-    description: "Acabat mat amb bona llegibilitat i reflex reduit; bona opcio per text i codis.",
+    description: "Acabat mat amb bona llegibilitat i reflex reduït; bona opció per a text i codis.",
     uses: "Producte, magatzem i etiquetatge intern."
   },
   {
     id: "paper-inkjet-gloss",
     family: "Etiqueta de paper",
     name: "Etiqueta inkjet brillant",
-    description: "Recobriment per impressio color viva i detall alt amb acabat brillant; menor resistencia a aigua i fregament.",
+    description: "Recobriment per a impressió a color viva i detall alt amb acabat brillant; menor resistència a l'aigua i al fregament.",
     uses: "Promocions, packaging visual i etiquetes a color."
   },
   {
     id: "paper-inkjet-matte",
     family: "Etiqueta de paper",
     name: "Etiqueta inkjet mate",
-    description: "Recobriment per impressio color amb acabat mat i bona llegibilitat; menor resistencia a aigua i fregament.",
+    description: "Recobriment per a impressió a color amb acabat mat i bona llegibilitat; menor resistència a l'aigua i al fregament.",
     uses: "Promocions, packaging visual i etiquetes a color sense reflex."
   },
   {
     id: "plastic-pp-gloss",
     family: "Sintètic",
     name: "PP brillant (polipropilè)",
-    description: "Bona resistencia a aigua, greixos i alguns quimics amb bon equilibri entre cost i prestacions.",
-    uses: "Cosmetica, neteja, higiene i consumibles."
+    description: "Bona resistència a l'aigua, greixos i alguns químics amb bon equilibri entre cost i prestacions.",
+    uses: "Cosmètica, neteja, higiene i consumibles."
   },
   {
     id: "plastic-pp-matte",
     family: "Sintètic",
     name: "PP mate (polipropilè)",
-    description: "Bona resistencia a aigua, greixos i alguns quimics amb acabat sense reflex.",
-    uses: "Cosmetica, neteja, higiene i consumibles."
+    description: "Bona resistència a l'aigua, greixos i alguns químics amb acabat sense reflex.",
+    uses: "Cosmètica, neteja, higiene i consumibles."
   },
   {
     id: "plastic-pe-gloss",
     family: "Sintètic",
     name: "PE brillant (polietilè)",
-    description: "Material flexible que s'adapta be a envasos corbats o deformables.",
-    uses: "Ampolles flexibles, productes de cura personal i detergencia."
+    description: "Material flexible que s'adapta bé a envasos corbats o deformables.",
+    uses: "Ampolles flexibles, productes de cura personal i detergència."
   },
   {
     id: "plastic-pe-matte",
     family: "Sintètic",
     name: "PE mate (polietilè)",
     description: "Material flexible amb acabat mat, apte per envasos corbats o deformables.",
-    uses: "Ampolles flexibles, productes de cura personal i detergencia."
+    uses: "Ampolles flexibles, productes de cura personal i detergència."
   },
   {
     id: "plastic-pet-gloss",
     family: "Sintètic",
-    name: "PET brillant (poliester)",
-    description: "Molt durable i resistent a temperatura i desgast; orientat a entorns exigents.",
+    name: "PET brillant (polièster)",
+    description: "Molt durable i resistent a la temperatura i al desgast; orientat a entorns exigents.",
     uses: "Industrial, laboratoris, traçabilitat de llarga durada."
   },
   {
     id: "plastic-pet-matte",
     family: "Sintètic",
-    name: "PET mate (poliester)",
-    description: "Molt durable i resistent a temperatura i desgast amb acabat mat.",
+    name: "PET mate (polièster)",
+    description: "Molt durable i resistent a la temperatura i al desgast amb acabat mat.",
     uses: "Industrial, laboratoris, traçabilitat de llarga durada."
   },
   {
     id: "plastic-pvc",
     family: "Sintètic",
     name: "PVC (vinil)",
-    description: "Alta resistencia a intemperie i humitat, adequat per aplicacions exteriors.",
-    uses: "Senyalitzacio, exterior, etiquetes exposades."
+    description: "Alta resistència a la intempèrie i la humitat, adequat per a aplicacions exteriors.",
+    uses: "Senyalització, exterior, etiquetes exposades."
   },
   {
     id: "plastic-artyval",
     family: "Sintètic",
     name: "Sintètic Artyval (sense adhesiu)",
-    description: "Aspecte paper amb resistencia de plastic; molt versatil en entorns humits o industrials.",
-    uses: "Magatzem, produccio, etiquetatge tecnic amb bona durabilitat."
+    description: "Aspecte paper amb resistència de plàstic; molt versàtil en entorns humits o industrials.",
+    uses: "Magatzem, producció, etiquetatge tècnic amb bona durabilitat."
   },
   {
     id: "textile-polyamide",
-    family: "Textil",
+    family: "Tèxtil",
     name: "Poliamida (nylon)",
-    description: "Etiqueta textil resistent i suau, amb bon comportament en rentat i planxa.",
-    uses: "Moda, confeccio, composicio i cura de peces rentables."
+    description: "Etiqueta tèxtil resistent i suau, amb bon comportament en rentat i planxa.",
+    uses: "Moda, confecció, composició i cura de peces rentables."
   }
 ];
 
 const ADHESIVES: AdhesiveInfo[] = [
   {
     id: "acrylic",
-    name: "Acrilic (base aigua)",
-    description: "Bona durabilitat en sec i aplicacions estables; no es l'opcio ideal en humitat alta o fred extrem.",
+    name: "Acrílic (base aigua)",
+    description: "Bona durabilitat en sec i aplicacions estables; no és l'opció ideal en humitat alta o fred extrem.",
     uses: "Producte general, retail i etiquetatge interior."
   },
   {
     id: "hotmelt",
-    name: "Hotmelt (base cautxu)",
-    description: "Excel.lent adherencia inicial i bon rendiment en fred i humitat.",
-    uses: "Alimentacio, logistica de fresc, superfices complexes."
+    name: "Hotmelt (base cautxú)",
+    description: "Excel·lent adherència inicial i bon rendiment en fred i humitat.",
+    uses: "Alimentació, logística de fresc, superfícies complexes."
   },
   {
     id: "removable",
@@ -164,7 +164,7 @@ const ADHESIVES: AdhesiveInfo[] = [
 const FAMILIES: Array<MaterialInfo["family"]> = [
   "Etiqueta de paper",
   "Sintètic",
-  "Textil"
+  "Tèxtil"
 ];
 
 export function StepMaterial({ register, errors, watch }: StepMaterialProps) {
@@ -247,7 +247,7 @@ export function StepMaterial({ register, errors, watch }: StepMaterialProps) {
         </>
       ) : (
         <div className="rounded-xl border border-sky-200 bg-sky-50 p-3 text-sm text-sky-800">
-          Aquesta opcio no porta adhesiu.
+          Aquesta opció no porta adhesiu.
         </div>
       )}
 
@@ -263,6 +263,9 @@ export function StepMaterial({ register, errors, watch }: StepMaterialProps) {
         {errors.quantity && (
           <p className="field-error">{errors.quantity.message as string}</p>
         )}
+        <p className="mt-2 text-xs text-slate-600">
+          Per circumstàncies de producció, el nombre final d'etiquetes pot variar +/- 10%.
+        </p>
       </div>
 
       {showMaterialGuide && (

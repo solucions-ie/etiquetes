@@ -127,10 +127,10 @@ export function LabelWizard() {
     return (
       <div className="rounded-2xl border border-[#d1dde0] bg-[#edf2f3] p-5">
         <h2 className="text-lg font-semibold text-[#1C323B]">
-          Sol.licitud enviada correctament
+          Sol·licitud enviada correctament
         </h2>
         <p className="mt-2 text-sm text-[#1C323B]">
-          Hem enviat un correu de confirmacio al client i una notificacio interna a secretaria.
+          Hem enviat un correu de confirmació al client i una notificació interna a secretaria.
         </p>
       </div>
     );
@@ -172,17 +172,17 @@ export function LabelWizard() {
             disabled={isSending}
             className="rounded-xl bg-[#1C323B] px-4 py-2 text-sm font-medium text-white hover:bg-[#15262d] disabled:opacity-70"
           >
-            {isSending ? "Enviant..." : "Enviar sol.licitud"}
+            {isSending ? "Enviant..." : "Enviar sol·licitud"}
           </button>
         </div>
       </div>
 
       <aside className="rounded-2xl border border-slate-200 bg-white p-4 lg:sticky lg:top-6 lg:h-fit">
         <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-600">
-          Vista previa de l'etiqueta
+          Vista prèvia de l'etiqueta
         </h3>
         <p className="mt-1 text-xs text-slate-500">
-          Es recalcula automaticament segons les opcions seleccionades.
+          Es recalcula automàticament segons les opcions seleccionades.
         </p>
         <div className="mt-4">
           <WizardStagePreview

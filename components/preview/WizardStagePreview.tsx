@@ -116,7 +116,7 @@ function SupportLabelPreview({ values }: { values: PreviewValues }) {
         className="mx-auto block h-auto w-full"
         viewBox="30 40 500 430"
         role="img"
-        aria-label="Vista previa de paper suport amb etiquetes verticals"
+        aria-label="Vista prèvia de paper suport amb etiquetes verticals"
       >
         <defs>
           <linearGradient id="labelFace" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -232,6 +232,28 @@ function SupportLabelPreview({ values }: { values: PreviewValues }) {
                   rx="3"
                   fill="#111827"
                 />
+                {values.hasCut && (
+                  <>
+                    <line
+                      x1={labelX}
+                      y1={label1Y + labelH + Math.max(4, gapPx * 0.4) + 4}
+                      x2={labelX + labelW}
+                      y2={label1Y + labelH + Math.max(4, gapPx * 0.4) + 4}
+                      stroke="#ffffff"
+                      strokeWidth="1.4"
+                      strokeDasharray="4 4"
+                    />
+                    <line
+                      x1={labelX}
+                      y1={label2Y + labelH + Math.max(4, gapPx * 0.4) + 4}
+                      x2={labelX + labelW}
+                      y2={label2Y + labelH + Math.max(4, gapPx * 0.4) + 4}
+                      stroke="#ffffff"
+                      strokeWidth="1.4"
+                      strokeDasharray="4 4"
+                    />
+                  </>
+                )}
               </>
             )}
           </g>

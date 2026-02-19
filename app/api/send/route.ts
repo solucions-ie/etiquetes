@@ -19,8 +19,8 @@ function materialLabel(materialType: ReturnType<typeof wizardSchema.parse>["mate
     "plastic-pp-matte": "PP mate (polipropilè)",
     "plastic-pe-gloss": "PE brillant (polietilè)",
     "plastic-pe-matte": "PE mate (polietilè)",
-    "plastic-pet-gloss": "PET brillant (poliester)",
-    "plastic-pet-matte": "PET mate (poliester)",
+    "plastic-pet-gloss": "PET brillant (polièster)",
+    "plastic-pet-matte": "PET mate (polièster)",
     "plastic-pvc": "PVC (vinil)",
     "plastic-artyval": "Sintètic Artyval (sense adhesiu)",
     "textile-polyamide": "Poliamida (nylon)"
@@ -30,8 +30,8 @@ function materialLabel(materialType: ReturnType<typeof wizardSchema.parse>["mate
 
 function adhesiveLabel(adhesive: ReturnType<typeof wizardSchema.parse>["adhesive"]) {
   const map: Record<ReturnType<typeof wizardSchema.parse>["adhesive"], string> = {
-    acrylic: "Acrilic (base aigua)",
-    hotmelt: "Hotmelt (base cautxu)",
+    acrylic: "Acrílic (base aigua)",
+    hotmelt: "Hotmelt (base cautxú)",
     removable: "Removible"
   };
   return map[adhesive];

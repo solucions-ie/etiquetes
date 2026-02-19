@@ -111,7 +111,7 @@ export const wizardSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["rollCoreMm"],
-        message: "Aquest canuto no és compatible amb el tipus d'impressora seleccionat."
+        message: "Aquest mandrí no és compatible amb el tipus d'impressora seleccionat."
       });
     }
 
@@ -131,7 +131,7 @@ export const wizardSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["gapMm"],
-        message: "Si tries GAP, la separacio ha de ser superior a 0."
+        message: "Si tries GAP, la separació ha de ser superior a 0."
       });
     }
 
@@ -139,7 +139,7 @@ export const wizardSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["cutType"],
-        message: "Marca un tipus de tall o desactiva l'opcio de tall."
+        message: "Marca un tipus de tall o desactiva l'opció de tall."
       });
     }
   });

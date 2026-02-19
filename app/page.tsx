@@ -16,7 +16,7 @@ export default function HomePage() {
             etiquetes.s-ie.cat
           </p>
           <h1 className="mt-2 text-2xl font-bold text-ink md:text-3xl">
-            Formulari d&apos;identificacio d&apos;etiquetes
+            Formulari d&apos;identificació d&apos;etiquetes
           </h1>
           <p className="mt-3 max-w-2xl text-sm text-slate-600">
             Completa el formulari i t&apos;ajudarem a definir el format exacte de
