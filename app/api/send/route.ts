@@ -10,16 +10,19 @@ function materialLabel(materialType: ReturnType<typeof wizardSchema.parse>["mate
   const map: Record<ReturnType<typeof wizardSchema.parse>["materialType"], string> = {
     "paper-thermal-eco": "Etiqueta tèrmica eco",
     "paper-thermal-protected": "Etiqueta tèrmica protegida",
-    "paper-thermal-direct-ticket": "Etiqueta tèrmica directa tiquet (sense adhesiu)",
+    "paper-thermal-direct-ticket": "Paper tèrmic - Tiquet (sense adhesiu)",
     "paper-couche": "Etiqueta couche",
     "paper-matte": "Etiqueta mate",
     "paper-inkjet-gloss": "Etiqueta inkjet brillant",
     "paper-inkjet-matte": "Etiqueta inkjet mate",
-    "plastic-pp": "PP (polipropile)",
-    "plastic-pe": "PE (polietile)",
-    "plastic-pet": "PET (poliester)",
+    "plastic-pp-gloss": "PP brillant (polipropilè)",
+    "plastic-pp-matte": "PP mate (polipropilè)",
+    "plastic-pe-gloss": "PE brillant (polietilè)",
+    "plastic-pe-matte": "PE mate (polietilè)",
+    "plastic-pet-gloss": "PET brillant (poliester)",
+    "plastic-pet-matte": "PET mate (poliester)",
     "plastic-pvc": "PVC (vinil)",
-    "plastic-artyval": "Paper sintetic Artyval",
+    "plastic-artyval": "Sintètic Artyval (sense adhesiu)",
     "textile-polyamide": "Poliamida (nylon)"
   };
   return map[materialType];
@@ -36,7 +39,8 @@ function adhesiveLabel(adhesive: ReturnType<typeof wizardSchema.parse>["adhesive
 
 function renderSummaryHtml(data: ReturnType<typeof wizardSchema.parse>) {
   const adhesiveText =
-    data.materialType === "paper-thermal-direct-ticket"
+    data.materialType === "paper-thermal-direct-ticket" ||
+    data.materialType === "plastic-artyval"
       ? "No aplica (sense adhesiu)"
       : adhesiveLabel(data.adhesive);
 

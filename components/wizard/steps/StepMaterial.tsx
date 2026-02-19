@@ -12,7 +12,7 @@ type StepMaterialProps = {
 
 type MaterialInfo = {
   id: WizardValues["materialType"];
-  family: "Etiqueta de paper" | "Plastic (sintetic)" | "Textil";
+  family: "Etiqueta de paper" | "Sintètic" | "Textil";
   name: string;
   description: string;
   uses: string;
@@ -43,7 +43,7 @@ const MATERIALS: MaterialInfo[] = [
   {
     id: "paper-thermal-direct-ticket",
     family: "Etiqueta de paper",
-    name: "Etiqueta tèrmica directa tiquet (sense adhesiu)",
+    name: "Paper tèrmic - Tiquet (sense adhesiu)",
     description: "Impressio sense ribbon i sense adhesiu, orientada a tiqueteria; baixa resistencia a calor i llum solar.",
     uses: "Tickets, torns, comprovants i tiquet de caixa."
   },
@@ -76,37 +76,58 @@ const MATERIALS: MaterialInfo[] = [
     uses: "Promocions, packaging visual i etiquetes a color sense reflex."
   },
   {
-    id: "plastic-pp",
-    family: "Plastic (sintetic)",
-    name: "PP (polipropile)",
+    id: "plastic-pp-gloss",
+    family: "Sintètic",
+    name: "PP brillant (polipropilè)",
     description: "Bona resistencia a aigua, greixos i alguns quimics amb bon equilibri entre cost i prestacions.",
     uses: "Cosmetica, neteja, higiene i consumibles."
   },
   {
-    id: "plastic-pe",
-    family: "Plastic (sintetic)",
-    name: "PE (polietile)",
+    id: "plastic-pp-matte",
+    family: "Sintètic",
+    name: "PP mate (polipropilè)",
+    description: "Bona resistencia a aigua, greixos i alguns quimics amb acabat sense reflex.",
+    uses: "Cosmetica, neteja, higiene i consumibles."
+  },
+  {
+    id: "plastic-pe-gloss",
+    family: "Sintètic",
+    name: "PE brillant (polietilè)",
     description: "Material flexible que s'adapta be a envasos corbats o deformables.",
     uses: "Ampolles flexibles, productes de cura personal i detergencia."
   },
   {
-    id: "plastic-pet",
-    family: "Plastic (sintetic)",
-    name: "PET (poliester)",
+    id: "plastic-pe-matte",
+    family: "Sintètic",
+    name: "PE mate (polietilè)",
+    description: "Material flexible amb acabat mat, apte per envasos corbats o deformables.",
+    uses: "Ampolles flexibles, productes de cura personal i detergencia."
+  },
+  {
+    id: "plastic-pet-gloss",
+    family: "Sintètic",
+    name: "PET brillant (poliester)",
     description: "Molt durable i resistent a temperatura i desgast; orientat a entorns exigents.",
     uses: "Industrial, laboratoris, traçabilitat de llarga durada."
   },
   {
+    id: "plastic-pet-matte",
+    family: "Sintètic",
+    name: "PET mate (poliester)",
+    description: "Molt durable i resistent a temperatura i desgast amb acabat mat.",
+    uses: "Industrial, laboratoris, traçabilitat de llarga durada."
+  },
+  {
     id: "plastic-pvc",
-    family: "Plastic (sintetic)",
+    family: "Sintètic",
     name: "PVC (vinil)",
     description: "Alta resistencia a intemperie i humitat, adequat per aplicacions exteriors.",
     uses: "Senyalitzacio, exterior, etiquetes exposades."
   },
   {
     id: "plastic-artyval",
-    family: "Plastic (sintetic)",
-    name: "Paper sintetic Artyval",
+    family: "Sintètic",
+    name: "Sintètic Artyval (sense adhesiu)",
     description: "Aspecte paper amb resistencia de plastic; molt versatil en entorns humits o industrials.",
     uses: "Magatzem, produccio, etiquetatge tecnic amb bona durabilitat."
   },
@@ -142,7 +163,7 @@ const ADHESIVES: AdhesiveInfo[] = [
 
 const FAMILIES: Array<MaterialInfo["family"]> = [
   "Etiqueta de paper",
-  "Plastic (sintetic)",
+  "Sintètic",
   "Textil"
 ];
 
@@ -151,7 +172,9 @@ export function StepMaterial({ register, errors, watch }: StepMaterialProps) {
   const [showAdhesiveGuide, setShowAdhesiveGuide] = useState(false);
   const selectedMaterialId = watch("materialType");
   const selectedAdhesiveId = watch("adhesive");
-  const isTicketNoAdhesive = selectedMaterialId === "paper-thermal-direct-ticket";
+  const hideAdhesive =
+    selectedMaterialId === "paper-thermal-direct-ticket" ||
+    selectedMaterialId === "plastic-artyval";
   const selectedMaterial = MATERIALS.find((item) => item.id === selectedMaterialId) ?? MATERIALS[0];
   const selectedAdhesive = ADHESIVES.find((item) => item.id === selectedAdhesiveId) ?? ADHESIVES[0];
 
@@ -192,7 +215,7 @@ export function StepMaterial({ register, errors, watch }: StepMaterialProps) {
         </p>
       </div>
 
-      {!isTicketNoAdhesive ? (
+      {!hideAdhesive ? (
         <>
           <div>
             <div className="mb-2 flex items-center justify-between gap-2">
@@ -224,7 +247,7 @@ export function StepMaterial({ register, errors, watch }: StepMaterialProps) {
         </>
       ) : (
         <div className="rounded-xl border border-sky-200 bg-sky-50 p-3 text-sm text-sky-800">
-          Aquesta opcio es de tiquet i no porta adhesiu.
+          Aquesta opcio no porta adhesiu.
         </div>
       )}
 
@@ -278,7 +301,7 @@ export function StepMaterial({ register, errors, watch }: StepMaterialProps) {
         </div>
       )}
 
-      {showAdhesiveGuide && !isTicketNoAdhesive && (
+      {showAdhesiveGuide && !hideAdhesive && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
           <div className="max-h-[85vh] w-full max-w-3xl overflow-auto rounded-2xl border border-slate-200 bg-white p-4">
             <div className="mb-3 flex items-center justify-between">
