@@ -138,7 +138,7 @@ function renderEmailHtml(params: {
   ]
     .map(
       (item) =>
-        `<span style="display:inline-block;background:#eef2ff;border:1px solid #dbeafe;color:#1e3a8a;border-radius:999px;padding:6px 10px;font-size:12px;margin:0 6px 6px 0;">${escapeHtml(item)}</span>`
+        `<span style="display:inline-block;background:#f8e9ea;border:1px solid #d8a8ab;color:#8a1c22;border-radius:999px;padding:6px 10px;font-size:12px;margin:0 6px 6px 0;">${escapeHtml(item)}</span>`
     )
     .join("");
 

@@ -208,10 +208,10 @@ export function StepMaterial({ register, errors, watch }: StepMaterialProps) {
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-700">
-        <p className="font-semibold text-slate-900">{selectedMaterial.name}</p>
+        <p className="font-semibold text-[var(--sie-primary)]">{selectedMaterial.name}</p>
         <p className="mt-1">{selectedMaterial.description}</p>
         <p className="mt-2 text-xs text-slate-600">
-          <strong>Usos recomanats:</strong> {selectedMaterial.uses}
+          <strong className="text-[var(--sie-primary-dark)]">Usos recomanats:</strong> {selectedMaterial.uses}
         </p>
       </div>
 
@@ -238,15 +238,15 @@ export function StepMaterial({ register, errors, watch }: StepMaterialProps) {
           </div>
 
           <div className="rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-700">
-            <p className="font-semibold text-slate-900">{selectedAdhesive.name}</p>
+            <p className="font-semibold text-[var(--sie-primary)]">{selectedAdhesive.name}</p>
             <p className="mt-1">{selectedAdhesive.description}</p>
             <p className="mt-2 text-xs text-slate-600">
-              <strong>Usos recomanats:</strong> {selectedAdhesive.uses}
+              <strong className="text-[var(--sie-primary-dark)]">Usos recomanats:</strong> {selectedAdhesive.uses}
             </p>
           </div>
         </>
       ) : (
-        <div className="rounded-xl border border-sky-200 bg-sky-50 p-3 text-sm text-sky-800">
+        <div className="rounded-xl border border-[var(--sie-primary-border)] bg-[var(--sie-primary-softer)] p-3 text-sm text-[var(--sie-ink)]">
           Aquesta opció no porta adhesiu.
         </div>
       )}
@@ -289,10 +289,10 @@ export function StepMaterial({ register, errors, watch }: StepMaterialProps) {
                   <div className="grid gap-2">
                     {MATERIALS.filter((item) => item.family === family).map((item) => (
                       <article key={item.id} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-                        <p className="text-sm font-semibold text-slate-900">{item.name}</p>
+                        <p className="text-sm font-semibold text-[var(--sie-primary)]">{item.name}</p>
                         <p className="mt-1 text-sm text-slate-700">{item.description}</p>
                         <p className="mt-1 text-xs text-slate-600">
-                          <strong>Usos recomanats:</strong> {item.uses}
+                          <strong className="text-[var(--sie-primary-dark)]">Usos recomanats:</strong> {item.uses}
                         </p>
                       </article>
                     ))}
@@ -321,10 +321,10 @@ export function StepMaterial({ register, errors, watch }: StepMaterialProps) {
             <div className="grid gap-2">
               {ADHESIVES.map((item) => (
                 <article key={item.id} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-                  <p className="text-sm font-semibold text-slate-900">{item.name}</p>
+                  <p className="text-sm font-semibold text-[var(--sie-primary)]">{item.name}</p>
                   <p className="mt-1 text-sm text-slate-700">{item.description}</p>
                   <p className="mt-1 text-xs text-slate-600">
-                    <strong>Usos recomanats:</strong> {item.uses}
+                    <strong className="text-[var(--sie-primary-dark)]">Usos recomanats:</strong> {item.uses}
                   </p>
                 </article>
               ))}

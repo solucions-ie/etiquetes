@@ -40,8 +40,18 @@ export const wizardSchema = z
       "etiqueta-desmallada",
       "linerless"
     ]),
-    labelWidthMm: z.coerce.number().min(15).max(220),
-    labelHeightMm: z.coerce.number().min(10).max(300),
+    labelWidthMm: z.coerce
+      .number({
+        invalid_type_error: "Introdueix si us plau un numero a l'amplada.",
+        required_error: "Introdueix si us plau un numero a l'amplada."
+      })
+      .min(15),
+    labelHeightMm: z.coerce
+      .number({
+        invalid_type_error: "Introdueix si us plau un numero a l'alcada.",
+        required_error: "Introdueix si us plau un numero a l'alcada."
+      })
+      .min(10),
     rollCoreMm: z.enum(["12.5", "19", "25", "25.4", "40", "76", "external"]),
     rollOuterDiameterMm: z.coerce.number().min(25).max(230),
     gapMm: z.coerce.number().min(0),

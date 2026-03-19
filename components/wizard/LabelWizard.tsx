@@ -166,11 +166,11 @@ export function LabelWizard() {
 
   if (sent) {
     return (
-      <div className="rounded-2xl border border-[#d1dde0] bg-[#edf2f3] p-5">
-        <h2 className="text-lg font-semibold text-[#1C323B]">
+      <div className="rounded-2xl border border-[var(--sie-primary-border)] bg-[var(--sie-primary-softer)] p-5">
+        <h2 className="text-lg font-semibold text-[var(--sie-primary)]">
           Sollicitud enviada correctament
         </h2>
-        <p className="mt-2 text-sm text-[#1C323B]">
+        <p className="mt-2 text-sm text-[var(--sie-ink)]">
           Hem enviat un correu de confirmacio al client i una notificacio interna a secretaria.
         </p>
       </div>
@@ -261,7 +261,7 @@ export function LabelWizard() {
         <button
           type="submit"
           disabled={isSending}
-          className="rounded-xl bg-[#1C323B] px-4 py-2 text-sm font-medium text-white hover:bg-[#15262d] disabled:opacity-70"
+          className="rounded-xl bg-[var(--sie-primary)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--sie-primary-dark)] disabled:opacity-70"
         >
           {isSending ? "Enviant..." : "Enviar sollicitud"}
         </button>

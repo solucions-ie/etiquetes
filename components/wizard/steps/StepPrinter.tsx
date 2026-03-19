@@ -66,7 +66,7 @@ export function StepPrinter({ register, setValue, errors, watch }: StepPrinterPr
             key={option.value}
             className={`cursor-pointer rounded-xl border p-2.5 transition ${
               isSelected
-                ? "border-[#2563eb] bg-blue-50 ring-2 ring-blue-100"
+                ? "border-[var(--sie-primary)] bg-[var(--sie-primary-soft)] ring-2 ring-[#ead0d2]"
                 : "border-slate-300 bg-white hover:border-slate-400"
             }`}
           >
@@ -113,7 +113,7 @@ export function StepPrinter({ register, setValue, errors, watch }: StepPrinterPr
                     }}
                     className={`rounded-md border px-2 py-1 text-xs font-medium transition ${
                       isActive
-                        ? "border-[#2563eb] bg-blue-100 text-blue-900"
+                        ? "border-[var(--sie-primary)] bg-[#f3d9db] text-[var(--sie-primary-dark)]"
                         : "border-slate-300 bg-white text-slate-700 hover:border-slate-400"
                     }`}
                   >

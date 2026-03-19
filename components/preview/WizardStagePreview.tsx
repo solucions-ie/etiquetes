@@ -500,7 +500,7 @@ export function WizardStagePreview({
         )}
       </div>
 
-      <PrinterMaxInfo values={values} />
+      {!errors.labelWidthMm && <PrinterMaxInfo values={values} />}
     </div>
   );
 }

@@ -4,10 +4,16 @@
 
 :root {
   color-scheme: light;
+  --sie-primary: #8a1c22;
+  --sie-primary-dark: #6f151a;
+  --sie-primary-soft: #f8e9ea;
+  --sie-primary-softer: #fcf4f4;
+  --sie-primary-border: #d8a8ab;
+  --sie-ink: #341316;
 }
 
 body {
-  @apply bg-slate-100 text-slate-900 antialiased;
+  @apply bg-stone-100 text-slate-900 antialiased;
 }
 
 .wizard-card {
@@ -20,7 +26,7 @@ body {
 
 .field-input {
   @apply w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none transition focus:ring-2;
-  --tw-ring-color: #1c323b;
+  --tw-ring-color: var(--sie-primary);
 }
 
 .field-error {
