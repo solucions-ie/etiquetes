@@ -33,40 +33,41 @@ export function StepPrinter({ register, errors, watch }: StepPrinterProps) {
   const selectedPrinter = watch("printerType");
 
   return (
-    <div className="space-y-5">
-      <div>
-        <p className="field-label">Tipus d'impressora</p>
-        <div className="grid gap-3 md:grid-cols-2">
-          {printerOptions.map((option) => {
-            const isSelected = selectedPrinter === option.value;
-            return (
-            <label
-              key={option.value}
-              className={`cursor-pointer rounded-xl border p-3 transition ${
-                isSelected
-                  ? "border-[#2563eb] bg-blue-50 ring-2 ring-blue-100"
-                  : "border-slate-300 bg-white hover:border-slate-400"
-              }`}
-            >
-              <input type="radio" value={option.value} className="sr-only" {...register("printerType")} />
-              <div className="overflow-hidden rounded-lg border border-slate-200 bg-slate-100">
-                <img
-                  src={option.photo}
-                  alt={option.label}
-                  className="h-36 w-full object-contain bg-white p-2"
-                  onError={(e) => {
-                    const el = e.currentTarget;
-                    el.style.display = "none";
-                  }}
-                />
-              </div>
-              <p className="mt-2 text-sm font-semibold text-slate-800">{option.label}</p>
-              <p className="mt-1 text-xs text-slate-500">{option.note}</p>
-            </label>
-          )})}
-        </div>
-        {errors.printerType && <p className="field-error">{errors.printerType.message as string}</p>}
-      </div>
+    <div className="grid gap-2.5">
+      {printerOptions.map((option) => {
+        const isSelected = selectedPrinter === option.value;
+        return (
+          <label
+            key={option.value}
+            className={`cursor-pointer rounded-xl border p-2.5 transition ${
+              isSelected
+                ? "border-[#2563eb] bg-blue-50 ring-2 ring-blue-100"
+                : "border-slate-300 bg-white hover:border-slate-400"
+            }`}
+          >
+            <input
+              type="radio"
+              value={option.value}
+              className="sr-only"
+              {...register("printerType")}
+            />
+            <div className="overflow-hidden rounded-lg border border-slate-200 bg-slate-100">
+              <img
+                src={option.photo}
+                alt={option.label}
+                className="h-24 w-full object-contain bg-white p-1.5"
+                onError={(e) => {
+                  const el = e.currentTarget;
+                  el.style.display = "none";
+                }}
+              />
+            </div>
+            <p className="mt-2 text-sm font-semibold text-slate-800">{option.label}</p>
+            <p className="mt-1 text-[11px] leading-4 text-slate-500">{option.note}</p>
+          </label>
+        );
+      })}
+      {errors.printerType && <p className="field-error">{errors.printerType.message as string}</p>}
     </div>
   );
 }

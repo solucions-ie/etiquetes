@@ -14,6 +14,7 @@ type StepDimensionsProps = {
   errors: FieldErrors<WizardValues>;
   watch: UseFormWatch<WizardValues>;
   setValue: UseFormSetValue<WizardValues>;
+  compact?: boolean;
 };
 
 const coreOptionsMap: Record<
@@ -42,7 +43,8 @@ export function StepDimensions({
   register,
   errors,
   watch,
-  setValue
+  setValue,
+  compact = false
 }: StepDimensionsProps) {
   const printerType = watch("printerType");
   const rollCore = watch("rollCoreMm");
@@ -62,11 +64,22 @@ export function StepDimensions({
     }
   }, [outerRange.max, outerRange.min, rollOuter, setValue]);
 
+  const wrapperClass = compact
+    ? "flex h-full flex-col rounded-xl border border-slate-200 bg-white p-3"
+    : "rounded-xl border border-slate-200 bg-white p-4";
+  const titleClass = compact
+    ? "mb-2 text-sm font-semibold text-slate-800"
+    : "mb-3 text-sm font-semibold text-slate-800";
+  const gridClass = compact ? "grid gap-3" : "grid gap-4 md:grid-cols-2";
+  const svgClass = compact
+    ? "h-full w-full rounded-xl border border-slate-200 bg-slate-50"
+    : "h-auto w-full rounded-xl border border-slate-200 bg-slate-50";
+
   return (
-    <div className="space-y-4">
-      <div className="rounded-xl border border-slate-200 bg-white p-4">
-        <p className="mb-3 text-sm font-semibold text-slate-800">Mida de la bobina i mandril</p>
-        <div className="grid gap-4 md:grid-cols-2">
+    <div className={compact ? "h-full" : "space-y-4"}>
+      <div className={wrapperClass}>
+        <p className={titleClass}>Mida de la bobina i mandril</p>
+        <div className={gridClass}>
           <div>
             <label className="field-label">Canuto (nucli de bobina)</label>
             <select className="field-input" {...register("rollCoreMm")}>
@@ -95,20 +108,21 @@ export function StepDimensions({
             )}
           </div>
         </div>
-        <div className="mt-4">
+        <div className={compact ? "mt-3 flex-1" : "mt-4"}>
           <svg
-            className="h-auto w-full rounded-xl border border-slate-200 bg-slate-50"
+            className={svgClass}
+            preserveAspectRatio={compact ? "xMidYMid meet" : undefined}
             viewBox="0 0 520 220"
             role="img"
             aria-label="Il-lustracio de mandril i diametre exterior"
           >
             {(() => {
-              const innerRx = Math.max(14, Math.min(34, Number(rollCore) / 1.8));
-              const innerRy = Math.max(10, Math.min(22, Number(rollCore) / 2.8));
-              const outerRx = Math.max(innerRx + 18, Math.min(96, rollOuter / 2.15));
-              const outerRy = Math.max(innerRy + 12, Math.min(58, rollOuter / 3.2));
+              const innerRx = Math.max(18, Math.min(40, Number(rollCore) / 1.45));
+              const innerRy = Math.max(12, Math.min(26, Number(rollCore) / 2.2));
+              const outerRx = Math.max(innerRx + 28, Math.min(124, rollOuter / 1.65));
+              const outerRy = Math.max(innerRy + 18, Math.min(76, rollOuter / 2.45));
               const cx = 260;
-              const cy = 132;
+              const cy = 136;
               return (
                 <>
                   <ellipse cx={cx} cy={cy + 16} rx={outerRx} ry={outerRy} fill="#cfd8e3" opacity="0.55" />

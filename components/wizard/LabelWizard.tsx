@@ -127,98 +127,100 @@ export function LabelWizard() {
     return (
       <div className="rounded-2xl border border-[#d1dde0] bg-[#edf2f3] p-5">
         <h2 className="text-lg font-semibold text-[#1C323B]">
-          Sol·licitud enviada correctament
+          Sollicitud enviada correctament
         </h2>
         <p className="mt-2 text-sm text-[#1C323B]">
-          Hem enviat un correu de confirmació al client i una notificació interna a secretaria.
+          Hem enviat un correu de confirmacio al client i una notificacio interna a secretaria.
         </p>
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="grid gap-6 lg:grid-cols-2">
-      <div className="space-y-5">
-        <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-700">
-            1. Material de l'etiqueta
-          </h2>
-          <StepMaterial register={register} errors={errors} watch={watch} />
-        </section>
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-700">
+          1. Material de l'etiqueta
+        </h2>
+        <StepMaterial register={register} errors={errors} watch={watch} />
+      </section>
 
-        <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-700">
-            2. Impressora i tecnologia
-          </h2>
-          <StepPrinter register={register} errors={errors} watch={watch} />
-        </section>
-
-        <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-700">
-            3. Dades de contacte
-          </h2>
-          <StepContact register={register} errors={errors} />
-        </section>
-
-        {sendError && (
-          <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-            {sendError}
-          </p>
-        )}
-
-        <div className="flex gap-3">
-          <button
-            type="submit"
-            disabled={isSending}
-            className="rounded-xl bg-[#1C323B] px-4 py-2 text-sm font-medium text-white hover:bg-[#15262d] disabled:opacity-70"
-          >
-            {isSending ? "Enviant..." : "Enviar sol·licitud"}
-          </button>
-        </div>
-      </div>
-
-      <aside className="rounded-2xl border border-slate-200 bg-white p-4 lg:sticky lg:top-6 lg:h-fit">
-        <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-600">
-          Vista prèvia de l'etiqueta
-        </h3>
+      <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-700">
+          2. Configuracio i vista previa
+        </h2>
+        <p className="text-sm font-medium text-slate-800">Vista previa de l'etiqueta</p>
         <p className="mt-1 text-xs text-slate-500">
-          Es recalcula automàticament segons les opcions seleccionades.
+          Es recalcula automaticament segons les opcions seleccionades.
         </p>
-        <div className="mt-4">
-          <WizardStagePreview
-            register={register}
-            errors={errors}
-            values={{
-              printerType: values.printerType,
-              printTechnology: values.printTechnology,
-              ribbonType: values.ribbonType,
-              labelFlowType: values.labelFlowType,
-              hasCut: values.hasCut,
-              cutType: values.cutType,
-              labelWidthMm: values.labelWidthMm,
-              labelHeightMm: values.labelHeightMm,
-              gapMm: values.gapMm,
-              hasBlackMark: values.hasBlackMark,
-              blackMarkPosition: values.blackMarkPosition,
-              rollCoreMm: values.rollCoreMm,
-              rollOuterDiameterMm: values.rollOuterDiameterMm,
-              adhesive: values.adhesive,
-              quantity: values.quantity
-            }}
-          />
+        <div className="mt-4 grid gap-4 xl:grid-cols-12 xl:items-stretch">
+          <div className="rounded-2xl border border-slate-200 bg-white p-3 xl:col-span-2 xl:h-full">
+            <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-700">
+              Tipus d'impressora
+            </h3>
+            <StepPrinter register={register} errors={errors} watch={watch} />
+          </div>
+
+          <div className="xl:col-span-6">
+            <div className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-3">
+              <WizardStagePreview
+                register={register}
+                errors={errors}
+                values={{
+                  printerType: values.printerType,
+                  printTechnology: values.printTechnology,
+                  ribbonType: values.ribbonType,
+                  labelFlowType: values.labelFlowType,
+                  hasCut: values.hasCut,
+                  cutType: values.cutType,
+                  labelWidthMm: values.labelWidthMm,
+                  labelHeightMm: values.labelHeightMm,
+                  gapMm: values.gapMm,
+                  hasBlackMark: values.hasBlackMark,
+                  blackMarkPosition: values.blackMarkPosition,
+                  rollCoreMm: values.rollCoreMm,
+                  rollOuterDiameterMm: values.rollOuterDiameterMm,
+                  adhesive: values.adhesive,
+                  quantity: values.quantity
+                }}
+              />
+            </div>
+          </div>
+
+          <div className="xl:col-span-4">
+            <StepDimensions
+              register={register}
+              errors={errors}
+              watch={watch}
+              setValue={setValue}
+              compact
+            />
+          </div>
         </div>
-        <section className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-          <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-700">
-            Mides de la bobina
-          </h4>
-          <StepDimensions
-            register={register}
-            errors={errors}
-            watch={watch}
-            setValue={setValue}
-          />
-        </section>
-      </aside>
+      </section>
+
+      <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-700">
+          3. Dades de contacte
+        </h2>
+        <StepContact register={register} errors={errors} />
+      </section>
+
+      {sendError && (
+        <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          {sendError}
+        </p>
+      )}
+
+      <div className="flex gap-3">
+        <button
+          type="submit"
+          disabled={isSending}
+          className="rounded-xl bg-[#1C323B] px-4 py-2 text-sm font-medium text-white hover:bg-[#15262d] disabled:opacity-70"
+        >
+          {isSending ? "Enviant..." : "Enviar sollicitud"}
+        </button>
+      </div>
     </form>
   );
 }

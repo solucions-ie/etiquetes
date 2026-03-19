@@ -113,10 +113,10 @@ function SupportLabelPreview({ values }: { values: PreviewValues }) {
       className="overflow-auto rounded-xl border border-slate-200 bg-slate-50"
     >
       <svg
-        className="mx-auto block h-auto w-full"
+        className="mx-auto block h-auto w-full max-w-[390px]"
         viewBox="30 40 500 430"
         role="img"
-        aria-label="Vista prèvia de paper suport amb etiquetes verticals"
+        aria-label="Vista previa de paper suport amb etiquetes verticals"
       >
         <defs>
           <linearGradient id="labelFace" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -268,7 +268,7 @@ export function WizardStagePreview({ values, register, errors }: WizardStagePrev
     <div className="space-y-3">
       <div className="overflow-hidden rounded-2xl border border-slate-200">
         <div className="border-b border-slate-200 bg-slate-50 p-3">
-          <div className="grid gap-2 sm:grid-cols-4">
+          <div className="grid gap-2 md:grid-cols-3">
             <div>
               <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-slate-600">
                 Amplada
@@ -300,7 +300,7 @@ export function WizardStagePreview({ values, register, errors }: WizardStagePrev
                 className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs"
                 {...register("printTechnology")}
               >
-                <option value="direct-thermal">Tèrmica directa</option>
+                <option value="direct-thermal">Termica directa</option>
                 <option value="thermal-transfer">Transferencia</option>
               </select>
             </div>
@@ -315,12 +315,12 @@ export function WizardStagePreview({ values, register, errors }: WizardStagePrev
           )}
         </div>
 
-        <div className="grid gap-0 md:grid-cols-[1fr_160px]">
+        <div className="grid gap-0 lg:grid-cols-[minmax(0,1fr)_150px]">
           <div className="p-3">
             <SupportLabelPreview values={values} />
           </div>
 
-          <aside className="border-t border-slate-200 bg-slate-50 p-3 md:border-l md:border-t-0">
+          <aside className="border-t border-slate-200 bg-slate-50 p-3 lg:border-l lg:border-t-0">
             <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-600">
               Avanc (lateral)
             </p>

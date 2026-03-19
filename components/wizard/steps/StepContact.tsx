@@ -25,21 +25,19 @@ export function StepContact({ register, errors }: StepContactProps) {
           <p className="field-error">{errors.contactName.message as string}</p>
         )}
       </div>
-      <div className="grid gap-4 md:grid-cols-2">
-        <div>
-          <label className="field-label">Correu electrònic</label>
-          <input className="field-input" type="email" {...register("email")} />
-          {errors.email && (
-            <p className="field-error">{errors.email.message as string}</p>
-          )}
-        </div>
-        <div>
-          <label className="field-label">Telèfon (opcional)</label>
-          <input className="field-input" {...register("phone")} />
-          {errors.phone && (
-            <p className="field-error">{errors.phone.message as string}</p>
-          )}
-        </div>
+      <div>
+        <label className="field-label">Correu electronic</label>
+        <input className="field-input" type="email" {...register("email")} />
+        {errors.email && (
+          <p className="field-error">{errors.email.message as string}</p>
+        )}
+      </div>
+      <div>
+        <label className="field-label">Telefon (opcional)</label>
+        <input className="field-input" {...register("phone")} />
+        {errors.phone && (
+          <p className="field-error">{errors.phone.message as string}</p>
+        )}
       </div>
     </div>
   );
