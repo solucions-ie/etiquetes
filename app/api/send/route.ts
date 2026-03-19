@@ -1,28 +1,34 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { wizardSchema } from "@/lib/schemas/wizard";
 
-function printerLabel(printerType: "desktop" | "industrial") {
-  return printerType === "desktop" ? "Sobretaula" : "Industrial";
+function printerLabel(printerType: "desktop" | "portable" | "industrial") {
+  if (printerType === "desktop") return "Sobretaula";
+  if (printerType === "portable") return "Portatil";
+  return "Industrial";
+}
+
+function printerWidthClassLabel(widthClass: ReturnType<typeof wizardSchema.parse>["printerWidthClass"]) {
+  return widthClass ? `${widthClass}"` : "No especificada";
 }
 
 function materialLabel(materialType: ReturnType<typeof wizardSchema.parse>["materialType"]) {
   const map: Record<ReturnType<typeof wizardSchema.parse>["materialType"], string> = {
-    "paper-thermal-eco": "Etiqueta tèrmica eco",
-    "paper-thermal-protected": "Etiqueta tèrmica protegida",
-    "paper-thermal-direct-ticket": "Paper tèrmic - Tiquet (sense adhesiu)",
+    "paper-thermal-eco": "Etiqueta termica eco",
+    "paper-thermal-protected": "Etiqueta termica protegida",
+    "paper-thermal-direct-ticket": "Paper termic - Tiquet (sense adhesiu)",
     "paper-couche": "Etiqueta couche",
     "paper-matte": "Etiqueta mate",
     "paper-inkjet-gloss": "Etiqueta inkjet brillant",
     "paper-inkjet-matte": "Etiqueta inkjet mate",
-    "plastic-pp-gloss": "PP brillant (polipropilè)",
-    "plastic-pp-matte": "PP mate (polipropilè)",
-    "plastic-pe-gloss": "PE brillant (polietilè)",
-    "plastic-pe-matte": "PE mate (polietilè)",
-    "plastic-pet-gloss": "PET brillant (polièster)",
-    "plastic-pet-matte": "PET mate (polièster)",
+    "plastic-pp-gloss": "PP brillant (polipropile)",
+    "plastic-pp-matte": "PP mate (polipropile)",
+    "plastic-pe-gloss": "PE brillant (polietile)",
+    "plastic-pe-matte": "PE mate (polietile)",
+    "plastic-pet-gloss": "PET brillant (poliester)",
+    "plastic-pet-matte": "PET mate (poliester)",
     "plastic-pvc": "PVC (vinil)",
-    "plastic-artyval": "Sintètic Artyval (sense adhesiu)",
+    "plastic-artyval": "Sintetic Artyval (sense adhesiu)",
     "textile-polyamide": "Poliamida (nylon)"
   };
   return map[materialType];
@@ -30,15 +36,15 @@ function materialLabel(materialType: ReturnType<typeof wizardSchema.parse>["mate
 
 function adhesiveLabel(adhesive: ReturnType<typeof wizardSchema.parse>["adhesive"]) {
   const map: Record<ReturnType<typeof wizardSchema.parse>["adhesive"], string> = {
-    acrylic: "Acrílic (base aigua)",
-    hotmelt: "Hotmelt (base cautxú)",
+    acrylic: "Acrylic (base aigua)",
+    hotmelt: "Hotmelt (base cautxu)",
     removable: "Removible"
   };
   return map[adhesive];
 }
 
 function printTechLabel(type: ReturnType<typeof wizardSchema.parse>["printTechnology"]) {
-  return type === "direct-thermal" ? "Tèrmica directa" : "Transferència tèrmica";
+  return type === "direct-thermal" ? "Termica directa" : "Transferencia termica";
 }
 
 function ribbonLabel(type: ReturnType<typeof wizardSchema.parse>["ribbonType"]) {
@@ -47,7 +53,7 @@ function ribbonLabel(type: ReturnType<typeof wizardSchema.parse>["ribbonType"]) 
     cera: "Cera",
     "cera-resina": "Cera/Resina",
     resina: "Resina",
-    unknown: "No ho sé"
+    unknown: "No ho se"
   };
   return map[type];
 }
@@ -79,24 +85,29 @@ function summaryRows(data: ReturnType<typeof wizardSchema.parse>) {
     data.materialType === "paper-thermal-direct-ticket" || data.materialType === "plastic-artyval"
       ? "No aplica (sense adhesiu)"
       : adhesiveLabel(data.adhesive);
+  const backgroundColorText = data.hasBackgroundColor
+    ? `${data.backgroundColorHex}${data.backgroundColorNotes ? ` (${data.backgroundColorNotes})` : ""}`
+    : "Sense color";
 
   const rows: Array<[string, string]> = [
     ["Empresa", data.company],
     ["Contacte", data.contactName],
     ["Email", data.email],
-    ["Telèfon", data.phone || "No informat"],
+    ["Telefon", data.phone || "No informat"],
     ["Impressora", printerLabel(data.printerType)],
+    ["Polzada impressora", printerWidthClassLabel(data.printerWidthClass)],
     ["Material", materialLabel(data.materialType)],
     ["Tecnologia", printTechLabel(data.printTechnology)],
     ["Ribbon", ribbonLabel(data.ribbonType)],
     ["Mida", `${data.labelWidthMm} x ${data.labelHeightMm} mm`],
-    ["Avanç", flowTypeLabel(data.labelFlowType)],
+    ["Avanc", flowTypeLabel(data.labelFlowType)],
     ["Tipus de tall", cutTypeLabel(data)],
     ["Mandril", data.rollCoreMm === "external" ? "Bobinat extern" : `${data.rollCoreMm} mm`],
-    ["Diàmetre bobina", `${data.rollOuterDiameterMm} mm`],
+    ["Diametre bobina", `${data.rollOuterDiameterMm} mm`],
     ["Gap", `${data.gapMm} mm`],
-    ["Marca negra", data.hasBlackMark ? `Sí (${data.blackMarkPosition})` : "No"],
+    ["Marca negra", data.hasBlackMark ? `Si (${data.blackMarkPosition})` : "No"],
     ["Adhesiu", adhesiveText],
+    ["Color fons", backgroundColorText],
     ["Quantitat", String(data.quantity)]
   ];
 
@@ -186,10 +197,10 @@ export async function POST(request: Request) {
         from: fromEmail,
         to: data.email,
         replyTo: replyToEmail,
-        subject: "Confirmació: sol·licitud d'etiqueta rebuda",
+        subject: "Confirmacio: sollicitud d'etiqueta rebuda",
         html: renderEmailHtml({
-          title: "Hem rebut la teva sol·licitud",
-          intro: "Aquest és el resum de la configuració enviada. L'equip de S-IE revisarà la informació i et contactarà.",
+          title: "Hem rebut la teva sollicitud",
+          intro: "Aquest es el resum de la configuracio enviada. L'equip de S-IE revisara la informacio i et contactara.",
           data,
           showGreeting: true
         })
@@ -198,10 +209,10 @@ export async function POST(request: Request) {
         from: fromEmail,
         to: secretaryEmail,
         replyTo: replyToEmail,
-        subject: `Nova sol·licitud d'etiqueta - ${data.company}`,
+        subject: `Nova sollicitud d'etiqueta - ${data.company}`,
         html: renderEmailHtml({
-          title: "Nova sol·licitud rebuda",
-          intro: "S'ha registrat una nova petició des del formulari d'etiquetes.",
+          title: "Nova sollicitud rebuda",
+          intro: "S'ha registrat una nova peticio des del formulari d'etiquetes.",
           data
         })
       })
@@ -215,7 +226,7 @@ export async function POST(request: Request) {
         .filter(Boolean)
         .join(" | ");
       return NextResponse.json(
-        { error: messages || "Resend ha rebutjat un o més enviaments." },
+        { error: messages || "Resend ha rebutjat un o mes enviaments." },
         { status: 400 }
       );
     }

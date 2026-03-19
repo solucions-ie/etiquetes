@@ -4,9 +4,10 @@ export const wizardSchema = z
   .object({
     company: z.string().min(2, "Indica l'empresa."),
     contactName: z.string().min(2, "Indica el nom de contacte."),
-    email: z.string().email("Correu invàlid."),
-    phone: z.string().min(6, "Telèfon massa curt.").optional().or(z.literal("")),
-    printerType: z.enum(["desktop", "industrial"]),
+    email: z.string().email("Correu invalid."),
+    phone: z.string().min(6, "Telefon massa curt.").optional().or(z.literal("")),
+    printerType: z.enum(["desktop", "portable", "industrial"]),
+    printerWidthClass: z.enum(["", "2", "3", "4", "6", "8"]),
     printTechnology: z.enum(["direct-thermal", "thermal-transfer"]),
     ribbonType: z.enum(["none", "cera", "cera-resina", "resina", "unknown"]),
     materialType: z.enum([
@@ -41,29 +42,46 @@ export const wizardSchema = z
     ]),
     labelWidthMm: z.coerce.number().min(15).max(220),
     labelHeightMm: z.coerce.number().min(10).max(300),
-    rollCoreMm: z.enum(["12.5", "19", "25.4", "40", "76", "external"]),
+    rollCoreMm: z.enum(["12.5", "19", "25", "25.4", "40", "76", "external"]),
     rollOuterDiameterMm: z.coerce.number().min(25).max(230),
     gapMm: z.coerce.number().min(0),
     hasBlackMark: z.boolean(),
     blackMarkPosition: z.enum(["none", "front", "back"]),
     adhesive: z.enum(["acrylic", "hotmelt", "removable"]),
-    quantity: z.coerce.number().min(100, "Quantitat mínima: 100.")
+    hasBackgroundColor: z.boolean(),
+    backgroundColorHex: z
+      .string()
+      .regex(/^#[0-9A-Fa-f]{6}$/, "Color invalid."),
+    backgroundColorNotes: z.string().optional().or(z.literal("")),
+    quantity: z.coerce.number().min(100, "Quantitat minima: 100.")
   })
   .superRefine((data, ctx) => {
     const maxWidthByPrinter: Record<typeof data.printerType, number> = {
-      desktop: 114,
-      industrial: 180
+      desktop: 112,
+      portable: 112,
+      industrial: 214
     };
     const coreByPrinter: Record<typeof data.printerType, string[]> = {
       desktop: ["25.4", "40"],
+      portable: ["19", "25"],
       industrial: ["40", "76"]
     };
-    const outerRollRangeByPrinter: Record<
-      typeof data.printerType,
-      { min: number; max: number }
-    > = {
-      desktop: { min: 40, max: 120 },
-      industrial: { min: 76, max: 230 }
+    const widthClassesByPrinter: Record<typeof data.printerType, string[]> = {
+      desktop: ["2", "3", "4"],
+      portable: ["2", "3", "4"],
+      industrial: ["4", "6", "8"]
+    };
+    const maxWidthByClass: Record<Exclude<typeof data.printerWidthClass, "">, number> = {
+      "2": 58,
+      "3": 76,
+      "4": 112,
+      "6": 168,
+      "8": 214
+    };
+    const outerRollOptionsByPrinter: Record<typeof data.printerType, number[]> = {
+      desktop: [90, 100, 115],
+      portable: [50, 56, 66],
+      industrial: [150, 180, 190]
     };
 
     if (data.labelWidthMm > maxWidthByPrinter[data.printerType]) {
@@ -74,12 +92,11 @@ export const wizardSchema = z
       });
     }
 
-    // Condició: si hi ha marca negra, cal indicar posició.
     if (data.hasBlackMark && data.blackMarkPosition === "none") {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["blackMarkPosition"],
-        message: "Selecciona posició de la marca negra."
+        message: "Selecciona posicio de la marca negra."
       });
     }
 
@@ -87,7 +104,7 @@ export const wizardSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["blackMarkPosition"],
-        message: "Si no hi ha marca negra, la posició ha de ser 'sense marca'."
+        message: "Si no hi ha marca negra, la posicio ha de ser 'sense marca'."
       });
     }
 
@@ -95,7 +112,7 @@ export const wizardSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["ribbonType"],
-        message: "En tèrmica directa no es fa servir ribbon."
+        message: "En termica directa no es fa servir ribbon."
       });
     }
 
@@ -103,7 +120,29 @@ export const wizardSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["ribbonType"],
-        message: "Selecciona el tipus de ribbon (o marca 'No ho sé')."
+        message: "Selecciona el tipus de ribbon (o marca 'No ho se')."
+      });
+    }
+
+    if (
+      data.printerWidthClass &&
+      !widthClassesByPrinter[data.printerType].includes(data.printerWidthClass)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["printerWidthClass"],
+        message: "Aquesta polzada no es compatible amb el tipus d'impressora seleccionat."
+      });
+    }
+
+    if (
+      data.printerWidthClass &&
+      data.labelWidthMm > maxWidthByClass[data.printerWidthClass]
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["labelWidthMm"],
+        message: `Amb ${data.printerWidthClass}" la mida maxima es ${maxWidthByClass[data.printerWidthClass]} mm.`
       });
     }
 
@@ -111,19 +150,15 @@ export const wizardSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["rollCoreMm"],
-        message: "Aquest mandrí no és compatible amb el tipus d'impressora seleccionat."
+        message: "Aquest mandri no es compatible amb el tipus d'impressora seleccionat."
       });
     }
 
-    const outerRange = outerRollRangeByPrinter[data.printerType];
-    if (
-      data.rollOuterDiameterMm < outerRange.min ||
-      data.rollOuterDiameterMm > outerRange.max
-    ) {
+    if (!outerRollOptionsByPrinter[data.printerType].includes(data.rollOuterDiameterMm)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["rollOuterDiameterMm"],
-        message: `La bobina per aquesta impressora ha d'estar entre ${outerRange.min} i ${outerRange.max} mm.`
+        message: "Aquest diametre exterior no es compatible amb el tipus d'impressora seleccionat."
       });
     }
 
@@ -131,7 +166,7 @@ export const wizardSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["gapMm"],
-        message: "Si tries GAP, la separació ha de ser superior a 0."
+        message: "Si tries GAP, la separacio ha de ser superior a 0."
       });
     }
 
@@ -139,7 +174,15 @@ export const wizardSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["cutType"],
-        message: "Marca un tipus de tall o desactiva l'opció de tall."
+        message: "Marca un tipus de tall o desactiva l'opcio de tall."
+      });
+    }
+
+    if (!data.hasBackgroundColor && data.backgroundColorHex !== "#FFFFFF") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["backgroundColorHex"],
+        message: "Si no hi ha color de fons, el color ha de quedar en blanc."
       });
     }
   });
@@ -152,6 +195,7 @@ export const defaultWizardValues: WizardValues = {
   email: "",
   phone: "",
   printerType: "desktop",
+  printerWidthClass: "",
   printTechnology: "direct-thermal",
   ribbonType: "none",
   materialType: "paper-thermal-eco",
@@ -166,5 +210,8 @@ export const defaultWizardValues: WizardValues = {
   hasBlackMark: false,
   blackMarkPosition: "none",
   adhesive: "acrylic",
+  hasBackgroundColor: false,
+  backgroundColorHex: "#FFFFFF",
+  backgroundColorNotes: "",
   quantity: 1000
 };

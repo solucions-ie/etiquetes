@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { defaultWizardValues, wizardSchema, WizardValues } from "@/lib/schemas/wizard";
@@ -11,14 +11,33 @@ import { StepMaterial } from "./steps/StepMaterial";
 import { WizardStagePreview } from "@/components/preview/WizardStagePreview";
 
 const printerMaxWidthMm: Record<WizardValues["printerType"], number> = {
-  desktop: 114,
-  industrial: 180
+  desktop: 112,
+  portable: 112,
+  industrial: 214
+};
+
+const printerWidthClassMaxMm: Record<Exclude<WizardValues["printerWidthClass"], "">, number> = {
+  "2": 58,
+  "3": 76,
+  "4": 112,
+  "6": 168,
+  "8": 214
+};
+
+const printerWidthClasses: Record<
+  WizardValues["printerType"],
+  Array<WizardValues["printerWidthClass"]>
+> = {
+  desktop: ["2", "3", "4"],
+  portable: ["2", "3", "4"],
+  industrial: ["4", "6", "8"]
 };
 
 export function LabelWizard() {
   const [isSending, setIsSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
+  const previousPrinterType = useRef<WizardValues["printerType"] | null>(null);
 
   const {
     register,
@@ -45,6 +64,12 @@ export function LabelWizard() {
       setValue("ribbonType", "none");
     }
   }, [setValue, values.printTechnology, values.ribbonType]);
+
+  useEffect(() => {
+    if (!values.hasBackgroundColor && values.backgroundColorHex !== "#FFFFFF") {
+      setValue("backgroundColorHex", "#FFFFFF");
+    }
+  }, [setValue, values.hasBackgroundColor, values.backgroundColorHex]);
 
   useEffect(() => {
     if (values.labelFlowType === "gap") {
@@ -88,10 +113,26 @@ export function LabelWizard() {
   }, [setValue, values.hasCut, values.cutType, values.labelFlowType]);
 
   useEffect(() => {
-    const defaultWidth = printerMaxWidthMm[values.printerType];
-    setValue("labelWidthMm", defaultWidth, { shouldValidate: true });
+    if (previousPrinterType.current && previousPrinterType.current !== values.printerType) {
+      setValue("printerWidthClass", "", { shouldValidate: true });
+    } else if (
+      values.printerWidthClass &&
+      !printerWidthClasses[values.printerType].includes(values.printerWidthClass)
+    ) {
+      setValue("printerWidthClass", "", { shouldValidate: true });
+    }
+
+    previousPrinterType.current = values.printerType;
+  }, [setValue, values.printerType, values.printerWidthClass]);
+
+  useEffect(() => {
+    const selectedMaxWidth = values.printerWidthClass
+      ? printerWidthClassMaxMm[values.printerWidthClass]
+      : printerMaxWidthMm[values.printerType];
+
+    setValue("labelWidthMm", selectedMaxWidth, { shouldValidate: true });
     setValue("labelHeightMm", 50, { shouldValidate: true });
-  }, [setValue, values.printerType]);
+  }, [setValue, values.printerType, values.printerWidthClass]);
 
   const onSubmit = async (formData: WizardValues) => {
     setSendError(null);
@@ -158,16 +199,18 @@ export function LabelWizard() {
             <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-700">
               Tipus d'impressora
             </h3>
-            <StepPrinter register={register} errors={errors} watch={watch} />
+            <StepPrinter register={register} setValue={setValue} errors={errors} watch={watch} />
           </div>
 
           <div className="xl:col-span-6">
             <div className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-3">
               <WizardStagePreview
                 register={register}
+                setValue={setValue}
                 errors={errors}
                 values={{
                   printerType: values.printerType,
+                  printerWidthClass: values.printerWidthClass,
                   printTechnology: values.printTechnology,
                   ribbonType: values.ribbonType,
                   labelFlowType: values.labelFlowType,
@@ -178,6 +221,8 @@ export function LabelWizard() {
                   gapMm: values.gapMm,
                   hasBlackMark: values.hasBlackMark,
                   blackMarkPosition: values.blackMarkPosition,
+                  hasBackgroundColor: values.hasBackgroundColor,
+                  backgroundColorHex: values.backgroundColorHex,
                   rollCoreMm: values.rollCoreMm,
                   rollOuterDiameterMm: values.rollOuterDiameterMm,
                   adhesive: values.adhesive,

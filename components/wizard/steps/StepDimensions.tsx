@@ -25,18 +25,35 @@ const coreOptionsMap: Record<
     { value: "25.4", label: "25,4 mm (1\")" },
     { value: "40", label: "40 mm" }
   ],
+  portable: [
+    { value: "19", label: "19 mm" },
+    { value: "25", label: "25 mm" }
+  ],
   industrial: [
     { value: "40", label: "40 mm" },
     { value: "76", label: "76 mm (3\")" }
   ]
 };
 
-const outerRangeByPrinter: Record<
+const outerOptionsMap: Record<
   WizardValues["printerType"],
-  { min: number; max: number; hint: string }
+  Array<{ value: number; label: string }>
 > = {
-  desktop: { min: 40, max: 120, hint: "Sobretaula: diametre 40 a 120 mm" },
-  industrial: { min: 76, max: 230, hint: "Industrial: diametre 76 a 230 mm" }
+  desktop: [
+    { value: 90, label: "90 mm" },
+    { value: 100, label: "100 mm" },
+    { value: 115, label: "115 mm" }
+  ],
+  portable: [
+    { value: 50, label: "50 mm" },
+    { value: 56, label: "56 mm" },
+    { value: 66, label: "66 mm" }
+  ],
+  industrial: [
+    { value: 150, label: "150 mm" },
+    { value: 180, label: "180 mm" },
+    { value: 190, label: "190 mm" }
+  ]
 };
 
 export function StepDimensions({
@@ -50,7 +67,7 @@ export function StepDimensions({
   const rollCore = watch("rollCoreMm");
   const rollOuter = watch("rollOuterDiameterMm");
   const coreOptions = coreOptionsMap[printerType];
-  const outerRange = outerRangeByPrinter[printerType];
+  const outerOptions = outerOptionsMap[printerType];
 
   useEffect(() => {
     if (!coreOptions.some((opt) => opt.value === rollCore)) {
@@ -59,10 +76,10 @@ export function StepDimensions({
   }, [coreOptions, rollCore, setValue]);
 
   useEffect(() => {
-    if (rollOuter < outerRange.min || rollOuter > outerRange.max) {
-      setValue("rollOuterDiameterMm", outerRange.max, { shouldValidate: true });
+    if (!outerOptions.some((option) => option.value === rollOuter)) {
+      setValue("rollOuterDiameterMm", outerOptions[0].value, { shouldValidate: true });
     }
-  }, [outerRange.max, outerRange.min, rollOuter, setValue]);
+  }, [outerOptions, rollOuter, setValue]);
 
   const wrapperClass = compact
     ? "flex h-full flex-col rounded-xl border border-slate-200 bg-white p-3"
@@ -95,14 +112,16 @@ export function StepDimensions({
           </div>
           <div>
             <label className="field-label">Diametre exterior bobina (mm)</label>
-            <input
+            <select
               className="field-input"
-              type="number"
-              min={outerRange.min}
-              max={outerRange.max}
               {...register("rollOuterDiameterMm", { valueAsNumber: true })}
-            />
-            <p className="mt-1 text-xs text-slate-500">{outerRange.hint}</p>
+            >
+              {outerOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
             {errors.rollOuterDiameterMm && (
               <p className="field-error">{errors.rollOuterDiameterMm.message as string}</p>
             )}
@@ -112,20 +131,31 @@ export function StepDimensions({
           <svg
             className={svgClass}
             preserveAspectRatio={compact ? "xMidYMid meet" : undefined}
-            viewBox="0 0 520 220"
+            viewBox="0 0 520 240"
             role="img"
             aria-label="Il-lustracio de mandril i diametre exterior"
           >
             {(() => {
-              const innerRx = Math.max(18, Math.min(40, Number(rollCore) / 1.45));
-              const innerRy = Math.max(12, Math.min(26, Number(rollCore) / 2.2));
-              const outerRx = Math.max(innerRx + 28, Math.min(124, rollOuter / 1.65));
-              const outerRy = Math.max(innerRy + 18, Math.min(76, rollOuter / 2.45));
+              const outerOptions = outerOptionsMap[printerType].map((option) => option.value);
+              const minOuter = Math.min(...outerOptions);
+              const maxOuter = Math.max(...outerOptions);
+              const normalizedOuter =
+                maxOuter === minOuter ? 1 : (rollOuter - minOuter) / (maxOuter - minOuter);
+              const coreOptions = coreOptionsMap[printerType].map((option) => Number(option.value));
+              const minCore = Math.min(...coreOptions);
+              const maxCore = Math.max(...coreOptions);
+              const normalizedCore =
+                maxCore === minCore ? 1 : (Number(rollCore) - minCore) / (maxCore - minCore);
+
+              const innerRx = 22 + normalizedCore * 18;
+              const innerRy = 15 + normalizedCore * 10;
+              const outerRx = innerRx + 40 + normalizedOuter * 56;
+              const outerRy = innerRy + 26 + normalizedOuter * 34;
               const cx = 260;
-              const cy = 136;
+              const cy = 148;
               return (
                 <>
-                  <ellipse cx={cx} cy={cy + 16} rx={outerRx} ry={outerRy} fill="#cfd8e3" opacity="0.55" />
+                  <ellipse cx={cx} cy={cy + 18} rx={outerRx} ry={outerRy} fill="#cfd8e3" opacity="0.55" />
                   <ellipse cx={cx} cy={cy} rx={outerRx} ry={outerRy} fill="#e2e8f0" stroke="#475569" strokeWidth="2" />
                   <ellipse cx={cx} cy={cy} rx={innerRx} ry={innerRy} fill="#ffffff" stroke="#64748b" strokeWidth="1.6" />
 

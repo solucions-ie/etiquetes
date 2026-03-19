@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { FieldErrors, UseFormRegister } from "react-hook-form";
+import { ChangeEvent, useEffect, useRef } from "react";
+import { FieldErrors, UseFormRegister, UseFormSetValue } from "react-hook-form";
 import { WizardValues } from "@/lib/schemas/wizard";
 
 type PreviewValues = Pick<
   WizardValues,
   | "printerType"
+  | "printerWidthClass"
   | "printTechnology"
   | "ribbonType"
   | "labelFlowType"
@@ -19,6 +20,8 @@ type PreviewValues = Pick<
   | "gapMm"
   | "hasBlackMark"
   | "blackMarkPosition"
+  | "hasBackgroundColor"
+  | "backgroundColorHex"
   | "adhesive"
   | "quantity"
 >;
@@ -26,40 +29,62 @@ type PreviewValues = Pick<
 type WizardStagePreviewProps = {
   values: PreviewValues;
   register: UseFormRegister<WizardValues>;
+  setValue: UseFormSetValue<WizardValues>;
   errors: FieldErrors<WizardValues>;
 };
 
 const printerLabelMap: Record<WizardValues["printerType"], string> = {
   desktop: "Sobretaula",
+  portable: "Portatil",
   industrial: "Industrial"
 };
 
 const printerMaxWidthMm: Record<WizardValues["printerType"], number> = {
-  desktop: 114,
-  industrial: 180
+  desktop: 112,
+  portable: 112,
+  industrial: 214
+};
+
+const printerWidthClassMm: Record<Exclude<WizardValues["printerWidthClass"], "">, number> = {
+  "2": 58,
+  "3": 76,
+  "4": 112,
+  "6": 168,
+  "8": 214
+};
+
+const printerHeadConfig: Record<
+  WizardValues["printerType"],
+  { headWidth: number; slotWidth: number; headX: number }
+> = {
+  portable: { headWidth: 156, slotWidth: 124, headX: 202 },
+  desktop: { headWidth: 200, slotWidth: 168, headX: 180 },
+  industrial: { headWidth: 250, slotWidth: 214, headX: 155 }
 };
 
 function PrinterMaxInfo({ values }: { values: PreviewValues }) {
   const maxWidth = printerMaxWidthMm[values.printerType];
-  const exceeds = values.labelWidthMm > maxWidth;
+  const selectedWidthLimit = values.printerWidthClass
+    ? printerWidthClassMm[values.printerWidthClass]
+    : null;
+  const exceedsSelectedWidth = selectedWidthLimit
+    ? values.labelWidthMm > selectedWidthLimit
+    : false;
+  const exceedsFamilyMax = values.labelWidthMm > maxWidth;
+
+  if (!exceedsSelectedWidth && !exceedsFamilyMax) {
+    return null;
+  }
 
   return (
-    <div
-      className={`rounded-xl border p-3 text-xs ${
-        exceeds
-          ? "border-amber-300 bg-amber-50 text-amber-800"
-          : "border-slate-200 bg-white text-slate-700"
-      }`}
-    >
-      <p className="font-semibold">
-        Impressora: {printerLabelMap[values.printerType]} | Amplada maxima orientativa {maxWidth} mm
-      </p>
-      <p className="mt-1">
-        Amplada seleccionada: <strong>{values.labelWidthMm} mm</strong>
-      </p>
-      {exceeds && (
-        <p className="mt-1 font-semibold">
-          Aquesta amplada supera el maxim recomanat per aquesta impressora.
+    <div className="rounded-xl border border-amber-300 bg-amber-50 p-3 text-xs text-amber-800">
+      {selectedWidthLimit ? (
+        <p className="font-semibold">
+          Amb {values.printerWidthClass}" la mida maxima recomanada es {selectedWidthLimit} mm.
+        </p>
+      ) : (
+        <p className="font-semibold">
+          Aquesta familia d'impressora admet fins a {maxWidth} mm d'amplada.
         </p>
       )}
     </div>
@@ -78,7 +103,8 @@ function SupportLabelPreview({ values }: { values: PreviewValues }) {
   const centerX = 280;
   const printerTop = 92;
   const supportY = printerTop + 26;
-  const outputSlotW = 168;
+  const headConfig = printerHeadConfig[values.printerType];
+  const outputSlotW = headConfig.slotWidth;
   const maxLabelWInSlot = outputSlotW - 6;
   const maxWidthForPrinter = printerMaxWidthMm[values.printerType];
   const widthRatio = Math.max(
@@ -106,6 +132,7 @@ function SupportLabelPreview({ values }: { values: PreviewValues }) {
   const supportW = labelW + sideMarginPx * 2;
   const supportH = label3Y + labelH - supportY + topBottomMarginPx;
   const flowType = values.labelFlowType;
+  const labelFill = values.hasBackgroundColor ? values.backgroundColorHex : "url(#labelFace)";
 
   return (
     <div
@@ -125,7 +152,14 @@ function SupportLabelPreview({ values }: { values: PreviewValues }) {
           </linearGradient>
         </defs>
 
-        <rect x="180" y={printerTop} width="200" height="22" rx="6" fill="#334155" />
+        <rect
+          x={headConfig.headX}
+          y={printerTop}
+          width={headConfig.headWidth}
+          height="22"
+          rx="6"
+          fill="#334155"
+        />
         <rect
           x={centerX - outputSlotW / 2}
           y={printerTop + 6}
@@ -163,7 +197,7 @@ function SupportLabelPreview({ values }: { values: PreviewValues }) {
                 width={labelW}
                 height={labelH}
                 rx="10"
-                fill="url(#labelFace)"
+                fill={labelFill}
                 stroke="#334155"
                 strokeWidth="2"
               />
@@ -210,7 +244,7 @@ function SupportLabelPreview({ values }: { values: PreviewValues }) {
               width={labelW}
               height={label3Y + labelH - label1Y}
               rx="10"
-              fill="url(#labelFace)"
+              fill={labelFill}
               stroke="#334155"
               strokeWidth="2"
             />
@@ -263,7 +297,32 @@ function SupportLabelPreview({ values }: { values: PreviewValues }) {
   );
 }
 
-export function WizardStagePreview({ values, register, errors }: WizardStagePreviewProps) {
+export function WizardStagePreview({
+  values,
+  register,
+  setValue,
+  errors
+}: WizardStagePreviewProps) {
+  const handleBackgroundColorChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setValue("backgroundColorHex", event.target.value.toUpperCase(), {
+      shouldValidate: true,
+      shouldTouch: true
+    });
+  };
+
+  const handleBackgroundToggle = (enabled: boolean) => {
+    setValue("hasBackgroundColor", enabled, {
+      shouldValidate: true,
+      shouldTouch: true
+    });
+    if (!enabled) {
+      setValue("backgroundColorHex", "#FFFFFF", {
+        shouldValidate: true,
+        shouldTouch: true
+      });
+    }
+  };
+
   return (
     <div className="space-y-3">
       <div className="overflow-hidden rounded-2xl border border-slate-200">
@@ -277,6 +336,11 @@ export function WizardStagePreview({ values, register, errors }: WizardStagePrev
                 className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs"
                 type="number"
                 min={15}
+                max={
+                  values.printerWidthClass
+                    ? printerWidthClassMm[values.printerWidthClass]
+                    : printerMaxWidthMm[values.printerType]
+                }
                 {...register("labelWidthMm", { valueAsNumber: true })}
               />
             </div>
@@ -375,6 +439,65 @@ export function WizardStagePreview({ values, register, errors }: WizardStagePrev
             )}
           </aside>
         </div>
+      </div>
+
+      <div className="rounded-xl border border-slate-200 bg-white p-3">
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-600">
+          Color de fons
+        </p>
+        <div className="mt-2 grid gap-2 sm:grid-cols-2">
+          <label className="flex items-center gap-2 rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-700">
+            <input
+              type="radio"
+              checked={!values.hasBackgroundColor}
+              onChange={() => handleBackgroundToggle(false)}
+            />
+            Sense color
+          </label>
+          <label className="flex items-center gap-2 rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-700">
+            <input
+              type="radio"
+              checked={values.hasBackgroundColor}
+              onChange={() => handleBackgroundToggle(true)}
+            />
+            Amb color
+          </label>
+        </div>
+
+        {values.hasBackgroundColor && (
+          <div className="mt-3 space-y-3">
+            <div>
+              <label className="mb-2 block text-sm font-medium text-slate-700">Color escollit</label>
+              <div className="flex items-center gap-3">
+                <input
+                  className="h-11 w-16 cursor-pointer rounded-lg border border-slate-300 bg-white p-1"
+                  type="color"
+                  value={values.backgroundColorHex}
+                  onChange={handleBackgroundColorChange}
+                />
+                <input
+                  className="field-input"
+                  value={values.backgroundColorHex}
+                  onChange={handleBackgroundColorChange}
+                />
+              </div>
+              {errors.backgroundColorHex && (
+                <p className="field-error">{errors.backgroundColorHex.message as string}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-medium text-slate-700">
+                Observacions del color (opcional)
+              </label>
+              <input
+                className="field-input"
+                placeholder="Ex. blau corporatiu, Pantone aproximat..."
+                {...register("backgroundColorNotes")}
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       <PrinterMaxInfo values={values} />
