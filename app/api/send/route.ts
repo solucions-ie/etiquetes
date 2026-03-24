@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server";
-import { readFile } from "node:fs/promises";
-import path from "node:path";
 import { Resend } from "resend";
-import { createEmailIllustrationImageResponse } from "@/lib/email/emailIllustrationImage";
 import {
   generateLabelIllustrationSvg
 } from "@/lib/email/labelIllustration";
@@ -149,46 +146,34 @@ function getSiteUrl() {
   return "https://etiquetes.s-ie.cat";
 }
 
-function generateLabelEmailHtml(data: ReturnType<typeof wizardSchema.parse>): string {
-  return `<img src="cid:label-illustration" alt="Il·lustració tècnica de l'etiqueta" width="320" style="display:block;width:100%;max-width:320px;height:auto;margin:0 auto;" />`;
-}
-
-async function buildInlineAttachments(data: ReturnType<typeof wizardSchema.parse>) {
+function buildIllustrationUrl(data: ReturnType<typeof wizardSchema.parse>) {
   const outerD =
     typeof data.rollOuterDiameterMm === "number" ? data.rollOuterDiameterMm : 100;
   const coreM = data.rollCoreMm === "external" ? 40 : Number(data.rollCoreMm);
   const coreLabel = data.rollCoreMm === "external" ? "extern" : `${coreM} mm`;
-  const [logoBuffer, illustrationArrayBuffer] = await Promise.all([
-    readFile(path.join(process.cwd(), "public", "logo-sie.png")),
-    createEmailIllustrationImageResponse({
-      labelWidthMm: data.labelWidthMm,
-      labelHeightMm: data.labelHeightMm,
-      labelFlowType: data.labelFlowType,
-      rollOuterDiameterMm: outerD,
-      rollCoreMm: coreM,
-      rollCoreLabel: coreLabel,
-      hasBackgroundColor: data.hasBackgroundColor,
-      backgroundColorHex: data.backgroundColorHex
-    }).arrayBuffer()
-  ]);
-  const illustrationBase64 = Buffer.from(illustrationArrayBuffer).toString("base64");
-  const logoBase64 = logoBuffer.toString("base64");
+  const params = new URLSearchParams({
+    labelWidthMm: String(data.labelWidthMm),
+    labelHeightMm: String(data.labelHeightMm),
+    labelFlowType: data.labelFlowType,
+    rollOuterDiameterMm: String(outerD),
+    rollCoreMm: String(coreM),
+    rollCoreLabel: coreLabel,
+    printerType: data.printerType,
+    hasBackgroundColor: String(data.hasBackgroundColor),
+    backgroundColorHex: data.backgroundColorHex
+  });
 
-  return [
-    {
-      content: logoBase64,
-      filename: "logo-sie.png",
-      contentType: "image/png",
-      contentId: "sie-logo"
-    },
-    {
-      content: illustrationBase64,
-      filename: "label-illustration.png",
-      contentType: "image/png",
-      contentId: "label-illustration"
-    }
-  ];
+  return `${getSiteUrl()}/api/email-illustration?${params.toString()}`;
 }
+
+function buildLogoUrl() {
+  return `${getSiteUrl()}/logo-sie.png`;
+}
+
+function generateLabelEmailHtml(data: ReturnType<typeof wizardSchema.parse>): string {
+  return `<img src="${escapeHtml(buildIllustrationUrl(data))}" alt="Illustracio tecnica de l'etiqueta" width="320" style="display:block;width:100%;max-width:320px;height:auto;margin:0 auto;" />`;
+}
+
 
 // ──────────────────────────────────────────────
 // Email HTML builder
@@ -289,7 +274,7 @@ function renderEmailHtml(params: {
         <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
           <tr>
             <td style="padding:14px 20px;vertical-align:middle;">
-              <img src="cid:sie-logo" alt="S-IE" style="height:28px;width:auto;display:block;" />
+              <img src="${escapeHtml(buildLogoUrl())}" alt="S-IE" style="height:28px;width:auto;display:block;" />
             </td>
             <td style="padding:14px 20px;text-align:right;vertical-align:middle;">
               <span style="color:#e2e8f0;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;display:block;">INFORME DE SOL·LICITUD D&apos;ETIQUETA</span>
@@ -412,7 +397,7 @@ function renderTechnicalSheetHtml(data: ReturnType<typeof wizardSchema.parse>) {
         <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
           <tr>
             <td style="padding:14px 20px;vertical-align:middle;">
-              <img src="cid:sie-logo" alt="S-IE" style="height:28px;width:auto;display:block;" />
+              <img src="${escapeHtml(buildLogoUrl())}" alt="S-IE" style="height:28px;width:auto;display:block;" />
             </td>
             <td style="padding:14px 20px;text-align:right;vertical-align:middle;">
               <span style="color:#e2e8f0;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;display:block;">FITXA TECNICA D&apos;ETIQUETA</span>
@@ -482,7 +467,6 @@ export async function POST(request: Request) {
     }
 
     const resend = new Resend(process.env.RESEND_API_KEY);
-    const inlineAttachments = await buildInlineAttachments(data);
 
     const [customerResult, internalResult] = await Promise.all([
       resend.emails.send({
@@ -490,7 +474,6 @@ export async function POST(request: Request) {
         to: data.email,
         replyTo: replyToEmail,
         subject: "Confirmacio: sollicitud d'etiqueta rebuda",
-        attachments: inlineAttachments,
         html: renderEmailHtml({
           title: "Hem rebut la teva sollicitud",
           intro:
@@ -504,7 +487,6 @@ export async function POST(request: Request) {
         to: secretaryEmail,
         replyTo: replyToEmail,
         subject: `Nova sollicitud d'etiqueta - ${data.company}`,
-        attachments: inlineAttachments,
         html: renderTechnicalSheetHtml(data)
       })
     ]);
