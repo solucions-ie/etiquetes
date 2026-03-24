@@ -346,7 +346,7 @@ export function WizardStagePreview({
             </div>
             <div>
               <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-slate-600">
-                Alcada
+                Avanç
               </label>
               <input
                 className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs"
