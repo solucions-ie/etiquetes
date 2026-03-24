@@ -1,6 +1,8 @@
 import chromium from "@sparticuz/chromium";
 import puppeteer from "puppeteer-core";
 
+const CHROMIUM_RELEASE = "v143.0.0";
+
 function getExecutablePath() {
   if (process.env.CHROMIUM_EXECUTABLE_PATH) {
     return process.env.CHROMIUM_EXECUTABLE_PATH;
@@ -13,7 +15,7 @@ function getExecutablePath() {
   if (process.env.VERCEL) {
     const arch = process.arch === "arm64" ? "arm64" : "x64";
     return chromium.executablePath(
-      `https://github.com/Sparticuz/chromium/releases/latest/download/chromium-pack.${arch}.tar`
+      `https://github.com/Sparticuz/chromium/releases/download/${CHROMIUM_RELEASE}/chromium-${CHROMIUM_RELEASE}-pack.${arch}.tar`
     );
   }
 
