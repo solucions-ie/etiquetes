@@ -164,7 +164,39 @@ function generateLabelEmailHtml(data: ReturnType<typeof wizardSchema.parse>): st
     backgroundColorHex: data.backgroundColorHex
   });
 
-  return `<img src="${siteUrl}/api/email-illustration?${params.toString()}" alt="Il·lustració tècnica de l'etiqueta" width="320" style="display:block;width:100%;max-width:320px;height:auto;margin:0 auto;" />`;
+  return `<img src="cid:label-illustration" alt="Il·lustració tècnica de l'etiqueta" width="320" style="display:block;width:100%;max-width:320px;height:auto;margin:0 auto;" />`;
+}
+
+function buildInlineAttachments(data: ReturnType<typeof wizardSchema.parse>) {
+  const outerD =
+    typeof data.rollOuterDiameterMm === "number" ? data.rollOuterDiameterMm : 100;
+  const coreM = data.rollCoreMm === "external" ? 40 : Number(data.rollCoreMm);
+  const coreLabel = data.rollCoreMm === "external" ? "extern" : `${coreM} mm`;
+  const siteUrl = getSiteUrl();
+  const params = new URLSearchParams({
+    labelWidthMm: String(data.labelWidthMm),
+    labelHeightMm: String(data.labelHeightMm),
+    labelFlowType: data.labelFlowType,
+    rollOuterDiameterMm: String(outerD),
+    rollCoreMm: String(coreM),
+    rollCoreLabel: coreLabel,
+    printerType: data.printerType,
+    hasBackgroundColor: String(data.hasBackgroundColor),
+    backgroundColorHex: data.backgroundColorHex
+  });
+
+  return [
+    {
+      path: `${siteUrl}/logo-sie.png`,
+      filename: "logo-sie.png",
+      contentId: "sie-logo"
+    },
+    {
+      path: `${siteUrl}/api/email-illustration?${params.toString()}`,
+      filename: "label-illustration.png",
+      contentId: "label-illustration"
+    }
+  ];
 }
 
 // ──────────────────────────────────────────────
@@ -266,7 +298,7 @@ function renderEmailHtml(params: {
         <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
           <tr>
             <td style="padding:14px 20px;vertical-align:middle;">
-              <img src="https://etiquetes.s-ie.cat/logo-sie.png" alt="S-IE" style="height:28px;width:auto;display:block;" />
+              <img src="cid:sie-logo" alt="S-IE" style="height:28px;width:auto;display:block;" />
             </td>
             <td style="padding:14px 20px;text-align:right;vertical-align:middle;">
               <span style="color:#e2e8f0;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;display:block;">INFORME DE SOL·LICITUD D&apos;ETIQUETA</span>
@@ -389,7 +421,7 @@ function renderTechnicalSheetHtml(data: ReturnType<typeof wizardSchema.parse>) {
         <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
           <tr>
             <td style="padding:14px 20px;vertical-align:middle;">
-              <img src="https://etiquetes.s-ie.cat/logo-sie.png" alt="S-IE" style="height:28px;width:auto;display:block;" />
+              <img src="cid:sie-logo" alt="S-IE" style="height:28px;width:auto;display:block;" />
             </td>
             <td style="padding:14px 20px;text-align:right;vertical-align:middle;">
               <span style="color:#e2e8f0;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;display:block;">FITXA TECNICA D&apos;ETIQUETA</span>
@@ -459,6 +491,7 @@ export async function POST(request: Request) {
     }
 
     const resend = new Resend(process.env.RESEND_API_KEY);
+    const inlineAttachments = buildInlineAttachments(data);
 
     const [customerResult, internalResult] = await Promise.all([
       resend.emails.send({
@@ -466,6 +499,7 @@ export async function POST(request: Request) {
         to: data.email,
         replyTo: replyToEmail,
         subject: "Confirmacio: sollicitud d'etiqueta rebuda",
+        attachments: inlineAttachments,
         html: renderEmailHtml({
           title: "Hem rebut la teva sollicitud",
           intro:
@@ -479,6 +513,7 @@ export async function POST(request: Request) {
         to: secretaryEmail,
         replyTo: replyToEmail,
         subject: `Nova sollicitud d'etiqueta - ${data.company}`,
+        attachments: inlineAttachments,
         html: renderTechnicalSheetHtml(data)
       })
     ]);
