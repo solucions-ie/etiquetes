@@ -152,6 +152,19 @@ async function readLogoAsset() {
   };
 }
 
+function getPublicSiteUrl() {
+  const raw =
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    process.env.SITE_URL ||
+    process.env.VERCEL_PROJECT_PRODUCTION_URL;
+
+  if (!raw) {
+    return "http://localhost:3000";
+  }
+
+  return raw.startsWith("http") ? raw : `https://${raw}`;
+}
+
 async function buildEmailAttachments(data: ReturnType<typeof wizardSchema.parse>) {
   const logo = await readLogoAsset();
   const pdfHtml = buildHtmlDocument(
@@ -160,12 +173,6 @@ async function buildEmailAttachments(data: ReturnType<typeof wizardSchema.parse>
   const pdfBuffer = await renderHtmlToPdf(pdfHtml);
 
   return [
-    {
-      content: logo.base64,
-      filename: "logo-sie.png",
-      contentType: "image/png",
-      contentId: "sie-logo"
-    },
     {
       content: pdfBuffer.toString("base64"),
       filename: `fitxa-tecnica-${data.company.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").toLowerCase() || "etiqueta"}.pdf`,
@@ -468,32 +475,35 @@ export async function POST(request: Request) {
 
     const resend = new Resend(process.env.RESEND_API_KEY);
     const attachments = await buildEmailAttachments(data);
+    const logoSrc = `${getPublicSiteUrl()}/logo-sie.png`;
 
     const [customerResult, internalResult] = await Promise.all([
       resend.emails.send({
         from: fromEmail,
         to: data.email,
         replyTo: replyToEmail,
-        subject: "Confirmacio: sollicitud d'etiqueta rebuda",
+        subject: "Confirmació: sol·licitud d'etiqueta rebuda",
         attachments: attachments,
         html: renderCompactEmailHtml({
           title: "INFORME DE SOLLICITUD D'ETIQUETA",
           intro:
-            "Aquest es el resum tecnic de la configuracio enviada. La fitxa tecnica completa s'adjunta en PDF.",
+            "Aquest és el resum tècnic de la configuració enviada. La fitxa tècnica completa s'adjunta en PDF.",
           data,
-          showGreeting: true
+          showGreeting: true,
+          logoSrc
         })
       }),
       resend.emails.send({
         from: fromEmail,
         to: secretaryEmail,
         replyTo: replyToEmail,
-        subject: `Nova sollicitud d'etiqueta - ${data.company}`,
+        subject: `Nova sol·licitud d'etiqueta - ${data.company}`,
         attachments: attachments,
         html: renderCompactEmailHtml({
           title: "NOVA SOLLICITUD D'ETIQUETA",
-          intro: "S'adjunta la fitxa tecnica completa en PDF.",
-          data
+          intro: "S'adjunta la fitxa tècnica completa en PDF.",
+          data,
+          logoSrc
         })
       })
     ]);

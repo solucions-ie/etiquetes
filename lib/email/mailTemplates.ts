@@ -14,7 +14,7 @@ function escapeHtml(value: string) {
 
 function printerLabel(printerType: WizardData["printerType"]) {
   if (printerType === "desktop") return "Sobretaula";
-  if (printerType === "portable") return "Portatil";
+  if (printerType === "portable") return "Portàtil";
   return "Industrial";
 }
 
@@ -24,21 +24,21 @@ function printerWidthClassLabel(widthClass: WizardData["printerWidthClass"]) {
 
 function materialLabel(materialType: WizardData["materialType"]) {
   const map: Record<WizardData["materialType"], string> = {
-    "paper-thermal-eco": "Etiqueta termica eco",
-    "paper-thermal-protected": "Etiqueta termica protegida",
-    "paper-thermal-direct-ticket": "Paper termic - Tiquet (sense adhesiu)",
+    "paper-thermal-eco": "Etiqueta tèrmica eco",
+    "paper-thermal-protected": "Etiqueta tèrmica protegida",
+    "paper-thermal-direct-ticket": "Paper tèrmic - Tiquet (sense adhesiu)",
     "paper-couche": "Etiqueta couche",
     "paper-matte": "Etiqueta mate",
     "paper-inkjet-gloss": "Etiqueta inkjet brillant",
     "paper-inkjet-matte": "Etiqueta inkjet mate",
-    "plastic-pp-gloss": "PP brillant (polipropile)",
-    "plastic-pp-matte": "PP mate (polipropile)",
-    "plastic-pe-gloss": "PE brillant (polietile)",
-    "plastic-pe-matte": "PE mate (polietile)",
-    "plastic-pet-gloss": "PET brillant (poliester)",
-    "plastic-pet-matte": "PET mate (poliester)",
+    "plastic-pp-gloss": "PP brillant (polipropilè)",
+    "plastic-pp-matte": "PP mate (polipropilè)",
+    "plastic-pe-gloss": "PE brillant (polietilè)",
+    "plastic-pe-matte": "PE mate (polietilè)",
+    "plastic-pet-gloss": "PET brillant (polièster)",
+    "plastic-pet-matte": "PET mate (polièster)",
     "plastic-pvc": "PVC (vinil)",
-    "plastic-artyval": "Sintetic Artyval (sense adhesiu)",
+    "plastic-artyval": "Sintètic Artyval (sense adhesiu)",
     "textile-polyamide": "Poliamida (nylon)"
   };
   return map[materialType];
@@ -47,14 +47,14 @@ function materialLabel(materialType: WizardData["materialType"]) {
 function adhesiveLabel(adhesive: WizardData["adhesive"]) {
   const map: Record<WizardData["adhesive"], string> = {
     acrylic: "Acrylic (base aigua)",
-    hotmelt: "Hotmelt (base cautxu)",
+    hotmelt: "Hotmelt (base cautxú)",
     removable: "Removible"
   };
   return map[adhesive];
 }
 
 function printTechLabel(type: WizardData["printTechnology"]) {
-  return type === "direct-thermal" ? "Termica directa" : "Transferencia termica";
+  return type === "direct-thermal" ? "Tèrmica directa" : "Transferència tèrmica";
 }
 
 function ribbonLabel(type: WizardData["ribbonType"]) {
@@ -63,7 +63,7 @@ function ribbonLabel(type: WizardData["ribbonType"]) {
     cera: "Cera",
     "cera-resina": "Cera/Resina",
     resina: "Resina",
-    unknown: "No ho se"
+    unknown: "No ho sé"
   };
   return map[type];
 }
@@ -124,7 +124,7 @@ function buildSpecBlocksHtml(data: WizardData) {
 
   const midesRows: Array<[string, string]> = [["A) Amplada", `${data.labelWidthMm} mm`]];
   if (data.labelFlowType !== "continuous") {
-    midesRows.push(["B) Avanc", `${data.labelHeightMm} mm`]);
+    midesRows.push(["B) Avanç", `${data.labelHeightMm} mm`]);
   }
 
   const impressoraRows: Array<[string, string]> = [
@@ -137,16 +137,16 @@ function buildSpecBlocksHtml(data: WizardData) {
   }
 
   const bobinaRows: Array<[string, string]> = [
-    ["Avancament", flowTypeLabel(data.labelFlowType)],
+    ["Avançament", flowTypeLabel(data.labelFlowType)],
     ["Mandril", data.rollCoreMm === "external" ? "Bobinat extern" : `${data.rollCoreMm} mm`],
-    ["Diametre max", `${data.rollOuterDiameterMm} mm`],
+    ["Diàmetre màx", `${data.rollOuterDiameterMm} mm`],
     ["Tall", cutTypeLabel(data)]
   ];
   if (data.labelFlowType !== "continuous") {
     bobinaRows.splice(1, 0, ["Gap", `${data.gapMm} mm`]);
   }
   if (data.hasBlackMark) {
-    bobinaRows.push(["Marca negra", `Si (${data.blackMarkPosition})`]);
+    bobinaRows.push(["Marca negra", `Sí (${data.blackMarkPosition})`]);
   }
 
   return [
@@ -158,7 +158,7 @@ function buildSpecBlocksHtml(data: WizardData) {
     ]),
     specBlock("IMPRESSORA", impressoraRows),
     specBlock("BOBINA", bobinaRows),
-    specBlock("QUANTITAT", [["Unitats sollicitades", String(data.quantity)]])
+    specBlock("QUANTITAT", [["Unitats sol·licitades", String(data.quantity)]])
   ].join("");
 }
 
@@ -202,7 +202,7 @@ export function renderCompactEmailHtml(params: {
   showGreeting?: boolean;
   logoSrc?: string;
 }) {
-  const { title, intro, data, showGreeting = false, logoSrc = "cid:sie-logo" } = params;
+  const { title, intro, data, showGreeting = false, logoSrc = "/logo-sie.png" } = params;
   const date = new Date().toLocaleDateString("ca-ES", {
     day: "2-digit",
     month: "2-digit",
@@ -230,7 +230,7 @@ export function renderCompactEmailHtml(params: {
     </tr>
     <tr>
       <td style="padding:10px 20px;border-top:1px solid #e2e8f0;text-align:center;">
-        <p style="margin:0;font-size:10px;color:#94a3b8;">La fitxa tecnica s&apos;adjunta en PDF.</p>
+        <p style="margin:0;font-size:10px;color:#94a3b8;">La fitxa tècnica s&apos;adjunta en PDF.</p>
       </td>
     </tr>
   </table>
@@ -263,10 +263,10 @@ export function renderTechnicalSheetHtml(data: WizardData, options?: { logoSrc?:
 
   return `<div style="margin:0;padding:20px;background:#f1f5f9;font-family:Arial,Helvetica,sans-serif;color:#0f172a;">
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:720px;margin:0 auto;background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
-    ${renderHeader("FITXA TECNICA D'ETIQUETA", date, logoSrc)}
+    ${renderHeader("FITXA TÈCNICA D'ETIQUETA", date, logoSrc)}
     <tr>
       <td style="width:42%;padding:20px;vertical-align:top;border-right:1px solid #e2e8f0;background:#f8fafc;">
-        <p style="margin:0 0 12px 0;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#8a1c22;">Configuracio visual</p>
+        <p style="margin:0 0 12px 0;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#8a1c22;">Configuració visual</p>
         ${labelSvg}
       </td>
       <td style="width:58%;padding:20px;vertical-align:top;">
@@ -288,7 +288,7 @@ export function buildHtmlDocument(innerHtml: string) {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Fitxa tecnica</title>
+    <title>Fitxa tècnica</title>
   </head>
   <body style="margin:0;background:#f1f5f9;">
     ${innerHtml}
