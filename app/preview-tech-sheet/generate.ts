@@ -1,4 +1,4 @@
-import { generateLabelIllustrationSvg } from "@/lib/email/labelIllustration";
+import { generateLabelIllustrationEmailHtml } from "@/lib/email/labelIllustration";
 
 export function generateTechnicalSheetHtml(): string {
   const lw_mm = 70;
@@ -17,7 +17,7 @@ export function generateTechnicalSheetHtml(): string {
       .replaceAll("'", "&#39;");
   }
 
-  const labelSvg = generateLabelIllustrationSvg({
+  const labelSvg = generateLabelIllustrationEmailHtml({
     labelWidthMm: lw_mm,
     labelHeightMm: lh_mm,
     labelFlowType,

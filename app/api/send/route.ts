@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
-import { generateLabelIllustrationSvg } from "@/lib/email/labelIllustration";
+import {
+  generateLabelIllustrationEmailHtml,
+  generateLabelIllustrationSvg
+} from "@/lib/email/labelIllustration";
 import { wizardSchema } from "@/lib/schemas/wizard";
 
 // ──────────────────────────────────────────────
@@ -131,6 +134,25 @@ function generateLabelSvg(data: ReturnType<typeof wizardSchema.parse>): string {
   });
 }
 
+function generateLabelEmailHtml(data: ReturnType<typeof wizardSchema.parse>): string {
+  const outerD =
+    typeof data.rollOuterDiameterMm === "number" ? data.rollOuterDiameterMm : 100;
+  const coreM = data.rollCoreMm === "external" ? 40 : Number(data.rollCoreMm);
+  const coreLabel = data.rollCoreMm === "external" ? "extern" : `${coreM} mm`;
+
+  return generateLabelIllustrationEmailHtml({
+    labelWidthMm: data.labelWidthMm,
+    labelHeightMm: data.labelHeightMm,
+    labelFlowType: data.labelFlowType,
+    rollOuterDiameterMm: outerD,
+    rollCoreMm: coreM,
+    rollCoreLabel: coreLabel,
+    printerType: data.printerType,
+    hasBackgroundColor: data.hasBackgroundColor,
+    backgroundColorHex: data.backgroundColorHex
+  });
+}
+
 // ──────────────────────────────────────────────
 // Email HTML builder
 // ──────────────────────────────────────────────
@@ -178,7 +200,7 @@ function renderEmailHtml(params: {
     ? `${data.backgroundColorHex}${data.backgroundColorNotes ? ` (${data.backgroundColorNotes})` : ""}`
     : "Sense color de fons";
 
-  const labelSvg = generateLabelSvg(data);
+  const labelSvg = generateLabelEmailHtml(data);
 
   // Spec blocks
   const midesRows: Array<[string, string]> = [["A) Amplada", `${data.labelWidthMm} mm`]];
@@ -317,7 +339,7 @@ function renderTechnicalSheetHtml(data: ReturnType<typeof wizardSchema.parse>) {
     ? `${data.backgroundColorHex}${data.backgroundColorNotes ? ` (${data.backgroundColorNotes})` : ""}`
     : "Sense color de fons";
 
-  const labelSvg = generateLabelSvg(data);
+  const labelSvg = generateLabelEmailHtml(data);
 
   const midesRows: Array<[string, string]> = [["A) Amplada", `${data.labelWidthMm} mm`]];
   if (data.labelFlowType !== "continuous") {

@@ -1,4 +1,4 @@
-import { generateLabelIllustrationSvg } from "@/lib/email/labelIllustration";
+import { generateLabelIllustrationEmailHtml } from "@/lib/email/labelIllustration";
 
 // Pagina temporal per previsualitzar l'email - eliminar abans de publicar
 export function generatePreviewHtml(): string {
@@ -18,7 +18,7 @@ export function generatePreviewHtml(): string {
       .replaceAll("'", "&#39;");
   }
 
-  const labelSvg = generateLabelIllustrationSvg({
+  const labelSvg = generateLabelIllustrationEmailHtml({
     labelWidthMm: lw_mm,
     labelHeightMm: lh_mm,
     labelFlowType,

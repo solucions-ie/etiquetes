@@ -181,3 +181,69 @@ export function generateLabelIllustrationSvg(data: LabelIllustrationData): strin
   </div>
 </div>`;
 }
+
+export function generateLabelIllustrationEmailHtml(data: LabelIllustrationData): string {
+  const isContinuous = data.labelFlowType === "continuous";
+  const labelFill =
+    data.hasBackgroundColor && data.backgroundColorHex
+      ? escapeHtml(data.backgroundColorHex)
+      : "#ffffff";
+  const coreLabel = data.rollCoreLabel ?? `${data.rollCoreMm} mm`;
+
+  return `<div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;padding:14px 14px 12px;margin-bottom:10px;">
+  <p style="margin:0 0 10px 0;font-size:10px;color:#64748b;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;">Format etiqueta</p>
+  <div style="margin:0 0 8px 0;">${metricChip("Amplada", `${data.labelWidthMm} mm`)}${
+    isContinuous ? "" : metricChip("Avanç", `${data.labelHeightMm} mm`)
+  }</div>
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0;">
+    <tr>
+      <td style="padding:10px 12px 4px 12px;text-align:center;font-size:16px;font-weight:700;color:#0f172a;">${data.labelWidthMm} mm</td>
+      ${
+        isContinuous
+          ? ""
+          : `<td style="padding:10px 12px 4px 0;text-align:center;font-size:16px;font-weight:700;color:#0f172a;white-space:nowrap;">${data.labelHeightMm} mm</td>`
+      }
+    </tr>
+    <tr>
+      <td style="padding:0 12px 10px 12px;${isContinuous ? "" : "width:78%;"}">
+        <div style="position:relative;background:${labelFill};border:2px solid #334155;border-radius:10px;height:92px;">
+          <div style="height:14px;width:78%;margin:12px auto 0 auto;border-radius:4px;background:#e2e8f0;"></div>
+          <div style="height:5px;width:54%;margin:14px 0 0 12px;border-radius:3px;background:#cbd5e1;"></div>
+          <div style="height:5px;width:34%;margin:10px 0 0 12px;border-radius:3px;background:#cbd5e1;"></div>
+        </div>
+        <div style="padding-top:8px;text-align:center;font-size:9px;font-weight:700;letter-spacing:0.08em;color:#64748b;">SORTIDA</div>
+        <div style="text-align:center;font-size:12px;color:#64748b;line-height:1;">↓</div>
+      </td>
+      ${
+        isContinuous
+          ? ""
+          : `<td style="padding:0 12px 10px 0;text-align:center;vertical-align:middle;font-size:12px;font-weight:700;color:#64748b;writing-mode:vertical-rl;">AVANÇ</td>`
+      }
+    </tr>
+  </table>
+</div>
+<div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;padding:14px 14px 12px;">
+  <p style="margin:0 0 10px 0;font-size:10px;color:#64748b;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;">Bobina</p>
+  <div style="margin:0 0 8px 0;">${metricChip("Diametre", `${data.rollOuterDiameterMm} mm`)}${metricChip(
+    "Mandril",
+    coreLabel
+  )}</div>
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0;">
+    <tr>
+      <td style="padding:10px 12px 0 12px;text-align:center;font-size:16px;font-weight:700;color:#0f172a;">${data.rollOuterDiameterMm} mm</td>
+    </tr>
+    <tr>
+      <td style="padding:6px 12px;text-align:center;">
+        <div style="width:132px;height:132px;margin:0 auto;border-radius:999px;background:#e2e8f0;border:2px solid #475569;position:relative;">
+          <div style="width:48px;height:48px;border-radius:999px;background:#ffffff;border:2px solid #64748b;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);"></div>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:0 12px 10px 12px;text-align:center;font-size:16px;font-weight:700;color:#0f172a;">${escapeHtml(
+        coreLabel
+      )}</td>
+    </tr>
+  </table>
+</div>`;
+}
