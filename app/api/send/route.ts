@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { Resend } from "resend";
+import { createEmailIllustrationPng } from "@/lib/email/emailIllustrationImage";
 import {
-  generateLabelIllustrationEmailHtml,
   generateLabelIllustrationSvg
 } from "@/lib/email/labelIllustration";
 import { wizardSchema } from "@/lib/schemas/wizard";
@@ -137,12 +137,16 @@ function generateLabelSvg(data: ReturnType<typeof wizardSchema.parse>): string {
 }
 
 function generateLabelEmailHtml(data: ReturnType<typeof wizardSchema.parse>): string {
+  return `<img src="cid:label-illustration" alt="Illustracio tecnica de l'etiqueta" width="388" style="display:block;width:100%;max-width:388px;height:auto;margin:0 auto;" />`;
+}
+
+async function buildInlineAttachments(data: ReturnType<typeof wizardSchema.parse>) {
   const outerD =
     typeof data.rollOuterDiameterMm === "number" ? data.rollOuterDiameterMm : 100;
   const coreM = data.rollCoreMm === "external" ? 40 : Number(data.rollCoreMm);
   const coreLabel = data.rollCoreMm === "external" ? "extern" : `${coreM} mm`;
-
-  return generateLabelIllustrationEmailHtml({
+  const logoBuffer = await readFile(path.join(process.cwd(), "public", "logo-sie.png"));
+  const illustrationPng = await createEmailIllustrationPng({
     labelWidthMm: data.labelWidthMm,
     labelHeightMm: data.labelHeightMm,
     labelFlowType: data.labelFlowType,
@@ -153,10 +157,6 @@ function generateLabelEmailHtml(data: ReturnType<typeof wizardSchema.parse>): st
     hasBackgroundColor: data.hasBackgroundColor,
     backgroundColorHex: data.backgroundColorHex
   });
-}
-
-async function buildLogoInlineAttachment() {
-  const logoBuffer = await readFile(path.join(process.cwd(), "public", "logo-sie.png"));
 
   return [
     {
@@ -164,6 +164,12 @@ async function buildLogoInlineAttachment() {
       filename: "logo-sie.png",
       contentType: "image/png",
       contentId: "sie-logo"
+    },
+    {
+      content: Buffer.from(illustrationPng).toString("base64"),
+      filename: "label-illustration.png",
+      contentType: "image/png",
+      contentId: "label-illustration"
     }
   ];
 }
@@ -461,7 +467,7 @@ export async function POST(request: Request) {
     }
 
     const resend = new Resend(process.env.RESEND_API_KEY);
-    const logoAttachment = await buildLogoInlineAttachment();
+    const inlineAttachments = await buildInlineAttachments(data);
 
     const [customerResult, internalResult] = await Promise.all([
       resend.emails.send({
@@ -469,7 +475,7 @@ export async function POST(request: Request) {
         to: data.email,
         replyTo: replyToEmail,
         subject: "Confirmacio: sollicitud d'etiqueta rebuda",
-        attachments: logoAttachment,
+        attachments: inlineAttachments,
         html: renderEmailHtml({
           title: "Hem rebut la teva sollicitud",
           intro:
@@ -483,7 +489,7 @@ export async function POST(request: Request) {
         to: secretaryEmail,
         replyTo: replyToEmail,
         subject: `Nova sollicitud d'etiqueta - ${data.company}`,
-        attachments: logoAttachment,
+        attachments: inlineAttachments,
         html: renderTechnicalSheetHtml(data)
       })
     ]);
