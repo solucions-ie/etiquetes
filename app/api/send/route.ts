@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import {
-  generateLabelIllustrationEmailHtml,
   generateLabelIllustrationSvg
 } from "@/lib/email/labelIllustration";
 import { wizardSchema } from "@/lib/schemas/wizard";
@@ -134,23 +133,38 @@ function generateLabelSvg(data: ReturnType<typeof wizardSchema.parse>): string {
   });
 }
 
+function getSiteUrl() {
+  if (process.env.NEXT_PUBLIC_SITE_URL) {
+    return process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "");
+  }
+  if (process.env.SITE_URL) {
+    return process.env.SITE_URL.replace(/\/$/, "");
+  }
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL.replace(/\/$/, "")}`;
+  }
+  return "https://etiquetes.s-ie.cat";
+}
+
 function generateLabelEmailHtml(data: ReturnType<typeof wizardSchema.parse>): string {
   const outerD =
     typeof data.rollOuterDiameterMm === "number" ? data.rollOuterDiameterMm : 100;
   const coreM = data.rollCoreMm === "external" ? 40 : Number(data.rollCoreMm);
   const coreLabel = data.rollCoreMm === "external" ? "extern" : `${coreM} mm`;
-
-  return generateLabelIllustrationEmailHtml({
-    labelWidthMm: data.labelWidthMm,
-    labelHeightMm: data.labelHeightMm,
+  const siteUrl = getSiteUrl();
+  const params = new URLSearchParams({
+    labelWidthMm: String(data.labelWidthMm),
+    labelHeightMm: String(data.labelHeightMm),
     labelFlowType: data.labelFlowType,
-    rollOuterDiameterMm: outerD,
-    rollCoreMm: coreM,
+    rollOuterDiameterMm: String(outerD),
+    rollCoreMm: String(coreM),
     rollCoreLabel: coreLabel,
     printerType: data.printerType,
-    hasBackgroundColor: data.hasBackgroundColor,
+    hasBackgroundColor: String(data.hasBackgroundColor),
     backgroundColorHex: data.backgroundColorHex
   });
+
+  return `<img src="${siteUrl}/api/email-illustration?${params.toString()}" alt="Il·lustració tècnica de l'etiqueta" width="320" style="display:block;width:100%;max-width:320px;height:auto;margin:0 auto;" />`;
 }
 
 // ──────────────────────────────────────────────
