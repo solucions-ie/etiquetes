@@ -5,6 +5,7 @@ export function generatePreviewHtml(): string {
   const lw_mm = 70;
   const lh_mm = 45;
   const labelFlowType = "gap";
+  const isContinuous = false;
   const rollCoreMm = 40;
   const rollOuterDiameterMm = 115;
 
@@ -79,7 +80,7 @@ export function generatePreviewHtml(): string {
       <td style="width:58%;padding:20px;vertical-align:top;">
         ${specBlock(
           "MIDES",
-          labelFlowType === "continuous"
+          isContinuous
             ? [["A) Amplada", "70 mm"]]
             : [["A) Amplada", "70 mm"], ["B) Avanç", "45 mm"]]
         )}
@@ -96,7 +97,7 @@ export function generatePreviewHtml(): string {
         ])}
         ${specBlock(
           "BOBINA",
-          labelFlowType === "continuous"
+          isContinuous
             ? [
                 ["Avancament", "Continu"],
                 ["Mandril", "40 mm"],
