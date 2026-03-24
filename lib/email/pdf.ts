@@ -6,6 +6,17 @@ function getExecutablePath() {
     return process.env.CHROMIUM_EXECUTABLE_PATH;
   }
 
+  if (process.env.CHROMIUM_PACK_URL) {
+    return chromium.executablePath(process.env.CHROMIUM_PACK_URL);
+  }
+
+  if (process.env.VERCEL) {
+    const arch = process.arch === "arm64" ? "arm64" : "x64";
+    return chromium.executablePath(
+      `https://github.com/Sparticuz/chromium/releases/latest/download/chromium-pack.${arch}.tar`
+    );
+  }
+
   if (!process.env.VERCEL && process.platform === "win32") {
     throw new Error(
       "Per generar PDFs en local a Windows cal definir CHROMIUM_EXECUTABLE_PATH."
