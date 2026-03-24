@@ -2,10 +2,13 @@ import { NextResponse } from "next/server";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { Resend } from "resend";
+import { generateLabelIllustrationSvg } from "@/lib/email/labelIllustration";
 import {
-  generateLabelIllustrationEmailHtml,
-  generateLabelIllustrationSvg
-} from "@/lib/email/labelIllustration";
+  buildHtmlDocument,
+  renderCompactEmailHtml,
+  renderTechnicalSheetHtml as renderTechnicalSheetTemplate
+} from "@/lib/email/mailTemplates";
+import { renderHtmlToPdf } from "@/lib/email/pdf";
 import { wizardSchema } from "@/lib/schemas/wizard";
 
 // ──────────────────────────────────────────────
@@ -137,33 +140,36 @@ function generateLabelSvg(data: ReturnType<typeof wizardSchema.parse>): string {
 }
 
 function generateLabelEmailHtml(data: ReturnType<typeof wizardSchema.parse>): string {
-  const outerD =
-    typeof data.rollOuterDiameterMm === "number" ? data.rollOuterDiameterMm : 100;
-  const coreM = data.rollCoreMm === "external" ? 40 : Number(data.rollCoreMm);
-  const coreLabel = data.rollCoreMm === "external" ? "extern" : `${coreM} mm`;
-
-  return generateLabelIllustrationEmailHtml({
-    labelWidthMm: data.labelWidthMm,
-    labelHeightMm: data.labelHeightMm,
-    labelFlowType: data.labelFlowType,
-    rollOuterDiameterMm: outerD,
-    rollCoreMm: coreM,
-    rollCoreLabel: coreLabel,
-    printerType: data.printerType,
-    hasBackgroundColor: data.hasBackgroundColor,
-    backgroundColorHex: data.backgroundColorHex
-  });
+  return generateLabelSvg(data);
 }
 
-async function buildLogoInlineAttachment() {
+async function readLogoAsset() {
   const logoBuffer = await readFile(path.join(process.cwd(), "public", "logo-sie.png"));
+
+  return {
+    base64: logoBuffer.toString("base64"),
+    dataUri: `data:image/png;base64,${logoBuffer.toString("base64")}`
+  };
+}
+
+async function buildEmailAttachments(data: ReturnType<typeof wizardSchema.parse>) {
+  const logo = await readLogoAsset();
+  const pdfHtml = buildHtmlDocument(
+    renderTechnicalSheetTemplate(data, { logoSrc: logo.dataUri })
+  );
+  const pdfBuffer = await renderHtmlToPdf(pdfHtml);
 
   return [
     {
-      content: logoBuffer.toString("base64"),
+      content: logo.base64,
       filename: "logo-sie.png",
       contentType: "image/png",
       contentId: "sie-logo"
+    },
+    {
+      content: pdfBuffer.toString("base64"),
+      filename: `fitxa-tecnica-${data.company.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").toLowerCase() || "etiqueta"}.pdf`,
+      contentType: "application/pdf"
     }
   ];
 }
@@ -461,7 +467,7 @@ export async function POST(request: Request) {
     }
 
     const resend = new Resend(process.env.RESEND_API_KEY);
-    const logoAttachment = await buildLogoInlineAttachment();
+    const attachments = await buildEmailAttachments(data);
 
     const [customerResult, internalResult] = await Promise.all([
       resend.emails.send({
@@ -469,11 +475,11 @@ export async function POST(request: Request) {
         to: data.email,
         replyTo: replyToEmail,
         subject: "Confirmacio: sollicitud d'etiqueta rebuda",
-        attachments: logoAttachment,
-        html: renderEmailHtml({
-          title: "Hem rebut la teva sollicitud",
+        attachments: attachments,
+        html: renderCompactEmailHtml({
+          title: "INFORME DE SOLLICITUD D'ETIQUETA",
           intro:
-            "Aquest es el resum de la configuracio enviada. L'equip de S-IE revisara la informacio i et contactara.",
+            "Aquest es el resum tecnic de la configuracio enviada. La fitxa tecnica completa s'adjunta en PDF.",
           data,
           showGreeting: true
         })
@@ -483,8 +489,12 @@ export async function POST(request: Request) {
         to: secretaryEmail,
         replyTo: replyToEmail,
         subject: `Nova sollicitud d'etiqueta - ${data.company}`,
-        attachments: logoAttachment,
-        html: renderTechnicalSheetHtml(data)
+        attachments: attachments,
+        html: renderCompactEmailHtml({
+          title: "NOVA SOLLICITUD D'ETIQUETA",
+          intro: "S'adjunta la fitxa tecnica completa en PDF.",
+          data
+        })
       })
     ]);
 
