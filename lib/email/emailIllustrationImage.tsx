@@ -40,6 +40,7 @@ export function createEmailIllustrationImageResponse(params: EmailIllustrationIm
         >
           <div
             style={{
+              display: "flex",
               fontSize: 10,
               fontWeight: 700,
               letterSpacing: 1,
@@ -63,7 +64,7 @@ export function createEmailIllustrationImageResponse(params: EmailIllustrationIm
                 textTransform: "uppercase"
               }}
             >
-              Amplada {params.labelWidthMm} mm
+              {`Amplada ${params.labelWidthMm} mm`}
             </div>
             {!isContinuous && (
               <div
@@ -78,7 +79,7 @@ export function createEmailIllustrationImageResponse(params: EmailIllustrationIm
                   textTransform: "uppercase"
                 }}
               >
-                Avanc {params.labelHeightMm} mm
+                {`Avanc ${params.labelHeightMm} mm`}
               </div>
             )}
           </div>
@@ -103,7 +104,7 @@ export function createEmailIllustrationImageResponse(params: EmailIllustrationIm
                 marginBottom: 8
               }}
             >
-              {params.labelWidthMm} mm
+              {`${params.labelWidthMm} mm`}
             </div>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
               <div
@@ -111,12 +112,12 @@ export function createEmailIllustrationImageResponse(params: EmailIllustrationIm
               >
                 <div
                   style={{
+                    display: "flex",
                     width: 188,
                     height: 96,
                     borderRadius: 10,
                     border: "2px solid #334155",
                     background: params.hasBackgroundColor ? params.backgroundColorHex : "#ffffff",
-                    display: "flex",
                     flexDirection: "column",
                     alignItems: "flex-start",
                     padding: 12
@@ -124,6 +125,7 @@ export function createEmailIllustrationImageResponse(params: EmailIllustrationIm
                 >
                   <div
                     style={{
+                      display: "flex",
                       width: 146,
                       height: 14,
                       borderRadius: 4,
@@ -134,6 +136,7 @@ export function createEmailIllustrationImageResponse(params: EmailIllustrationIm
                   />
                   <div
                     style={{
+                      display: "flex",
                       width: 104,
                       height: 5,
                       borderRadius: 3,
@@ -143,6 +146,7 @@ export function createEmailIllustrationImageResponse(params: EmailIllustrationIm
                   />
                   <div
                     style={{
+                      display: "flex",
                       width: 68,
                       height: 5,
                       borderRadius: 3,
@@ -152,6 +156,7 @@ export function createEmailIllustrationImageResponse(params: EmailIllustrationIm
                 </div>
                 <div
                   style={{
+                    display: "flex",
                     fontSize: 9,
                     fontWeight: 700,
                     letterSpacing: 1,
@@ -161,7 +166,9 @@ export function createEmailIllustrationImageResponse(params: EmailIllustrationIm
                 >
                   SORTIDA
                 </div>
-                <div style={{ fontSize: 13, color: "#64748b", lineHeight: 1 }}>↓</div>
+                <div style={{ display: "flex", fontSize: 13, color: "#64748b", lineHeight: 1 }}>
+                  ↓
+                </div>
               </div>
               {!isContinuous && (
                 <div
@@ -174,16 +181,18 @@ export function createEmailIllustrationImageResponse(params: EmailIllustrationIm
                 >
                   <div
                     style={{
+                      display: "flex",
                       color: "#0f172a",
                       fontSize: 16,
                       fontWeight: 700,
                       marginBottom: 8
                     }}
                   >
-                    {params.labelHeightMm} mm
+                    {`${params.labelHeightMm} mm`}
                   </div>
                   <div
                     style={{
+                      display: "flex",
                       writingMode: "vertical-rl",
                       textOrientation: "mixed",
                       color: "#64748b",
@@ -212,6 +221,7 @@ export function createEmailIllustrationImageResponse(params: EmailIllustrationIm
         >
           <div
             style={{
+              display: "flex",
               fontSize: 10,
               fontWeight: 700,
               letterSpacing: 1,
@@ -235,7 +245,7 @@ export function createEmailIllustrationImageResponse(params: EmailIllustrationIm
                 textTransform: "uppercase"
               }}
             >
-              Diametre {params.rollOuterDiameterMm} mm
+              {`Diametre ${params.rollOuterDiameterMm} mm`}
             </div>
             <div
               style={{
@@ -249,7 +259,7 @@ export function createEmailIllustrationImageResponse(params: EmailIllustrationIm
                 textTransform: "uppercase"
               }}
             >
-              Mandril {params.rollCoreLabel}
+              {`Mandril ${params.rollCoreLabel}`}
             </div>
           </div>
           <div
@@ -265,17 +275,25 @@ export function createEmailIllustrationImageResponse(params: EmailIllustrationIm
               justifyContent: "center"
             }}
           >
-            <div style={{ color: "#0f172a", fontSize: 26, fontWeight: 700, marginBottom: 8 }}>
-              {params.rollOuterDiameterMm} mm
+            <div
+              style={{
+                display: "flex",
+                color: "#0f172a",
+                fontSize: 26,
+                fontWeight: 700,
+                marginBottom: 8
+              }}
+            >
+              {`${params.rollOuterDiameterMm} mm`}
             </div>
             <div
               style={{
+                display: "flex",
                 width: 146,
                 height: 146,
                 borderRadius: 999,
                 border: "2px solid #475569",
                 background: "#e2e8f0",
-                display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 marginBottom: 10
@@ -283,6 +301,7 @@ export function createEmailIllustrationImageResponse(params: EmailIllustrationIm
             >
               <div
                 style={{
+                  display: "flex",
                   width: 54,
                   height: 54,
                   borderRadius: 999,
@@ -291,7 +310,14 @@ export function createEmailIllustrationImageResponse(params: EmailIllustrationIm
                 }}
               />
             </div>
-            <div style={{ color: "#0f172a", fontSize: 26, fontWeight: 700 }}>
+            <div
+              style={{
+                display: "flex",
+                color: "#0f172a",
+                fontSize: 26,
+                fontWeight: 700
+              }}
+            >
               {params.rollCoreLabel}
             </div>
           </div>
