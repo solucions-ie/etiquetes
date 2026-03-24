@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { Resend } from "resend";
+import { createEmailIllustrationImageResponse } from "@/lib/email/emailIllustrationImage";
 import {
   generateLabelIllustrationSvg
 } from "@/lib/email/labelIllustration";
@@ -149,23 +150,6 @@ function getSiteUrl() {
 }
 
 function generateLabelEmailHtml(data: ReturnType<typeof wizardSchema.parse>): string {
-  const outerD =
-    typeof data.rollOuterDiameterMm === "number" ? data.rollOuterDiameterMm : 100;
-  const coreM = data.rollCoreMm === "external" ? 40 : Number(data.rollCoreMm);
-  const coreLabel = data.rollCoreMm === "external" ? "extern" : `${coreM} mm`;
-  const siteUrl = getSiteUrl();
-  const params = new URLSearchParams({
-    labelWidthMm: String(data.labelWidthMm),
-    labelHeightMm: String(data.labelHeightMm),
-    labelFlowType: data.labelFlowType,
-    rollOuterDiameterMm: String(outerD),
-    rollCoreMm: String(coreM),
-    rollCoreLabel: coreLabel,
-    printerType: data.printerType,
-    hasBackgroundColor: String(data.hasBackgroundColor),
-    backgroundColorHex: data.backgroundColorHex
-  });
-
   return `<img src="cid:label-illustration" alt="Il·lustració tècnica de l'etiqueta" width="320" style="display:block;width:100%;max-width:320px;height:auto;margin:0 auto;" />`;
 }
 
@@ -174,31 +158,19 @@ async function buildInlineAttachments(data: ReturnType<typeof wizardSchema.parse
     typeof data.rollOuterDiameterMm === "number" ? data.rollOuterDiameterMm : 100;
   const coreM = data.rollCoreMm === "external" ? 40 : Number(data.rollCoreMm);
   const coreLabel = data.rollCoreMm === "external" ? "extern" : `${coreM} mm`;
-  const siteUrl = getSiteUrl();
-  const params = new URLSearchParams({
-    labelWidthMm: String(data.labelWidthMm),
-    labelHeightMm: String(data.labelHeightMm),
-    labelFlowType: data.labelFlowType,
-    rollOuterDiameterMm: String(outerD),
-    rollCoreMm: String(coreM),
-    rollCoreLabel: coreLabel,
-    printerType: data.printerType,
-    hasBackgroundColor: String(data.hasBackgroundColor),
-    backgroundColorHex: data.backgroundColorHex
-  });
-
-  const [logoBuffer, illustrationResponse] = await Promise.all([
+  const [logoBuffer, illustrationArrayBuffer] = await Promise.all([
     readFile(path.join(process.cwd(), "public", "logo-sie.png")),
-    fetch(`${siteUrl}/api/email-illustration?${params.toString()}`, {
-      cache: "no-store"
-    })
+    createEmailIllustrationImageResponse({
+      labelWidthMm: data.labelWidthMm,
+      labelHeightMm: data.labelHeightMm,
+      labelFlowType: data.labelFlowType,
+      rollOuterDiameterMm: outerD,
+      rollCoreMm: coreM,
+      rollCoreLabel: coreLabel,
+      hasBackgroundColor: data.hasBackgroundColor,
+      backgroundColorHex: data.backgroundColorHex
+    }).arrayBuffer()
   ]);
-
-  if (!illustrationResponse.ok) {
-    throw new Error("No s'ha pogut generar la il·lustració del correu.");
-  }
-
-  const illustrationArrayBuffer = await illustrationResponse.arrayBuffer();
   const illustrationBase64 = Buffer.from(illustrationArrayBuffer).toString("base64");
   const logoBase64 = logoBuffer.toString("base64");
 
