@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import { Resend } from "resend";
 import {
   generateLabelIllustrationSvg
@@ -167,7 +169,7 @@ function generateLabelEmailHtml(data: ReturnType<typeof wizardSchema.parse>): st
   return `<img src="cid:label-illustration" alt="Il·lustració tècnica de l'etiqueta" width="320" style="display:block;width:100%;max-width:320px;height:auto;margin:0 auto;" />`;
 }
 
-function buildInlineAttachments(data: ReturnType<typeof wizardSchema.parse>) {
+async function buildInlineAttachments(data: ReturnType<typeof wizardSchema.parse>) {
   const outerD =
     typeof data.rollOuterDiameterMm === "number" ? data.rollOuterDiameterMm : 100;
   const coreM = data.rollCoreMm === "external" ? 40 : Number(data.rollCoreMm);
@@ -185,15 +187,32 @@ function buildInlineAttachments(data: ReturnType<typeof wizardSchema.parse>) {
     backgroundColorHex: data.backgroundColorHex
   });
 
+  const [logoBuffer, illustrationResponse] = await Promise.all([
+    readFile(path.join(process.cwd(), "public", "logo-sie.png")),
+    fetch(`${siteUrl}/api/email-illustration?${params.toString()}`, {
+      cache: "no-store"
+    })
+  ]);
+
+  if (!illustrationResponse.ok) {
+    throw new Error("No s'ha pogut generar la il·lustració del correu.");
+  }
+
+  const illustrationArrayBuffer = await illustrationResponse.arrayBuffer();
+  const illustrationBase64 = Buffer.from(illustrationArrayBuffer).toString("base64");
+  const logoBase64 = logoBuffer.toString("base64");
+
   return [
     {
-      path: `${siteUrl}/logo-sie.png`,
+      content: logoBase64,
       filename: "logo-sie.png",
+      contentType: "image/png",
       contentId: "sie-logo"
     },
     {
-      path: `${siteUrl}/api/email-illustration?${params.toString()}`,
+      content: illustrationBase64,
       filename: "label-illustration.png",
+      contentType: "image/png",
       contentId: "label-illustration"
     }
   ];
@@ -491,7 +510,7 @@ export async function POST(request: Request) {
     }
 
     const resend = new Resend(process.env.RESEND_API_KEY);
-    const inlineAttachments = buildInlineAttachments(data);
+    const inlineAttachments = await buildInlineAttachments(data);
 
     const [customerResult, internalResult] = await Promise.all([
       resend.emails.send({
