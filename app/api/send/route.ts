@@ -47,7 +47,9 @@ function materialLabel(
     "plastic-pet-matte": "PET mate (poliester)",
     "plastic-pvc": "PVC (vinil)",
     "plastic-artyval": "Sintetic Artyval (sense adhesiu)",
-    "textile-polyamide": "Poliamida (nylon)"
+    "textile-polyamide": "Poliamida (nylon)",
+    "material-unknown": "Desconegut",
+    "material-other": "Altre (especificat pel client)"
   };
   return map[materialType];
 }

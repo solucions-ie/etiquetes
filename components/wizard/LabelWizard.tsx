@@ -183,7 +183,7 @@ export function LabelWizard() {
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-700">
           1. Material de l'etiqueta
         </h2>
-        <StepMaterial register={register} errors={errors} watch={watch} />
+        <StepMaterial register={register} errors={errors} watch={watch} setValue={setValue} />
       </section>
 
       <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4">

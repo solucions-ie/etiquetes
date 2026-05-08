@@ -39,7 +39,9 @@ function materialLabel(materialType: WizardData["materialType"]) {
     "plastic-pet-matte": "PET mate (polièster)",
     "plastic-pvc": "PVC (vinil)",
     "plastic-artyval": "Sintètic Artyval (sense adhesiu)",
-    "textile-polyamide": "Poliamida (nylon)"
+    "textile-polyamide": "Poliamida (nylon)",
+    "material-unknown": "Desconegut",
+    "material-other": "Altre (especificat pel client)"
   };
   return map[materialType];
 }
@@ -153,6 +155,9 @@ function buildSpecBlocksHtml(data: WizardData) {
     specBlock("MIDES", midesRows),
     specBlock("MATERIAL I MANIPULAT", [
       ["Material", materialLabel(data.materialType)],
+      ...(data.materialType === "material-other" && data.materialOtherDescription
+        ? [["Descripció", data.materialOtherDescription] as [string, string]]
+        : []),
       ["Adhesiu", adhesiveText],
       ["Color de fons", backgroundColorText]
     ]),

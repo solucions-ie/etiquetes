@@ -16,7 +16,9 @@ const MATERIAL_CODE: Record<WizardValues["materialType"], string> = {
   "plastic-pet-matte": "PBM",
   "plastic-pvc": "PVC",
   "plastic-artyval": "ART",
-  "textile-polyamide": "ETP"
+  "textile-polyamide": "ETP",
+  "material-unknown": "IND",
+  "material-other": "IND"
 };
 
 function pad3(n: number): string {

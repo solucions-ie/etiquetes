@@ -1,18 +1,19 @@
 ﻿"use client";
 
 import { useState } from "react";
-import { FieldErrors, UseFormRegister, UseFormWatch } from "react-hook-form";
+import { FieldErrors, UseFormRegister, UseFormSetValue, UseFormWatch } from "react-hook-form";
 import { WizardValues } from "@/lib/schemas/wizard";
 
 type StepMaterialProps = {
   register: UseFormRegister<WizardValues>;
   errors: FieldErrors<WizardValues>;
   watch: UseFormWatch<WizardValues>;
+  setValue: UseFormSetValue<WizardValues>;
 };
 
 type MaterialInfo = {
   id: WizardValues["materialType"];
-  family: "Etiqueta de paper" | "Sintètic" | "Tèxtil";
+  family: "Etiqueta de paper" | "Sintètic" | "Tèxtil" | "Altres";
   name: string;
   description: string;
   uses: string;
@@ -137,6 +138,20 @@ const MATERIALS: MaterialInfo[] = [
     name: "Poliamida (nylon)",
     description: "Etiqueta tèxtil resistent i suau, amb bon comportament en rentat i planxa.",
     uses: "Moda, confecció, composició i cura de peces rentables."
+  },
+  {
+    id: "material-unknown",
+    family: "Altres",
+    name: "Ho desconec",
+    description: "No saps quin material és o no el trobes a la llista. Indiqueu-ho i us assessorarem.",
+    uses: "Qualsevol aplicació. Us contactarem per determinar el material adequat."
+  },
+  {
+    id: "material-other",
+    family: "Altres",
+    name: "Cap d'aquests (especifica)",
+    description: "El material que necessites no apareix a la llista. Descriu-lo al camp de text.",
+    uses: "Materials específics, especials o fora de catàleg estàndard."
   }
 ];
 
@@ -164,17 +179,22 @@ const ADHESIVES: AdhesiveInfo[] = [
 const FAMILIES: Array<MaterialInfo["family"]> = [
   "Etiqueta de paper",
   "Sintètic",
-  "Tèxtil"
+  "Tèxtil",
+  "Altres"
 ];
 
-export function StepMaterial({ register, errors, watch }: StepMaterialProps) {
+export function StepMaterial({ register, errors, watch, setValue }: StepMaterialProps) {
   const [showMaterialGuide, setShowMaterialGuide] = useState(false);
   const [showAdhesiveGuide, setShowAdhesiveGuide] = useState(false);
   const selectedMaterialId = watch("materialType");
   const selectedAdhesiveId = watch("adhesive");
   const hideAdhesive =
     selectedMaterialId === "paper-thermal-direct-ticket" ||
-    selectedMaterialId === "plastic-artyval";
+    selectedMaterialId === "plastic-artyval" ||
+    selectedMaterialId === "material-unknown" ||
+    selectedMaterialId === "material-other";
+  const isIndeterminate =
+    selectedMaterialId === "material-unknown" || selectedMaterialId === "material-other";
   const selectedMaterial = MATERIALS.find((item) => item.id === selectedMaterialId) ?? MATERIALS[0];
   const selectedAdhesive = ADHESIVES.find((item) => item.id === selectedAdhesiveId) ?? ADHESIVES[0];
 
@@ -210,10 +230,23 @@ export function StepMaterial({ register, errors, watch }: StepMaterialProps) {
       <div className="rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-700">
         <p className="font-semibold text-[var(--sie-primary)]">{selectedMaterial.name}</p>
         <p className="mt-1">{selectedMaterial.description}</p>
-        <p className="mt-2 text-xs text-slate-600">
-          <strong className="text-[var(--sie-primary-dark)]">Usos recomanats:</strong> {selectedMaterial.uses}
-        </p>
+        {!isIndeterminate && (
+          <p className="mt-2 text-xs text-slate-600">
+            <strong className="text-[var(--sie-primary-dark)]">Usos recomanats:</strong> {selectedMaterial.uses}
+          </p>
+        )}
       </div>
+
+      {selectedMaterialId === "material-other" && (
+        <div>
+          <label className="field-label">Descriu el material</label>
+          <textarea
+            className="field-input min-h-[72px] resize-y"
+            placeholder="Ex. paper kraft, material tèrmic especial, PE expandit..."
+            {...register("materialOtherDescription")}
+          />
+        </div>
+      )}
 
       {!hideAdhesive ? (
         <>
