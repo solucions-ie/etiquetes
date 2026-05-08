@@ -39,6 +39,14 @@ export function StepContact({ register, errors }: StepContactProps) {
           <p className="field-error">{errors.phone.message as string}</p>
         )}
       </div>
+      <div>
+        <label className="field-label">Comentaris addicionals (opcional)</label>
+        <textarea
+          className="field-input min-h-[80px] resize-y"
+          placeholder="Qualsevol detall addicional que ens vulguis fer arribar..."
+          {...register("comments")}
+        />
+      </div>
     </div>
   );
 }

@@ -236,6 +236,7 @@ export function renderCompactEmailHtml(params: {
     <tr>
       <td style="padding:10px 20px;border-top:1px solid #e2e8f0;text-align:center;">
         <p style="margin:0;font-size:10px;color:#94a3b8;">La fitxa tècnica s&apos;adjunta en PDF.</p>
+        ${data.comments ? `<p style="margin:8px 0 0 0;font-size:11px;color:#475569;"><strong style="color:#0f172a;">Comentaris:</strong> ${escapeHtml(data.comments)}</p>` : ""}
       </td>
     </tr>
   </table>
