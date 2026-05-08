@@ -201,8 +201,9 @@ export function renderCompactEmailHtml(params: {
   data: WizardData;
   showGreeting?: boolean;
   logoSrc?: string;
+  referenceCode?: string;
 }) {
-  const { title, intro, data, showGreeting = false, logoSrc = "/logo-sie.png" } = params;
+  const { title, intro, data, showGreeting = false, logoSrc = "/logo-sie.png", referenceCode } = params;
   const date = new Date().toLocaleDateString("ca-ES", {
     day: "2-digit",
     month: "2-digit",
@@ -220,6 +221,10 @@ export function renderCompactEmailHtml(params: {
             : ""
         }
         <p style="margin:0 0 18px 0;font-size:12px;line-height:1.55;color:#475569;">${escapeHtml(intro)}</p>
+        ${referenceCode ? `<div style="margin-bottom:16px;background:#0f172a;border-radius:8px;padding:10px 14px;">
+          <p style="margin:0 0 2px 0;font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#94a3b8;">Referència interna</p>
+          <p style="margin:0;font-size:18px;font-weight:700;letter-spacing:0.06em;color:#ffffff;font-family:monospace;">${escapeHtml(referenceCode)}</p>
+        </div>` : ""}
         ${buildSpecBlocksHtml(data)}
       </td>
     </tr>

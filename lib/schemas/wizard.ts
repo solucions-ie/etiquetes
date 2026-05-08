@@ -63,7 +63,8 @@ export const wizardSchema = z
       .string()
       .regex(/^#[0-9A-Fa-f]{6}$/, "Color invalid."),
     backgroundColorNotes: z.string().optional().or(z.literal("")),
-    quantity: z.coerce.number().min(100, "Quantitat minima: 100.")
+    quantity: z.coerce.number().min(100, "Quantitat minima: 100."),
+    colorCount: z.enum(["0", "1", "2", "3", "4"])
   })
   .superRefine((data, ctx) => {
     const maxWidthByPrinter: Record<typeof data.printerType, number> = {
@@ -223,5 +224,6 @@ export const defaultWizardValues: WizardValues = {
   hasBackgroundColor: false,
   backgroundColorHex: "#FFFFFF",
   backgroundColorNotes: "",
-  quantity: 1000
+  quantity: 1000,
+  colorCount: "0"
 };

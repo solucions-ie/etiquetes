@@ -252,6 +252,17 @@ export function StepMaterial({ register, errors, watch }: StepMaterialProps) {
       )}
 
       <div>
+        <label className="field-label">Nombre de tintes</label>
+        <select className="field-input" {...register("colorCount")}>
+          <option value="0">0 — Sense tintes</option>
+          <option value="1">1 — Fondejat (1 tinta)</option>
+          <option value="2">2 — Dos tintes</option>
+          <option value="3">3 — Tres tintes</option>
+          <option value="4">4 — Quatre tintes</option>
+        </select>
+      </div>
+
+      <div>
         <label className="field-label">Quantitat estimada</label>
         <input
           className="field-input"

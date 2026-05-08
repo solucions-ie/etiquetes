@@ -10,6 +10,7 @@ import {
 } from "@/lib/email/mailTemplates";
 import { renderHtmlToPdf } from "@/lib/email/pdf";
 import { wizardSchema } from "@/lib/schemas/wizard";
+import { generateLabelCode } from "@/lib/labelCode";
 
 // ──────────────────────────────────────────────
 // Label helpers
@@ -476,6 +477,7 @@ export async function POST(request: Request) {
     const resend = new Resend(process.env.RESEND_API_KEY);
     const attachments = await buildEmailAttachments(data);
     const logoSrc = `${getPublicSiteUrl()}/logo-sie.png`;
+    const referenceCode = generateLabelCode(data);
 
     const [customerResult, internalResult] = await Promise.all([
       resend.emails.send({
@@ -503,7 +505,8 @@ export async function POST(request: Request) {
           title: "NOVA SOLLICITUD D'ETIQUETA",
           intro: "S'adjunta la fitxa tècnica completa en PDF.",
           data,
-          logoSrc
+          logoSrc,
+          referenceCode
         })
       })
     ]);
