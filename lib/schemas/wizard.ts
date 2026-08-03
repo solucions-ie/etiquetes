@@ -68,7 +68,8 @@ export const wizardSchema = z
     quantity: z.coerce.number().min(100, "Quantitat minima: 100."),
     colorCount: z.enum(["0", "1", "2", "3", "4"]),
     comments: z.string().optional().or(z.literal("")),
-    materialOtherDescription: z.string().optional().or(z.literal(""))
+    materialOtherDescription: z.string().optional().or(z.literal("")),
+    materialObservations: z.string().optional().or(z.literal(""))
   })
   .superRefine((data, ctx) => {
     const maxWidthByPrinter: Record<typeof data.printerType, number> = {
@@ -231,5 +232,6 @@ export const defaultWizardValues: WizardValues = {
   quantity: 1000,
   colorCount: "0",
   comments: "",
-  materialOtherDescription: ""
+  materialOtherDescription: "",
+  materialObservations: ""
 };

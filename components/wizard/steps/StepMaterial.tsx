@@ -248,6 +248,15 @@ export function StepMaterial({ register, errors, watch, setValue }: StepMaterial
         </div>
       )}
 
+      <div>
+        <label className="field-label">Observacions sobre el material (opcional)</label>
+        <textarea
+          className="field-input min-h-[72px] resize-y"
+          placeholder="Detalls o requisits específics del material..."
+          {...register("materialObservations")}
+        />
+      </div>
+
       {!hideAdhesive ? (
         <>
           <div>

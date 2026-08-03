@@ -230,6 +230,10 @@ export function renderCompactEmailHtml(params: {
           <p style="margin:0 0 2px 0;font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#94a3b8;">Referència interna</p>
           <p style="margin:0;font-size:18px;font-weight:700;letter-spacing:0.06em;color:#ffffff;font-family:monospace;">${escapeHtml(referenceCode)}</p>
         </div>` : ""}
+        ${data.materialObservations ? `<div style="margin-bottom:16px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px;">
+          <p style="margin:0 0 2px 0;font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#8a1c22;">Observacions sobre el material</p>
+          <p style="margin:0;font-size:12px;line-height:1.5;color:#0f172a;">${escapeHtml(data.materialObservations)}</p>
+        </div>` : ""}
         ${buildSpecBlocksHtml(data)}
       </td>
     </tr>
