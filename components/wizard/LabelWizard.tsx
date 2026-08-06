@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { defaultWizardValues, wizardSchema, WizardValues } from "@/lib/schemas/wizard";
+import { parseLabelCode } from "@/lib/labelCode";
 import { StepContact } from "./steps/StepContact";
 import { StepPrinter } from "./steps/StepPrinter";
 import { StepDimensions } from "./steps/StepDimensions";
@@ -37,6 +38,10 @@ export function LabelWizard() {
   const [isSending, setIsSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
+  const [codeInput, setCodeInput] = useState("");
+  const [codeMessage, setCodeMessage] = useState<
+    { type: "ok" | "error"; text: string } | null
+  >(null);
   const previousPrinterType = useRef<WizardValues["printerType"] | null>(null);
 
   const {
@@ -128,6 +133,37 @@ export function LabelWizard() {
     setValue("labelHeightMm", 50, { shouldValidate: true });
   }, [setValue, values.printerType, values.printerWidthClass]);
 
+  const handleApplyCode = () => {
+    const parsed = parseLabelCode(codeInput);
+    if (!parsed) {
+      setCodeMessage({
+        type: "error",
+        text: "Codi no reconegut. Ha de tenir 16 caràcters amb el format correcte."
+      });
+      return;
+    }
+
+    setValue("materialType", parsed.materialType, { shouldValidate: true, shouldTouch: true });
+    setValue("colorCount", parsed.colorCount, { shouldValidate: true });
+    setValue("rollCoreMm", parsed.rollCoreMm, { shouldValidate: true });
+    setValue("rollOuterDiameterMm", parsed.rollOuterDiameterMm, { shouldValidate: true });
+    setValue("labelWidthMm", parsed.labelWidthMm, { shouldValidate: true });
+
+    if (parsed.isContinuous) {
+      setValue("labelFlowType", "continuous", { shouldValidate: true });
+    } else {
+      if (values.labelFlowType === "continuous") {
+        setValue("labelFlowType", "gap", { shouldValidate: true });
+      }
+      setValue("labelHeightMm", parsed.labelHeightMm, { shouldValidate: true });
+    }
+
+    setCodeMessage({
+      type: "ok",
+      text: "Camps omplerts des del codi. Revisa impressora, adhesiu, quantitat i tipus d'avanç, que no van dins del codi."
+    });
+  };
+
   const onSubmit = async (formData: WizardValues) => {
     setSendError(null);
     setIsSending(true);
@@ -173,6 +209,44 @@ export function LabelWizard() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      <section className="rounded-2xl border border-[var(--sie-primary-border)] bg-[var(--sie-primary-softer)] p-4">
+        <h2 className="mb-1 text-sm font-semibold uppercase tracking-wide text-[var(--sie-primary)]">
+          Tens un codi d'etiqueta?
+        </h2>
+        <p className="mb-3 text-xs text-slate-600">
+          Enganxa un codi de referència i omplirem automàticament el material, les tintes, el mandril,
+          el diàmetre i les mides.
+        </p>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <input
+            type="text"
+            value={codeInput}
+            onChange={(event) => {
+              setCodeInput(event.target.value);
+              if (codeMessage) setCodeMessage(null);
+            }}
+            placeholder="Ex. PTE0025100050030"
+            className="field-input font-mono uppercase sm:flex-1"
+          />
+          <button
+            type="button"
+            onClick={handleApplyCode}
+            className="rounded-xl bg-[var(--sie-primary)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--sie-primary-dark)]"
+          >
+            Aplicar codi
+          </button>
+        </div>
+        {codeMessage && (
+          <p
+            className={`mt-2 text-xs ${
+              codeMessage.type === "ok" ? "text-emerald-700" : "text-red-600"
+            }`}
+          >
+            {codeMessage.text}
+          </p>
+        )}
+      </section>
+
       <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-700">
           1. Material de l'etiqueta
