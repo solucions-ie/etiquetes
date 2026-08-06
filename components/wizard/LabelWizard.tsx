@@ -60,12 +60,6 @@ export function LabelWizard() {
   }, [setValue, values.blackMarkPosition, values.hasBlackMark]);
 
   useEffect(() => {
-    if (values.printTechnology === "direct-thermal" && values.ribbonType !== "none") {
-      setValue("ribbonType", "none");
-    }
-  }, [setValue, values.printTechnology, values.ribbonType]);
-
-  useEffect(() => {
     if (!values.hasBackgroundColor && values.backgroundColorHex !== "#FFFFFF") {
       setValue("backgroundColorHex", "#FFFFFF");
     }
@@ -211,8 +205,6 @@ export function LabelWizard() {
                 values={{
                   printerType: values.printerType,
                   printerWidthClass: values.printerWidthClass,
-                  printTechnology: values.printTechnology,
-                  ribbonType: values.ribbonType,
                   labelFlowType: values.labelFlowType,
                   hasCut: values.hasCut,
                   cutType: values.cutType,

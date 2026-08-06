@@ -65,25 +65,6 @@ function adhesiveLabel(
   return map[adhesive];
 }
 
-function printTechLabel(
-  type: ReturnType<typeof wizardSchema.parse>["printTechnology"]
-) {
-  return type === "direct-thermal" ? "Termica directa" : "Transferencia termica";
-}
-
-function ribbonLabel(
-  type: ReturnType<typeof wizardSchema.parse>["ribbonType"]
-) {
-  const map: Record<ReturnType<typeof wizardSchema.parse>["ribbonType"], string> = {
-    none: "Sense ribbon",
-    cera: "Cera",
-    "cera-resina": "Cera/Resina",
-    resina: "Resina",
-    unknown: "No ho se"
-  };
-  return map[type];
-}
-
 function flowTypeLabel(
   type: ReturnType<typeof wizardSchema.parse>["labelFlowType"]
 ) {
@@ -249,12 +230,8 @@ function renderEmailHtml(params: {
 
   const impressoraRows: Array<[string, string]> = [
     ["Tipus", printerLabel(data.printerType)],
-    ["Polzada", printerWidthClassLabel(data.printerWidthClass)],
-    ["Tecnologia", printTechLabel(data.printTechnology)]
+    ["Polzada", printerWidthClassLabel(data.printerWidthClass)]
   ];
-  if (data.printTechnology === "thermal-transfer") {
-    impressoraRows.push(["Ribbon", ribbonLabel(data.ribbonType)]);
-  }
   const impressoraBlock = specBlock("IMPRESSORA", impressoraRows);
 
   const bobinaRows: Array<[string, string]> = [
@@ -380,12 +357,8 @@ function renderTechnicalSheetHtml(data: ReturnType<typeof wizardSchema.parse>) {
 
   const impressoraRows: Array<[string, string]> = [
     ["Tipus", printerLabel(data.printerType)],
-    ["Polzada", printerWidthClassLabel(data.printerWidthClass)],
-    ["Tecnologia", printTechLabel(data.printTechnology)]
+    ["Polzada", printerWidthClassLabel(data.printerWidthClass)]
   ];
-  if (data.printTechnology === "thermal-transfer") {
-    impressoraRows.push(["Ribbon", ribbonLabel(data.ribbonType)]);
-  }
 
   const bobinaRows: Array<[string, string]> = [
     ["Avançament", flowTypeLabel(data.labelFlowType)],

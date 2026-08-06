@@ -8,8 +8,6 @@ export const wizardSchema = z
     phone: z.string().min(6, "Telefon massa curt.").optional().or(z.literal("")),
     printerType: z.enum(["desktop", "portable", "industrial"]),
     printerWidthClass: z.enum(["", "2", "3", "4", "6", "8"]),
-    printTechnology: z.enum(["direct-thermal", "thermal-transfer"]),
-    ribbonType: z.enum(["none", "cera", "cera-resina", "resina", "unknown"]),
     materialType: z.enum([
       "paper-thermal-eco",
       "paper-thermal-protected",
@@ -124,22 +122,6 @@ export const wizardSchema = z
       });
     }
 
-    if (data.printTechnology === "direct-thermal" && data.ribbonType !== "none") {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["ribbonType"],
-        message: "En termica directa no es fa servir ribbon."
-      });
-    }
-
-    if (data.printTechnology === "thermal-transfer" && data.ribbonType === "none") {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["ribbonType"],
-        message: "Selecciona el tipus de ribbon (o marca 'No ho se')."
-      });
-    }
-
     if (
       data.printerWidthClass &&
       !widthClassesByPrinter[data.printerType].includes(data.printerWidthClass)
@@ -212,8 +194,6 @@ export const defaultWizardValues: WizardValues = {
   phone: "",
   printerType: "desktop",
   printerWidthClass: "",
-  printTechnology: "direct-thermal",
-  ribbonType: "none",
   materialType: "paper-thermal-eco",
   labelFlowType: "gap",
   hasCut: false,

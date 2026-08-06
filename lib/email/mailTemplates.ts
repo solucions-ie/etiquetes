@@ -55,21 +55,6 @@ function adhesiveLabel(adhesive: WizardData["adhesive"]) {
   return map[adhesive];
 }
 
-function printTechLabel(type: WizardData["printTechnology"]) {
-  return type === "direct-thermal" ? "Tèrmica directa" : "Transferència tèrmica";
-}
-
-function ribbonLabel(type: WizardData["ribbonType"]) {
-  const map: Record<WizardData["ribbonType"], string> = {
-    none: "Sense ribbon",
-    cera: "Cera",
-    "cera-resina": "Cera/Resina",
-    resina: "Resina",
-    unknown: "No ho sé"
-  };
-  return map[type];
-}
-
 function flowTypeLabel(type: WizardData["labelFlowType"]) {
   const map: Record<WizardData["labelFlowType"], string> = {
     gap: "Gap",
@@ -131,12 +116,8 @@ function buildSpecBlocksHtml(data: WizardData) {
 
   const impressoraRows: Array<[string, string]> = [
     ["Tipus", printerLabel(data.printerType)],
-    ["Polzada", printerWidthClassLabel(data.printerWidthClass)],
-    ["Tecnologia", printTechLabel(data.printTechnology)]
+    ["Polzada", printerWidthClassLabel(data.printerWidthClass)]
   ];
-  if (data.printTechnology === "thermal-transfer") {
-    impressoraRows.push(["Ribbon", ribbonLabel(data.ribbonType)]);
-  }
 
   const bobinaRows: Array<[string, string]> = [
     ["Avançament", flowTypeLabel(data.labelFlowType)],

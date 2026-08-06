@@ -8,8 +8,6 @@ type PreviewValues = Pick<
   WizardValues,
   | "printerType"
   | "printerWidthClass"
-  | "printTechnology"
-  | "ribbonType"
   | "labelFlowType"
   | "hasCut"
   | "cutType"
@@ -327,7 +325,7 @@ export function WizardStagePreview({
     <div className="space-y-3">
       <div className="overflow-hidden rounded-2xl border border-slate-200">
         <div className="border-b border-slate-200 bg-slate-50 p-3">
-          <div className="grid gap-2 md:grid-cols-3">
+          <div className="grid gap-2 md:grid-cols-2">
             <div>
               <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-slate-600">
                 Amplada (mm)
@@ -356,25 +354,12 @@ export function WizardStagePreview({
                 {...register("labelHeightMm", { valueAsNumber: true })}
               />
             </div>
-            <div>
-              <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-slate-600">
-                Tecnologia
-              </label>
-              <select
-                className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs"
-                {...register("printTechnology")}
-              >
-                <option value="direct-thermal">Termica directa</option>
-                <option value="thermal-transfer">Transferencia</option>
-              </select>
-            </div>
           </div>
 
-          {(errors.labelWidthMm || errors.labelHeightMm || errors.ribbonType) && (
+          {(errors.labelWidthMm || errors.labelHeightMm) && (
             <div className="mt-2 space-y-1 text-xs text-red-600">
               {errors.labelWidthMm && <p>{errors.labelWidthMm.message as string}</p>}
               {errors.labelHeightMm && <p>{errors.labelHeightMm.message as string}</p>}
-              {errors.ribbonType && <p>{errors.ribbonType.message as string}</p>}
             </div>
           )}
         </div>
@@ -412,24 +397,6 @@ export function WizardStagePreview({
                 Continu
               </label>
             </div>
-
-            {values.printTechnology === "thermal-transfer" && (
-              <div className="mt-3">
-                <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-slate-600">
-                  Ribbon
-                </label>
-                <select
-                  className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs"
-                  {...register("ribbonType")}
-                >
-                  <option value="none">Selecciona</option>
-                  <option value="cera">Cera</option>
-                  <option value="cera-resina">Cera/Resina</option>
-                  <option value="resina">Resina</option>
-                  <option value="unknown">No ho se</option>
-                </select>
-              </div>
-            )}
 
             {values.labelFlowType !== "continuous" && (
               <label className="mt-3 block text-xs text-slate-700">
