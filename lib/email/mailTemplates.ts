@@ -259,7 +259,27 @@ export function renderTechnicalSheetHtml(data: WizardData, options?: { logoSrc?:
 
   return `<div style="margin:0;padding:20px;background:#f1f5f9;font-family:Arial,Helvetica,sans-serif;color:#0f172a;">
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:720px;margin:0 auto;background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
-    ${renderHeader("FITXA TÈCNICA D'ETIQUETA", date, logoSrc)}
+    <tr>
+      <td colspan="2" style="background:#8a1c22;padding:0;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+          <tr>
+            <td style="padding:14px 20px;vertical-align:middle;white-space:nowrap;">
+              <img src="${escapeHtml(logoSrc)}" alt="S-IE" style="height:28px;width:auto;display:block;" />
+            </td>
+            <td style="padding:14px 12px;vertical-align:middle;">
+              <span style="color:#ffffff;font-size:12px;font-weight:700;display:block;line-height:1.35;">${escapeHtml(data.company)}</span>
+              <span style="color:#f3d9db;font-size:11px;display:block;line-height:1.35;">${escapeHtml(data.contactName)}</span>
+              <span style="color:#f3d9db;font-size:10px;display:block;line-height:1.35;">${escapeHtml(data.email)}${data.phone ? ` · ${escapeHtml(data.phone)}` : ""}</span>
+            </td>
+            <td style="padding:14px 20px;text-align:right;vertical-align:middle;white-space:nowrap;">
+              <span style="color:#e2e8f0;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;display:block;">FITXA TÈCNICA D&apos;ETIQUETA</span>
+              <span style="color:#f3d9db;font-size:10px;">Data: ${date}</span>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <tr><td colspan="2" style="background:#6f151a;height:3px;font-size:1px;line-height:1px;padding:0;">&nbsp;</td></tr>
     <tr>
       <td style="width:42%;padding:20px;vertical-align:top;border-right:1px solid #e2e8f0;background:#f8fafc;">
         <p style="margin:0 0 12px 0;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#8a1c22;">Configuració visual</p>
@@ -267,11 +287,6 @@ export function renderTechnicalSheetHtml(data: WizardData, options?: { logoSrc?:
       </td>
       <td style="width:58%;padding:20px;vertical-align:top;">
         ${buildSpecBlocksHtml(data)}
-      </td>
-    </tr>
-    <tr>
-      <td colspan="2" style="padding:16px 20px;border-top:1px solid #e2e8f0;background:#f8fafc;">
-        ${renderContactBlockHtml(data)}
       </td>
     </tr>
   </table>

@@ -123,18 +123,6 @@ export function generateLabelIllustrationSvg(data: LabelIllustrationData): strin
   <rect x="10" y="12" width="${svgWidth - 20}" height="${svgHeight - 22}" rx="18" fill="#f8fafc"/>
   <rect x="${labelX - 6}" y="${labelY + 6}" width="${labelWidth}" height="${labelHeight}" rx="8" fill="#dbe4ee"/>
   <rect x="${labelX}" y="${labelY}" width="${labelWidth}" height="${labelHeight}" rx="8" fill="${labelFill}" stroke="#334155" stroke-width="1.5"/>
-  <rect x="${labelX + 10}" y="${labelY + 10}" width="${Math.max(
-    22,
-    labelWidth - 20
-  )}" height="${Math.max(12, Math.round(labelHeight * 0.18))}" rx="4" fill="#e2e8f0"/>
-  <rect x="${labelX + 10}" y="${labelY + 28}" width="${Math.max(
-    44,
-    Math.round(labelWidth * 0.55)
-  )}" height="5" rx="2.5" fill="#cbd5e1"/>
-  <rect x="${labelX + 10}" y="${labelY + 38}" width="${Math.max(
-    30,
-    Math.round(labelWidth * 0.36)
-  )}" height="5" rx="2.5" fill="#cbd5e1"/>
   <line x1="${labelX}" y1="${dimTopY}" x2="${labelRight}" y2="${dimTopY}" stroke="#0f172a" stroke-width="1.8"/>
   <path d="M ${labelX} ${dimTopY} l 8 -5 M ${labelX} ${dimTopY} l 8 5" fill="none" stroke="#0f172a" stroke-width="1.8"/>
   <path d="M ${labelRight} ${dimTopY} l -8 -5 M ${labelRight} ${dimTopY} l -8 5" fill="none" stroke="#0f172a" stroke-width="1.8"/>
