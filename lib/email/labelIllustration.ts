@@ -2,6 +2,10 @@ type LabelIllustrationData = {
   labelWidthMm: number;
   labelHeightMm: number;
   labelFlowType?: "gap" | "black-mark" | "continuous";
+  gapMm?: number;
+  hasCut?: boolean;
+  hasBlackMark?: boolean;
+  blackMarkPosition?: "none" | "front" | "back";
   rollOuterDiameterMm: number;
   rollCoreMm: number;
   rollCoreLabel?: string;
@@ -90,6 +94,81 @@ function generateRollPreviewSvg(data: LabelIllustrationData) {
 </svg>`;
 }
 
+// String-based port of the web SupportLabelPreview: three labels on a liner
+// strip reflecting the manipulation type (gap / black-mark / continuous / cut).
+function generateLabelStripSvg(data: LabelIllustrationData, labelFill: string): string {
+  const flow = data.labelFlowType ?? "gap";
+  const gapMm = data.gapMm ?? 2;
+  const hasCut = data.hasCut ?? false;
+
+  const s = Math.min(
+    150 / Math.max(data.labelWidthMm, 15),
+    64 / Math.max(data.labelHeightMm, 10),
+    3
+  );
+  const labelW = Math.round(data.labelWidthMm * s);
+  const labelH = Math.round(Math.max(data.labelHeightMm, 10) * s);
+  const gapPx = Math.max(8, Math.min(26, gapMm * 2.6));
+
+  const labelX = 30;
+  const label1Y = 16;
+  const label2Y = label1Y + labelH + gapPx;
+  const label3Y = label2Y + labelH + gapPx;
+  const stripBottom = label3Y + labelH;
+  const centerX = labelX + labelW / 2;
+
+  const sideMargin = Math.max(4, Math.round(2 * s));
+  const supportX = labelX - sideMargin;
+  const supportY = label1Y - sideMargin;
+  const supportW = labelW + sideMargin * 2;
+  const supportH = stripBottom - supportY + sideMargin;
+
+  const svgW = labelX + labelW + 30;
+  const svgH = stripBottom + 34;
+
+  const shadow = (y: number, h: number) =>
+    `<rect x="${labelX + 4}" y="${y + 5}" width="${labelW}" height="${h}" rx="9" fill="#d7dee8" opacity="0.45"/>`;
+  const face = (y: number, h: number) =>
+    `<rect x="${labelX}" y="${y}" width="${labelW}" height="${h}" rx="9" fill="${labelFill}" stroke="#334155" stroke-width="1.8"/>`;
+
+  let labelsSvg = "";
+  if (flow === "gap") {
+    labelsSvg = [label1Y, label2Y, label3Y].map((y) => shadow(y, labelH) + face(y, labelH)).join("");
+    if (hasCut) {
+      const cut = (y: number) =>
+        `<line x1="${labelX}" y1="${y}" x2="${labelX + labelW}" y2="${y}" stroke="#334155" stroke-width="1.3" stroke-dasharray="5 4"/>`;
+      labelsSvg += cut(label1Y + labelH + gapPx / 2) + cut(label2Y + labelH + gapPx / 2);
+    }
+  } else {
+    const bigH = stripBottom - label1Y;
+    labelsSvg = shadow(label1Y, bigH) + face(label1Y, bigH);
+    if (flow === "black-mark") {
+      const markH = Math.max(6, Math.round(gapPx * 0.5));
+      const markY1 = label1Y + labelH + Math.max(3, gapPx * 0.3);
+      const markY2 = label2Y + labelH + Math.max(3, gapPx * 0.3);
+      const mark = (y: number) =>
+        `<rect x="${labelX}" y="${y}" width="${labelW}" height="${markH}" rx="2" fill="#111827"/>`;
+      labelsSvg += mark(markY1) + mark(markY2);
+      if (hasCut) {
+        const cut = (y: number) =>
+          `<line x1="${labelX}" y1="${y}" x2="${labelX + labelW}" y2="${y}" stroke="#ffffff" stroke-width="1.2" stroke-dasharray="4 4"/>`;
+        labelsSvg += cut(markY1 + markH / 2) + cut(markY2 + markH / 2);
+      }
+    }
+  }
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svgW} ${svgH}" style="display:block;margin:0 auto;max-width:${Math.min(
+    svgW,
+    240
+  )}px;width:100%;height:auto;">
+  <rect x="${supportX}" y="${supportY}" width="${supportW}" height="${supportH}" rx="12" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.4"/>
+  ${labelsSvg}
+  <text x="${centerX}" y="${stripBottom + 16}" text-anchor="middle" font-size="9" font-family="Arial,Helvetica,sans-serif" fill="#64748b" font-weight="700" letter-spacing="0.08em">SORTIDA</text>
+  <path d="M ${centerX} ${stripBottom + 20} v 8" stroke="#64748b" stroke-width="1.2" stroke-linecap="round"/>
+  <path d="M ${centerX} ${stripBottom + 30} l -4 -5 h 8 z" fill="#64748b"/>
+</svg>`;
+}
+
 export function generateLabelIllustrationSvg(data: LabelIllustrationData): string {
   const isContinuous = data.labelFlowType === "continuous";
   const labelFill =
@@ -97,59 +176,9 @@ export function generateLabelIllustrationSvg(data: LabelIllustrationData): strin
       ? escapeHtml(data.backgroundColorHex)
       : "#ffffff";
 
-  const scale = Math.min(
-    132 / Math.max(data.labelWidthMm, 15),
-    88 / Math.max(data.labelHeightMm, 10),
-    2.9
-  );
-  const labelWidth = Math.round(data.labelWidthMm * scale);
-  const labelHeight = Math.round(data.labelHeightMm * scale);
-
-  const labelX = 22;
-  const labelY = 42;
-  const linerY = labelY + labelHeight + 12;
-  const linerHeight = 14;
-  const labelRight = labelX + labelWidth;
-  const labelBottom = labelY + labelHeight;
-  const dimTopY = labelY - 10;
-  const dimRightX = labelRight + 10;
-  const widthTextX = labelX + Math.round(labelWidth / 2);
-  const heightTextY = labelY + Math.round(labelHeight / 2);
-  const heightTextX = dimRightX + 10;
-  const svgWidth = isContinuous ? Math.max(186, labelRight + 24) : Math.max(186, heightTextX + 20);
-  const svgHeight = linerY + linerHeight + 22;
-
-  const labelSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svgWidth} ${svgHeight}" style="display:block;margin:0 auto;max-width:${svgWidth}px;width:100%;height:auto;">
-  <rect x="10" y="12" width="${svgWidth - 20}" height="${svgHeight - 22}" rx="18" fill="#f8fafc"/>
-  <rect x="${labelX - 6}" y="${labelY + 6}" width="${labelWidth}" height="${labelHeight}" rx="8" fill="#dbe4ee"/>
-  <rect x="${labelX}" y="${labelY}" width="${labelWidth}" height="${labelHeight}" rx="8" fill="${labelFill}" stroke="#334155" stroke-width="1.5"/>
-  <line x1="${labelX}" y1="${dimTopY}" x2="${labelRight}" y2="${dimTopY}" stroke="#0f172a" stroke-width="1.8"/>
-  <path d="M ${labelX} ${dimTopY} l 8 -5 M ${labelX} ${dimTopY} l 8 5" fill="none" stroke="#0f172a" stroke-width="1.8"/>
-  <path d="M ${labelRight} ${dimTopY} l -8 -5 M ${labelRight} ${dimTopY} l -8 5" fill="none" stroke="#0f172a" stroke-width="1.8"/>
-  <line x1="${labelX}" y1="${dimTopY + 6}" x2="${labelX}" y2="${labelY - 4}" stroke="#334155" stroke-width="1.1" stroke-dasharray="4 3"/>
-  <line x1="${labelRight}" y1="${dimTopY + 6}" x2="${labelRight}" y2="${labelY - 4}" stroke="#334155" stroke-width="1.1" stroke-dasharray="4 3"/>
-  ${
-    isContinuous
-      ? ""
-      : `<line x1="${dimRightX}" y1="${labelY}" x2="${dimRightX}" y2="${labelBottom}" stroke="#0f172a" stroke-width="1.8"/>
-  <path d="M ${dimRightX} ${labelY} l -5 8 M ${dimRightX} ${labelY} l 5 8" fill="none" stroke="#0f172a" stroke-width="1.8"/>
-  <path d="M ${dimRightX} ${labelBottom} l -5 -8 M ${dimRightX} ${labelBottom} l 5 -8" fill="none" stroke="#0f172a" stroke-width="1.8"/>
-  <line x1="${labelRight + 4}" y1="${labelY}" x2="${dimRightX - 6}" y2="${labelY}" stroke="#334155" stroke-width="1.1" stroke-dasharray="4 3"/>
-  <line x1="${labelRight + 4}" y1="${labelBottom}" x2="${dimRightX - 6}" y2="${labelBottom}" stroke="#334155" stroke-width="1.1" stroke-dasharray="4 3"/>`
-  }
-  <text x="${widthTextX}" y="${dimTopY - 8}" text-anchor="middle" font-size="16" font-family="Arial,Helvetica,sans-serif" fill="#0f172a" font-weight="700">${data.labelWidthMm} mm</text>
-  ${
-    isContinuous
-      ? ""
-      : `<text x="${heightTextX}" y="${heightTextY}" text-anchor="middle" dominant-baseline="middle" font-size="16" font-family="Arial,Helvetica,sans-serif" fill="#0f172a" font-weight="700" transform="rotate(90 ${heightTextX} ${heightTextY})">${data.labelHeightMm} mm</text>`
-  }
-  <text x="${widthTextX}" y="${linerY + 18}" text-anchor="middle" font-size="9" font-family="Arial,Helvetica,sans-serif" fill="#64748b" font-weight="700" letter-spacing="0.08em">SORTIDA</text>
-  <path d="M ${widthTextX} ${linerY + 22} v 10" stroke="#64748b" stroke-width="1.2" stroke-linecap="round"/>
-  <path d="M ${widthTextX} ${linerY + 36} l -4 -5 h 8 z" fill="#64748b"/>
-</svg>`;
-
   const coreLabel = data.rollCoreLabel ?? `${data.rollCoreMm} mm`;
   const rollSvg = generateRollPreviewSvg(data);
+  const labelSvg = generateLabelStripSvg(data, labelFill);
 
   return `<div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;padding:14px 14px 12px;margin-bottom:10px;">
   <p style="margin:0 0 10px 0;font-size:10px;color:#64748b;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;">Format etiqueta</p>
