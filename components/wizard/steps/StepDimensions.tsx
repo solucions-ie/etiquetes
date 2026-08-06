@@ -42,7 +42,8 @@ const outerOptionsMap: Record<
   desktop: [
     { value: 90, label: "90 mm" },
     { value: 100, label: "100 mm" },
-    { value: 115, label: "115 mm" }
+    { value: 115, label: "115 mm" },
+    { value: 120, label: "120 mm" }
   ],
   portable: [
     { value: 50, label: "50 mm" },

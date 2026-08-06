@@ -93,7 +93,7 @@ export const wizardSchema = z
       "8": 214
     };
     const outerRollOptionsByPrinter: Record<typeof data.printerType, number[]> = {
-      desktop: [90, 100, 115],
+      desktop: [90, 100, 115, 120],
       portable: [50, 56, 66],
       industrial: [150, 180, 190]
     };

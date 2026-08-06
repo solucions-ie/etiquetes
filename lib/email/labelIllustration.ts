@@ -29,7 +29,7 @@ function generateRollPreviewSvg(data: LabelIllustrationData) {
   const printerType = data.printerType ?? "desktop";
 
   const outerOptionsMap = {
-    desktop: [90, 100, 115],
+    desktop: [90, 100, 115, 120],
     portable: [50, 56, 66],
     industrial: [150, 180, 190]
   } as const;
