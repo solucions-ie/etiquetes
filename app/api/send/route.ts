@@ -153,17 +153,20 @@ function getPublicSiteUrl() {
   return raw.startsWith("http") ? raw : `https://${raw}`;
 }
 
-async function buildEmailAttachments(data: ReturnType<typeof wizardSchema.parse>) {
+async function buildEmailAttachments(
+  data: ReturnType<typeof wizardSchema.parse>,
+  referenceCode: string
+) {
   const logo = await readLogoAsset();
   const pdfHtml = buildHtmlDocument(
-    renderTechnicalSheetTemplate(data, { logoSrc: logo.dataUri })
+    renderTechnicalSheetTemplate(data, { logoSrc: logo.dataUri, referenceCode })
   );
   const pdfBuffer = await renderHtmlToPdf(pdfHtml);
 
   return [
     {
       content: pdfBuffer.toString("base64"),
-      filename: `fitxa-tecnica-${data.company.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").toLowerCase() || "etiqueta"}.pdf`,
+      filename: `fitxa-tecnica-${referenceCode}.pdf`,
       contentType: "application/pdf"
     }
   ];
@@ -454,9 +457,9 @@ export async function POST(request: Request) {
     }
 
     const resend = new Resend(process.env.RESEND_API_KEY);
-    const attachments = await buildEmailAttachments(data);
-    const logoSrc = `${getPublicSiteUrl()}/logo-sie.png`;
     const referenceCode = generateLabelCode(data);
+    const attachments = await buildEmailAttachments(data, referenceCode);
+    const logoSrc = `${getPublicSiteUrl()}/logo-sie.png`;
 
     const [customerResult, internalResult] = await Promise.all([
       resend.emails.send({

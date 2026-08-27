@@ -1,5 +1,6 @@
 import { defaultWizardValues, type WizardValues } from "@/lib/schemas/wizard";
 import { renderTechnicalSheetHtml } from "@/lib/email/mailTemplates";
+import { generateLabelCode } from "@/lib/labelCode";
 
 // Representative sample so the preview reflects the real PDF attached to the
 // email. It delegates to the same template used for the attachment, so any
@@ -26,5 +27,8 @@ export function generateTechnicalSheetHtml(): string {
     quantity: 5000
   };
 
-  return renderTechnicalSheetHtml(sample, { logoSrc: "/logo-sie.png" });
+  return renderTechnicalSheetHtml(sample, {
+    logoSrc: "/logo-sie.png",
+    referenceCode: generateLabelCode(sample)
+  });
 }

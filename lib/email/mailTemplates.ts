@@ -233,13 +233,17 @@ export function renderCompactEmailHtml(params: {
 </div>`;
 }
 
-export function renderTechnicalSheetHtml(data: WizardData, options?: { logoSrc?: string }) {
+export function renderTechnicalSheetHtml(
+  data: WizardData,
+  options?: { logoSrc?: string; referenceCode?: string }
+) {
   const date = new Date().toLocaleDateString("ca-ES", {
     day: "2-digit",
     month: "2-digit",
     year: "numeric"
   });
   const logoSrc = options?.logoSrc ?? "/logo-sie.png";
+  const referenceCode = options?.referenceCode;
   const outerD =
     typeof data.rollOuterDiameterMm === "number" ? data.rollOuterDiameterMm : 100;
   const coreM = data.rollCoreMm === "external" ? 40 : Number(data.rollCoreMm);
@@ -278,6 +282,7 @@ export function renderTechnicalSheetHtml(data: WizardData, options?: { logoSrc?:
             <td style="padding:14px 20px;text-align:right;vertical-align:middle;white-space:nowrap;">
               <span style="color:#e2e8f0;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;display:block;">FITXA TÈCNICA D&apos;ETIQUETA</span>
               <span style="color:#f3d9db;font-size:10px;">Data: ${date}</span>
+              ${referenceCode ? `<span style="display:inline-block;margin-top:5px;padding:3px 8px;border-radius:5px;background:#ffffff;color:#8a1c22;font-family:monospace;font-size:12px;font-weight:700;letter-spacing:0.04em;">${escapeHtml(referenceCode)}</span>` : ""}
             </td>
           </tr>
         </table>
