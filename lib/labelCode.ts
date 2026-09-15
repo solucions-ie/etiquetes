@@ -18,7 +18,7 @@ const MATERIAL_CODE: Record<WizardValues["materialType"], string> = {
   "plastic-artyval": "ART",
   "textile-polyamide": "ETP",
   "material-unknown": "IND",
-  "material-other": "IND"
+  "material-other": "XXX"
 };
 
 function pad3(n: number): string {
@@ -36,8 +36,8 @@ export function generateLabelCode(data: WizardValues): string {
   return `${material}${color}${core}${outerDiameter}${width}${height}`;
 }
 
-// Reverse map material code -> materialType. "IND" is shared by
-// material-unknown / material-other; first-wins keeps "material-unknown".
+// Reverse map material code -> materialType. Codes are unique ("IND" for
+// unknown, "XXX" for other); first-wins guards against any future collision.
 const MATERIAL_BY_CODE: Record<string, WizardValues["materialType"]> = (() => {
   const rev: Record<string, WizardValues["materialType"]> = {};
   (Object.entries(MATERIAL_CODE) as Array<[WizardValues["materialType"], string]>).forEach(
