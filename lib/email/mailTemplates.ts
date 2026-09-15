@@ -296,6 +296,10 @@ export function renderTechnicalSheetHtml(
       </td>
       <td style="width:58%;padding:20px;vertical-align:top;">
         ${buildSpecBlocksHtml(data)}
+        ${data.materialObservations ? `<div style="margin-bottom:12px;">
+          <div style="background:#8a1c22;color:#ffffff;font-size:10px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;padding:6px 10px;border-radius:6px 6px 0 0;">Observacions del material</div>
+          <div style="border:1px solid #e2e8f0;border-top:none;border-radius:0 0 6px 6px;background:#fff;padding:8px 10px;font-size:12px;color:#0f172a;line-height:1.5;">${escapeHtml(data.materialObservations)}</div>
+        </div>` : ""}
       </td>
     </tr>
   </table>
