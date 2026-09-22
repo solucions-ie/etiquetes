@@ -181,6 +181,121 @@ function renderHeader(title: string, date: string, logoSrc: string) {
     <tr><td style="background:#6f151a;height:3px;font-size:1px;line-height:1px;padding:0;">&nbsp;</td></tr>`;
 }
 
+// ── Internal copy-paste summary (Spanish) for Odoo / manufacturer ──
+
+const MATERIALS_WITHOUT_ADHESIVE: Array<WizardData["materialType"]> = [
+  "paper-thermal-direct-ticket",
+  "plastic-artyval",
+  "material-unknown",
+  "material-other"
+];
+
+function materialLabelEs(data: WizardData): string {
+  if (data.materialType === "material-other") {
+    return data.materialOtherDescription?.trim() || "Otro material (a especificar)";
+  }
+  const map: Record<WizardData["materialType"], string> = {
+    "paper-thermal-eco": "Etiqueta térmica eco",
+    "paper-thermal-protected": "Etiqueta térmica protegida",
+    "paper-thermal-direct-ticket": "Papel térmico - Tique (sin adhesivo)",
+    "paper-couche": "Etiqueta couché",
+    "paper-matte": "Etiqueta mate",
+    "paper-inkjet-gloss": "Etiqueta Inkjet papel brillo",
+    "paper-inkjet-matte": "Etiqueta Inkjet papel mate",
+    "plastic-pp-gloss": "PP brillo (polipropileno)",
+    "plastic-pp-matte": "PP mate (polipropileno)",
+    "plastic-pe-gloss": "PE brillo (polietileno)",
+    "plastic-pe-matte": "PE mate (polietileno)",
+    "plastic-pet-gloss": "PET brillo (poliéster)",
+    "plastic-pet-matte": "PET mate (poliéster)",
+    "plastic-pvc": "PVC (vinilo)",
+    "plastic-artyval": "Sintético Artyval (sin adhesivo)",
+    "textile-polyamide": "Poliamida (nylon)",
+    "material-unknown": "Material por determinar",
+    "material-other": "Otro material (a especificar)"
+  };
+  return map[data.materialType];
+}
+
+function productDescriptionEs(data: WizardData): string {
+  const base = materialLabelEs(data);
+  if (MATERIALS_WITHOUT_ADHESIVE.includes(data.materialType)) return base;
+  const adhesiveEs = data.adhesive === "removable" ? "removible" : "permanente";
+  return `${base} con adhesivo ${adhesiveEs}`;
+}
+
+function printerEs(printerType: WizardData["printerType"]): string {
+  if (printerType === "desktop") return "sobremesa";
+  if (printerType === "portable") return "portátil";
+  return "industrial";
+}
+
+function cutLineEs(data: WizardData): string {
+  if (!data.hasCut) return "Trepado: no.";
+  if (data.cutType === "trepat") return "Trepado: sí.";
+  const map: Record<string, string> = {
+    troquelat: "Troquelado",
+    "tall-italia": "Corte italiano",
+    "tall-linia-recte": "Corte línea recta",
+    "tall-perforat": "Perforado",
+    "etiqueta-desmallada": "Etiqueta desmallada",
+    linerless: "Linerless"
+  };
+  return `${map[data.cutType] ?? data.cutType}: sí.`;
+}
+
+export function buildInternalSummaryText(data: WizardData, referenceCode: string): string {
+  const isContinuous = data.labelFlowType === "continuous";
+  const desc = productDescriptionEs(data);
+  const dims = isContinuous
+    ? `${data.labelWidthMm} (continua)`
+    : `${data.labelWidthMm} x ${data.labelHeightMm}`;
+  const coreEs = data.rollCoreMm === "external" ? "externo" : `${data.rollCoreMm} mm`;
+
+  const lines: string[] = [`Ancho ${data.labelWidthMm} mm.`];
+  if (!isContinuous) lines.push(`Salida ${data.labelHeightMm} mm.`);
+  lines.push(cutLineEs(data));
+  lines.push(`Mandril: ${coreEs}.`);
+  lines.push(`Diámetro bobina: ${data.rollOuterDiameterMm} mm.`);
+  lines.push(`Apto para ${printerEs(data.printerType)}`);
+  if (!isContinuous) {
+    lines.push(
+      "Este producto se vende en millares (Nota: por circunstancias de producción el número final de etiquetas puede variar +/- 10%)"
+    );
+  }
+  lines.push("Notas:");
+
+  return `PRODUCTE: ${desc}. ${dims}\n\nDESCRIPCIÓ: ${desc}\n${lines.join(
+    "\n"
+  )}\n\nReferència: ${referenceCode}`;
+}
+
+export function renderInternalSummaryHtml(params: {
+  data: WizardData;
+  referenceCode: string;
+  logoSrc?: string;
+}) {
+  const { data, referenceCode, logoSrc = "/logo-sie.png" } = params;
+  const date = new Date().toLocaleDateString("ca-ES", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric"
+  });
+  const summaryText = buildInternalSummaryText(data, referenceCode);
+
+  return `<div style="margin:0;padding:20px;background:#f1f5f9;font-family:Arial,Helvetica,sans-serif;color:#0f172a;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:720px;margin:0 auto;background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+    ${renderHeader("NOVA SOL·LICITUD D'ETIQUETA", date, logoSrc)}
+    <tr>
+      <td style="padding:20px;">
+        <p style="margin:0 0 12px 0;font-size:12px;color:#475569;">Resum per copiar i enganxar (la fitxa tècnica completa s&apos;adjunta en PDF):</p>
+        <div style="white-space:pre-wrap;font-family:'Courier New',Courier,monospace;font-size:13px;line-height:1.55;color:#0f172a;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px;">${escapeHtml(summaryText)}</div>
+      </td>
+    </tr>
+  </table>
+</div>`;
+}
+
 export function renderCompactEmailHtml(params: {
   title: string;
   intro: string;

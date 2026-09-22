@@ -6,6 +6,7 @@ import { generateLabelIllustrationSvg } from "@/lib/email/labelIllustration";
 import {
   buildHtmlDocument,
   renderCompactEmailHtml,
+  renderInternalSummaryHtml,
   renderTechnicalSheetHtml as renderTechnicalSheetTemplate
 } from "@/lib/email/mailTemplates";
 import { renderHtmlToPdf } from "@/lib/email/pdf";
@@ -483,12 +484,10 @@ export async function POST(request: Request) {
         replyTo: replyToEmail,
         subject: `Nova sol·licitud d'etiqueta - ${data.company}`,
         attachments: attachments,
-        html: renderCompactEmailHtml({
-          title: "NOVA SOLLICITUD D'ETIQUETA",
-          intro: "S'adjunta la fitxa tècnica completa en PDF.",
+        html: renderInternalSummaryHtml({
           data,
-          logoSrc,
-          referenceCode
+          referenceCode,
+          logoSrc
         })
       })
     ]);

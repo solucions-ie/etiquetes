@@ -1,5 +1,5 @@
 import { defaultWizardValues, type WizardValues } from "@/lib/schemas/wizard";
-import { renderCompactEmailHtml } from "@/lib/email/mailTemplates";
+import { renderCompactEmailHtml, renderInternalSummaryHtml } from "@/lib/email/mailTemplates";
 import { generateLabelCode } from "@/lib/labelCode";
 
 // Preview of the REAL emails sent from /api/send. Delegates to the same
@@ -41,12 +41,10 @@ export function generatePreviewHtml(): string {
     logoSrc
   });
 
-  const internal = renderCompactEmailHtml({
-    title: "NOVA SOLLICITUD D'ETIQUETA",
-    intro: "S'adjunta la fitxa tècnica completa en PDF.",
+  const internal = renderInternalSummaryHtml({
     data: sample,
-    logoSrc,
-    referenceCode
+    referenceCode,
+    logoSrc
   });
 
   const sectionTitle = (text: string) =>
