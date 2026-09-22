@@ -281,7 +281,39 @@ export function renderInternalSummaryHtml(params: {
     month: "2-digit",
     year: "numeric"
   });
-  const summaryText = buildInternalSummaryText(data, referenceCode);
+  // Email clients (Gmail/Outlook) often ignore white-space:pre-wrap, so force
+  // line breaks with <br> after escaping.
+  const summaryHtml = escapeHtml(buildInternalSummaryText(data, referenceCode)).replace(
+    /\n/g,
+    "<br>"
+  );
+
+  const extras: Array<[string, string]> = [];
+  if (data.materialObservations?.trim()) {
+    extras.push(["Observacions del material", data.materialObservations.trim()]);
+  }
+  if (data.comments?.trim()) {
+    extras.push(["Comentaris del client", data.comments.trim()]);
+  }
+  if (data.hasBackgroundColor && data.backgroundColorNotes?.trim()) {
+    extras.push(["Notes del color de fons", data.backgroundColorNotes.trim()]);
+  }
+
+  const extrasHtml = extras.length
+    ? `<div style="margin-top:16px;">
+        <div style="background:#8a1c22;color:#ffffff;font-size:10px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;padding:6px 10px;border-radius:6px 6px 0 0;">Informació addicional del client</div>
+        <div style="border:1px solid #e2e8f0;border-top:none;border-radius:0 0 6px 6px;background:#fff;padding:10px 12px;">
+          ${extras
+            .map(
+              ([label, value]) =>
+                `<p style="margin:0 0 8px 0;font-size:12px;color:#0f172a;line-height:1.5;"><strong style="color:#8a1c22;">${escapeHtml(
+                  label
+                )}:</strong> ${escapeHtml(value)}</p>`
+            )
+            .join("")}
+        </div>
+      </div>`
+    : "";
 
   return `<div style="margin:0;padding:20px;background:#f1f5f9;font-family:Arial,Helvetica,sans-serif;color:#0f172a;">
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:720px;margin:0 auto;background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
@@ -289,7 +321,13 @@ export function renderInternalSummaryHtml(params: {
     <tr>
       <td style="padding:20px;">
         <p style="margin:0 0 12px 0;font-size:12px;color:#475569;">Resum per copiar i enganxar (la fitxa tècnica completa s&apos;adjunta en PDF):</p>
-        <div style="white-space:pre-wrap;font-family:'Courier New',Courier,monospace;font-size:13px;line-height:1.55;color:#0f172a;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px;">${escapeHtml(summaryText)}</div>
+        <div style="font-family:'Courier New',Courier,monospace;font-size:13px;line-height:1.7;color:#0f172a;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px;">${summaryHtml}</div>
+        ${extrasHtml}
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:16px 20px;border-top:1px solid #e2e8f0;background:#f8fafc;">
+        ${renderContactBlockHtml(data)}
       </td>
     </tr>
   </table>
