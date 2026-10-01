@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { defaultWizardValues, wizardSchema, WizardValues } from "@/lib/schemas/wizard";
+import { buildWizardSchema, defaultWizardValues, WizardValues } from "@/lib/schemas/wizard";
+import { VALIDATION_MESSAGES } from "@/lib/i18n/validation";
 import { parseLabelCode } from "@/lib/labelCode";
 import { useI18n } from "@/lib/i18n/I18nProvider";
 import { StepContact } from "./steps/StepContact";
@@ -44,6 +45,16 @@ export function LabelWizard() {
   const [codeMessage, setCodeMessage] = useState<"ok" | "error" | null>(null);
   const previousPrinterType = useRef<WizardValues["printerType"] | null>(null);
 
+  // Keep the latest locale messages in a ref so a single stable resolver can
+  // validate with the current language without re-initialising the form.
+  const messagesRef = useRef(VALIDATION_MESSAGES[locale]);
+  messagesRef.current = VALIDATION_MESSAGES[locale];
+  const resolver = useMemo<Resolver<WizardValues>>(
+    () => (values, context, options) =>
+      zodResolver(buildWizardSchema(messagesRef.current))(values, context, options),
+    []
+  );
+
   const {
     register,
     handleSubmit,
@@ -51,7 +62,7 @@ export function LabelWizard() {
     watch,
     formState: { errors }
   } = useForm<WizardValues>({
-    resolver: zodResolver(wizardSchema),
+    resolver,
     defaultValues: defaultWizardValues,
     mode: "onTouched"
   });

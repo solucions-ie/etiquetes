@@ -1,11 +1,13 @@
 import { z } from "zod";
+import { VALIDATION_MESSAGES, WizardMessages } from "@/lib/i18n/validation";
 
-export const wizardSchema = z
+export function buildWizardSchema(m: WizardMessages) {
+  return z
   .object({
-    company: z.string().min(2, "Indica l'empresa."),
-    contactName: z.string().min(2, "Indica el nom de contacte."),
-    email: z.string().email("Correu invalid."),
-    phone: z.string().min(6, "Telefon massa curt.").optional().or(z.literal("")),
+    company: z.string().min(2, m.company),
+    contactName: z.string().min(2, m.contactName),
+    email: z.string().email(m.email),
+    phone: z.string().min(6, m.phone).optional().or(z.literal("")),
     printerType: z.enum(["desktop", "portable", "industrial"]),
     printerWidthClass: z.enum(["", "2", "3", "4", "6", "8"]),
     materialType: z.enum([
@@ -41,16 +43,10 @@ export const wizardSchema = z
       "linerless"
     ]),
     labelWidthMm: z.coerce
-      .number({
-        invalid_type_error: "Introdueix si us plau un numero a l'amplada.",
-        required_error: "Introdueix si us plau un numero a l'amplada."
-      })
+      .number({ invalid_type_error: m.widthNumber, required_error: m.widthNumber })
       .min(15),
     labelHeightMm: z.coerce
-      .number({
-        invalid_type_error: "Introdueix si us plau un numero a l'alcada.",
-        required_error: "Introdueix si us plau un numero a l'alcada."
-      })
+      .number({ invalid_type_error: m.heightNumber, required_error: m.heightNumber })
       .min(10),
     rollCoreMm: z.enum(["12.5", "19", "25", "25.4", "40", "76", "external"]),
     rollOuterDiameterMm: z.coerce.number().min(25).max(230),
@@ -59,11 +55,9 @@ export const wizardSchema = z
     blackMarkPosition: z.enum(["none", "front", "back"]),
     adhesive: z.enum(["acrylic", "hotmelt", "removable"]),
     hasBackgroundColor: z.boolean(),
-    backgroundColorHex: z
-      .string()
-      .regex(/^#[0-9A-Fa-f]{6}$/, "Color invalid."),
+    backgroundColorHex: z.string().regex(/^#[0-9A-Fa-f]{6}$/, m.colorHex),
     backgroundColorNotes: z.string().optional().or(z.literal("")),
-    quantity: z.coerce.number().min(100, "Quantitat minima: 100."),
+    quantity: z.coerce.number().min(100, m.quantityMin),
     colorCount: z.enum(["0", "1", "2", "3", "4"]),
     comments: z.string().optional().or(z.literal("")),
     materialOtherDescription: z.string().optional().or(z.literal("")),
@@ -102,7 +96,7 @@ export const wizardSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["labelWidthMm"],
-        message: `Aquesta impressora admet fins a ${maxWidthByPrinter[data.printerType]} mm d'amplada.`
+        message: m.maxWidthByPrinter(maxWidthByPrinter[data.printerType])
       });
     }
 
@@ -110,7 +104,7 @@ export const wizardSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["blackMarkPosition"],
-        message: "Selecciona posicio de la marca negra."
+        message: m.blackMarkSelectPos
       });
     }
 
@@ -118,7 +112,7 @@ export const wizardSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["blackMarkPosition"],
-        message: "Si no hi ha marca negra, la posicio ha de ser 'sense marca'."
+        message: m.blackMarkNone
       });
     }
 
@@ -129,7 +123,7 @@ export const wizardSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["printerWidthClass"],
-        message: "Aquesta polzada no es compatible amb el tipus d'impressora seleccionat."
+        message: m.widthClassIncompatible
       });
     }
 
@@ -140,7 +134,7 @@ export const wizardSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["labelWidthMm"],
-        message: `Amb ${data.printerWidthClass}" la mida maxima es ${maxWidthByClass[data.printerWidthClass]} mm.`
+        message: m.maxWidthByClass(data.printerWidthClass, maxWidthByClass[data.printerWidthClass])
       });
     }
 
@@ -148,7 +142,7 @@ export const wizardSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["rollCoreMm"],
-        message: "Aquest mandri no es compatible amb el tipus d'impressora seleccionat."
+        message: m.coreIncompatible
       });
     }
 
@@ -156,7 +150,7 @@ export const wizardSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["rollOuterDiameterMm"],
-        message: "Aquest diametre exterior no es compatible amb el tipus d'impressora seleccionat."
+        message: m.outerIncompatible
       });
     }
 
@@ -164,7 +158,7 @@ export const wizardSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["gapMm"],
-        message: "Si tries GAP, la separacio ha de ser superior a 0."
+        message: m.gapPositive
       });
     }
 
@@ -172,7 +166,7 @@ export const wizardSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["cutType"],
-        message: "Marca un tipus de tall o desactiva l'opcio de tall."
+        message: m.cutSelect
       });
     }
 
@@ -180,10 +174,13 @@ export const wizardSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["backgroundColorHex"],
-        message: "Si no hi ha color de fons, el color ha de quedar en blanc."
+        message: m.backgroundWhite
       });
     }
   });
+}
+
+export const wizardSchema = buildWizardSchema(VALIDATION_MESSAGES.ca);
 
 export type WizardValues = z.infer<typeof wizardSchema>;
 
