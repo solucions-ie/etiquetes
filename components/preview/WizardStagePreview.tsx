@@ -3,6 +3,7 @@
 import { ChangeEvent, useEffect, useRef } from "react";
 import { FieldErrors, UseFormRegister, UseFormSetValue } from "react-hook-form";
 import { WizardValues } from "@/lib/schemas/wizard";
+import { useI18n } from "@/lib/i18n/I18nProvider";
 
 type PreviewValues = Pick<
   WizardValues,
@@ -61,6 +62,7 @@ const printerHeadConfig: Record<
 };
 
 function PrinterMaxInfo({ values }: { values: PreviewValues }) {
+  const { t } = useI18n();
   const maxWidth = printerMaxWidthMm[values.printerType];
   const selectedWidthLimit = values.printerWidthClass
     ? printerWidthClassMm[values.printerWidthClass]
@@ -78,18 +80,17 @@ function PrinterMaxInfo({ values }: { values: PreviewValues }) {
     <div className="rounded-xl border border-amber-300 bg-amber-50 p-3 text-xs text-amber-800">
       {selectedWidthLimit ? (
         <p className="font-semibold">
-          Amb {values.printerWidthClass}" la mida maxima recomanada es {selectedWidthLimit} mm.
+          {t.preview.widthClassInfo(values.printerWidthClass, selectedWidthLimit)}
         </p>
       ) : (
-        <p className="font-semibold">
-          Aquesta familia d'impressora admet fins a {maxWidth} mm d'amplada.
-        </p>
+        <p className="font-semibold">{t.preview.familyMaxInfo(maxWidth)}</p>
       )}
     </div>
   );
 }
 
 function SupportLabelPreview({ values }: { values: PreviewValues }) {
+  const { t } = useI18n();
   const scrollerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -141,7 +142,7 @@ function SupportLabelPreview({ values }: { values: PreviewValues }) {
         className="mx-auto block h-auto w-full max-w-[390px]"
         viewBox="30 40 500 430"
         role="img"
-        aria-label="Vista previa de paper suport amb etiquetes verticals"
+        aria-label={t.preview.aria}
       >
         <defs>
           <linearGradient id="labelFace" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -301,6 +302,7 @@ export function WizardStagePreview({
   setValue,
   errors
 }: WizardStagePreviewProps) {
+  const { t } = useI18n();
   const handleBackgroundColorChange = (event: ChangeEvent<HTMLInputElement>) => {
     setValue("backgroundColorHex", event.target.value.toUpperCase(), {
       shouldValidate: true,
@@ -328,7 +330,7 @@ export function WizardStagePreview({
           <div className="grid gap-2 md:grid-cols-2">
             <div>
               <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-slate-600">
-                Amplada (mm)
+                {t.preview.widthMm}
               </label>
               <input
                 className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs"
@@ -344,7 +346,7 @@ export function WizardStagePreview({
             </div>
             <div>
               <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-slate-600">
-                Avanç (mm)
+                {t.preview.advanceMm}
               </label>
               <input
                 className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs"
@@ -371,12 +373,12 @@ export function WizardStagePreview({
 
           <aside className="border-t border-slate-200 bg-slate-50 p-3 lg:border-l lg:border-t-0">
             <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-600">
-              Avanc (lateral)
+              {t.preview.advanceLateral}
             </p>
             <div className="mt-2 space-y-2">
               <label className="block rounded-lg border border-slate-300 bg-white px-2 py-2 text-xs">
                 <input type="radio" value="gap" className="mr-2" {...register("labelFlowType")} />
-                Gap
+                {t.preview.flowGap}
               </label>
               <label className="block rounded-lg border border-slate-300 bg-white px-2 py-2 text-xs">
                 <input
@@ -385,7 +387,7 @@ export function WizardStagePreview({
                   className="mr-2"
                   {...register("labelFlowType")}
                 />
-                Marca negra
+                {t.preview.flowBlackMark}
               </label>
               <label className="block rounded-lg border border-slate-300 bg-white px-2 py-2 text-xs">
                 <input
@@ -394,14 +396,14 @@ export function WizardStagePreview({
                   className="mr-2"
                   {...register("labelFlowType")}
                 />
-                Continu
+                {t.preview.flowContinuous}
               </label>
             </div>
 
             {values.labelFlowType !== "continuous" && (
               <label className="mt-3 block text-xs text-slate-700">
                 <input type="checkbox" className="mr-2" {...register("hasCut")} />
-                Tall trepat
+                {t.preview.cutCheckbox}
               </label>
             )}
           </aside>
@@ -410,7 +412,7 @@ export function WizardStagePreview({
 
       <div className="rounded-xl border border-slate-200 bg-white p-3">
         <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-600">
-          Color de fons
+          {t.preview.backgroundTitle}
         </p>
         <div className="mt-2 grid gap-2 sm:grid-cols-2">
           <label className="flex items-center gap-2 rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-700">
@@ -419,7 +421,7 @@ export function WizardStagePreview({
               checked={!values.hasBackgroundColor}
               onChange={() => handleBackgroundToggle(false)}
             />
-            Sense color
+            {t.preview.backgroundNone}
           </label>
           <label className="flex items-center gap-2 rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-700">
             <input
@@ -427,14 +429,16 @@ export function WizardStagePreview({
               checked={values.hasBackgroundColor}
               onChange={() => handleBackgroundToggle(true)}
             />
-            Amb color
+            {t.preview.backgroundWith}
           </label>
         </div>
 
         {values.hasBackgroundColor && (
           <div className="mt-3 space-y-3">
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">Color escollit</label>
+              <label className="mb-2 block text-sm font-medium text-slate-700">
+                {t.preview.backgroundChosen}
+              </label>
               <div className="flex items-center gap-3">
                 <input
                   className="h-11 w-16 cursor-pointer rounded-lg border border-slate-300 bg-white p-1"
@@ -455,11 +459,11 @@ export function WizardStagePreview({
 
             <div>
               <label className="mb-2 block text-sm font-medium text-slate-700">
-                Observacions del color (opcional)
+                {t.preview.backgroundNotesLabel}
               </label>
               <input
                 className="field-input"
-                placeholder="Ex. blau corporatiu, Pantone aproximat..."
+                placeholder={t.preview.backgroundNotesPlaceholder}
                 {...register("backgroundColorNotes")}
               />
             </div>

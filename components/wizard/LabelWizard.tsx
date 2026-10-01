@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { defaultWizardValues, wizardSchema, WizardValues } from "@/lib/schemas/wizard";
 import { parseLabelCode } from "@/lib/labelCode";
+import { useI18n } from "@/lib/i18n/I18nProvider";
 import { StepContact } from "./steps/StepContact";
 import { StepPrinter } from "./steps/StepPrinter";
 import { StepDimensions } from "./steps/StepDimensions";
@@ -35,13 +36,12 @@ const printerWidthClasses: Record<
 };
 
 export function LabelWizard() {
+  const { t, locale } = useI18n();
   const [isSending, setIsSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
   const [codeInput, setCodeInput] = useState("");
-  const [codeMessage, setCodeMessage] = useState<
-    { type: "ok" | "error"; text: string } | null
-  >(null);
+  const [codeMessage, setCodeMessage] = useState<"ok" | "error" | null>(null);
   const previousPrinterType = useRef<WizardValues["printerType"] | null>(null);
 
   const {
@@ -136,10 +136,7 @@ export function LabelWizard() {
   const handleApplyCode = () => {
     const parsed = parseLabelCode(codeInput);
     if (!parsed) {
-      setCodeMessage({
-        type: "error",
-        text: "Codi no reconegut. Ha de tenir 16 caràcters amb el format correcte."
-      });
+      setCodeMessage("error");
       return;
     }
 
@@ -158,10 +155,7 @@ export function LabelWizard() {
       setValue("labelHeightMm", parsed.labelHeightMm, { shouldValidate: true });
     }
 
-    setCodeMessage({
-      type: "ok",
-      text: "Camps omplerts des del codi. Revisa impressora, adhesiu, quantitat i tipus d'avanç, que no van dins del codi."
-    });
+    setCodeMessage("ok");
   };
 
   const onSubmit = async (formData: WizardValues) => {
@@ -171,11 +165,11 @@ export function LabelWizard() {
       const response = await fetch("/api/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({ ...formData, locale })
       });
 
       if (!response.ok) {
-        let apiError = "No s'han pogut enviar els correus.";
+        let apiError = t.errors.sendFailed;
         try {
           const payload = (await response.json()) as { error?: string };
           if (payload?.error) apiError = payload.error;
@@ -186,9 +180,7 @@ export function LabelWizard() {
       }
       setSent(true);
     } catch (error) {
-      setSendError(
-        error instanceof Error ? error.message : "Error inesperat en l'enviament."
-      );
+      setSendError(error instanceof Error ? error.message : t.errors.unexpected);
     } finally {
       setIsSending(false);
     }
@@ -197,12 +189,8 @@ export function LabelWizard() {
   if (sent) {
     return (
       <div className="rounded-2xl border border-[var(--sie-primary-border)] bg-[var(--sie-primary-softer)] p-5">
-        <h2 className="text-lg font-semibold text-[var(--sie-primary)]">
-          Sollicitud enviada correctament
-        </h2>
-        <p className="mt-2 text-sm text-[var(--sie-ink)]">
-          Hem enviat un correu de confirmacio al client i una notificacio interna a secretaria.
-        </p>
+        <h2 className="text-lg font-semibold text-[var(--sie-primary)]">{t.sent.title}</h2>
+        <p className="mt-2 text-sm text-[var(--sie-ink)]">{t.sent.body}</p>
       </div>
     );
   }
@@ -211,12 +199,9 @@ export function LabelWizard() {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       <section className="rounded-2xl border border-[var(--sie-primary-border)] bg-[var(--sie-primary-softer)] p-4">
         <h2 className="mb-1 text-sm font-semibold uppercase tracking-wide text-[var(--sie-primary)]">
-          Tens un codi d'etiqueta?
+          {t.codeCard.heading}
         </h2>
-        <p className="mb-3 text-xs text-slate-600">
-          Enganxa un codi de referència i omplirem automàticament el material, les tintes, el mandril,
-          el diàmetre i les mides.
-        </p>
+        <p className="mb-3 text-xs text-slate-600">{t.codeCard.help}</p>
         <div className="flex flex-col gap-2 sm:flex-row">
           <input
             type="text"
@@ -225,7 +210,7 @@ export function LabelWizard() {
               setCodeInput(event.target.value);
               if (codeMessage) setCodeMessage(null);
             }}
-            placeholder="Ex. PTE0025100050030"
+            placeholder={t.codeCard.placeholder}
             className="field-input font-mono uppercase sm:flex-1"
           />
           <button
@@ -233,39 +218,37 @@ export function LabelWizard() {
             onClick={handleApplyCode}
             className="rounded-xl bg-[var(--sie-primary)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--sie-primary-dark)]"
           >
-            Aplicar codi
+            {t.codeCard.apply}
           </button>
         </div>
         {codeMessage && (
           <p
             className={`mt-2 text-xs ${
-              codeMessage.type === "ok" ? "text-emerald-700" : "text-red-600"
+              codeMessage === "ok" ? "text-emerald-700" : "text-red-600"
             }`}
           >
-            {codeMessage.text}
+            {codeMessage === "ok" ? t.codeCard.ok : t.codeCard.error}
           </p>
         )}
       </section>
 
       <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-700">
-          1. Material de l'etiqueta
+          {t.sections.material}
         </h2>
         <StepMaterial register={register} errors={errors} watch={watch} setValue={setValue} />
       </section>
 
       <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-700">
-          2. Configuracio i vista previa
+          {t.sections.config}
         </h2>
-        <p className="text-sm font-medium text-slate-800">Vista previa de l'etiqueta</p>
-        <p className="mt-1 text-xs text-slate-500">
-          Es recalcula automaticament segons les opcions seleccionades.
-        </p>
+        <p className="text-sm font-medium text-slate-800">{t.sections.configLead1}</p>
+        <p className="mt-1 text-xs text-slate-500">{t.sections.configLead2}</p>
         <div className="mt-4 grid gap-4 xl:grid-cols-12 xl:items-stretch">
           <div className="rounded-2xl border border-slate-200 bg-white p-3 xl:col-span-2 xl:h-full">
             <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-700">
-              Tipus d'impressora
+              {t.sections.printerTitle}
             </h3>
             <StepPrinter register={register} setValue={setValue} errors={errors} watch={watch} />
           </div>
@@ -312,7 +295,7 @@ export function LabelWizard() {
 
       <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-700">
-          3. Dades de contacte
+          {t.sections.contact}
         </h2>
         <StepContact register={register} errors={errors} />
       </section>
@@ -329,7 +312,7 @@ export function LabelWizard() {
           disabled={isSending}
           className="rounded-xl bg-[var(--sie-primary)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--sie-primary-dark)] disabled:opacity-70"
         >
-          {isSending ? "Enviant..." : "Enviar sollicitud"}
+          {isSending ? t.actions.submitting : t.actions.submit}
         </button>
       </div>
     </form>

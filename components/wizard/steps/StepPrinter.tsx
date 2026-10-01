@@ -2,6 +2,7 @@
 
 import { FieldErrors, UseFormRegister, UseFormSetValue, UseFormWatch } from "react-hook-form";
 import { WizardValues } from "@/lib/schemas/wizard";
+import { useI18n } from "@/lib/i18n/I18nProvider";
 
 type StepPrinterProps = {
   register: UseFormRegister<WizardValues>;
@@ -54,6 +55,7 @@ const printerWidthOptions: Record<
 };
 
 export function StepPrinter({ register, setValue, errors, watch }: StepPrinterProps) {
+  const { t } = useI18n();
   const selectedPrinter = watch("printerType");
   const selectedWidthClass = watch("printerWidthClass");
 
@@ -80,7 +82,7 @@ export function StepPrinter({ register, setValue, errors, watch }: StepPrinterPr
               <div className="overflow-hidden rounded-lg border border-slate-200 bg-slate-100">
                 <img
                   src={option.photo}
-                  alt={option.label}
+                  alt={t.printer.labels[option.value]}
                   className="h-24 w-full object-contain bg-white p-1.5"
                   onError={(e) => {
                     const el = e.currentTarget;
@@ -88,10 +90,12 @@ export function StepPrinter({ register, setValue, errors, watch }: StepPrinterPr
                   }}
                 />
               </div>
-              <p className="mt-2 text-sm font-semibold text-slate-800">{option.label}</p>
+              <p className="mt-2 text-sm font-semibold text-slate-800">
+                {t.printer.labels[option.value]}
+              </p>
             </label>
             <p className="mt-2 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-              Polzades compatibles
+              {t.printer.compatibleInches}
             </p>
             <div className="mt-1.5 flex flex-wrap gap-1.5">
               {printerWidthOptions[option.value].map((widthOption) => {

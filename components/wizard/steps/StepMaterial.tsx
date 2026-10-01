@@ -1,8 +1,9 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { FieldErrors, UseFormRegister, UseFormSetValue, UseFormWatch } from "react-hook-form";
 import { WizardValues } from "@/lib/schemas/wizard";
+import { useI18n } from "@/lib/i18n/I18nProvider";
 
 type StepMaterialProps = {
   register: UseFormRegister<WizardValues>;
@@ -11,179 +12,36 @@ type StepMaterialProps = {
   setValue: UseFormSetValue<WizardValues>;
 };
 
-type MaterialInfo = {
-  id: WizardValues["materialType"];
-  family: "Etiqueta de paper" | "Sintètic" | "Tèxtil" | "Altres";
-  name: string;
-  description: string;
-  uses: string;
-};
+type FamilyKey = "paper" | "synthetic" | "textile" | "other";
 
-type AdhesiveInfo = {
-  id: WizardValues["adhesive"];
-  name: string;
-  description: string;
-  uses: string;
-};
-
-const MATERIALS: MaterialInfo[] = [
-  {
-    id: "paper-thermal-eco",
-    family: "Etiqueta de paper",
-    name: "Etiqueta tèrmica eco",
-    description: "Opció econòmica per a usos temporals; més sensible a la calor, la humitat i el fregament.",
-    uses: "Promocions curtes, etiquetatge temporal, flux intern."
-  },
-  {
-    id: "paper-thermal-protected",
-    family: "Etiqueta de paper",
-    name: "Etiqueta tèrmica protegida",
-    description: "Amb capa de protecció superficial per millorar la durada en entorns freds o humits.",
-    uses: "Alimentació, refrigerat, preparació de comandes."
-  },
-  {
-    id: "paper-thermal-direct-ticket",
-    family: "Etiqueta de paper",
-    name: "Paper tèrmic - Tiquet (sense adhesiu)",
-    description: "Impressió sense ribbon i sense adhesiu, orientada a la tiqueteria; baixa resistència a la calor i la llum solar.",
-    uses: "Tickets, torns, comprovants i tiquet de caixa."
-  },
-  {
-    id: "paper-couche",
-    family: "Etiqueta de paper",
-    name: "Etiqueta couche",
-    description: "Bona qualitat d'impressió i acabat net; ideal per a aplicacions d'interior o de curta durada.",
-    uses: "Producte general, retail, identificació interna."
-  },
-  {
-    id: "paper-matte",
-    family: "Etiqueta de paper",
-    name: "Etiqueta mate",
-    description: "Acabat mat amb bona llegibilitat i reflex reduït; bona opció per a text i codis.",
-    uses: "Producte, magatzem i etiquetatge intern."
-  },
-  {
-    id: "paper-inkjet-gloss",
-    family: "Etiqueta de paper",
-    name: "Etiqueta inkjet brillant",
-    description: "Recobriment per a impressió a color viva i detall alt amb acabat brillant; menor resistència a l'aigua i al fregament.",
-    uses: "Promocions, packaging visual i etiquetes a color."
-  },
-  {
-    id: "paper-inkjet-matte",
-    family: "Etiqueta de paper",
-    name: "Etiqueta inkjet mate",
-    description: "Recobriment per a impressió a color amb acabat mat i bona llegibilitat; menor resistència a l'aigua i al fregament.",
-    uses: "Promocions, packaging visual i etiquetes a color sense reflex."
-  },
-  {
-    id: "plastic-pp-gloss",
-    family: "Sintètic",
-    name: "PP brillant (polipropilè)",
-    description: "Bona resistència a l'aigua, greixos i alguns químics amb bon equilibri entre cost i prestacions.",
-    uses: "Cosmètica, neteja, higiene i consumibles."
-  },
-  {
-    id: "plastic-pp-matte",
-    family: "Sintètic",
-    name: "PP mate (polipropilè)",
-    description: "Bona resistència a l'aigua, greixos i alguns químics amb acabat sense reflex.",
-    uses: "Cosmètica, neteja, higiene i consumibles."
-  },
-  {
-    id: "plastic-pe-gloss",
-    family: "Sintètic",
-    name: "PE brillant (polietilè)",
-    description: "Material flexible que s'adapta bé a envasos corbats o deformables.",
-    uses: "Ampolles flexibles, productes de cura personal i detergència."
-  },
-  {
-    id: "plastic-pe-matte",
-    family: "Sintètic",
-    name: "PE mate (polietilè)",
-    description: "Material flexible amb acabat mat, apte per envasos corbats o deformables.",
-    uses: "Ampolles flexibles, productes de cura personal i detergència."
-  },
-  {
-    id: "plastic-pet-gloss",
-    family: "Sintètic",
-    name: "PET brillant (polièster)",
-    description: "Molt durable i resistent a la temperatura i al desgast; orientat a entorns exigents.",
-    uses: "Industrial, laboratoris, traçabilitat de llarga durada."
-  },
-  {
-    id: "plastic-pet-matte",
-    family: "Sintètic",
-    name: "PET mate (polièster)",
-    description: "Molt durable i resistent a la temperatura i al desgast amb acabat mat.",
-    uses: "Industrial, laboratoris, traçabilitat de llarga durada."
-  },
-  {
-    id: "plastic-pvc",
-    family: "Sintètic",
-    name: "PVC (vinil)",
-    description: "Alta resistència a la intempèrie i la humitat, adequat per a aplicacions exteriors.",
-    uses: "Senyalització, exterior, etiquetes exposades."
-  },
-  {
-    id: "plastic-artyval",
-    family: "Sintètic",
-    name: "Sintètic Artyval (sense adhesiu)",
-    description: "Aspecte paper amb resistència de plàstic; molt versàtil en entorns humits o industrials.",
-    uses: "Magatzem, producció, etiquetatge tècnic amb bona durabilitat."
-  },
-  {
-    id: "textile-polyamide",
-    family: "Tèxtil",
-    name: "Poliamida (nylon)",
-    description: "Etiqueta tèxtil resistent i suau, amb bon comportament en rentat i planxa.",
-    uses: "Moda, confecció, composició i cura de peces rentables."
-  },
-  {
-    id: "material-unknown",
-    family: "Altres",
-    name: "Ho desconec",
-    description: "No saps quin material és o no el trobes a la llista. Indiqueu-ho i us assessorarem.",
-    uses: "Qualsevol aplicació. Us contactarem per determinar el material adequat."
-  },
-  {
-    id: "material-other",
-    family: "Altres",
-    name: "Cap d'aquests (especifica)",
-    description: "El material que necessites no apareix a la llista. Descriu-lo al camp de text.",
-    uses: "Materials específics, especials o fora de catàleg estàndard."
-  }
+// Structural data (ids + grouping). Display text lives in the i18n dictionary.
+const MATERIALS: Array<{ id: WizardValues["materialType"]; family: FamilyKey }> = [
+  { id: "paper-thermal-eco", family: "paper" },
+  { id: "paper-thermal-protected", family: "paper" },
+  { id: "paper-thermal-direct-ticket", family: "paper" },
+  { id: "paper-couche", family: "paper" },
+  { id: "paper-matte", family: "paper" },
+  { id: "paper-inkjet-gloss", family: "paper" },
+  { id: "paper-inkjet-matte", family: "paper" },
+  { id: "plastic-pp-gloss", family: "synthetic" },
+  { id: "plastic-pp-matte", family: "synthetic" },
+  { id: "plastic-pe-gloss", family: "synthetic" },
+  { id: "plastic-pe-matte", family: "synthetic" },
+  { id: "plastic-pet-gloss", family: "synthetic" },
+  { id: "plastic-pet-matte", family: "synthetic" },
+  { id: "plastic-pvc", family: "synthetic" },
+  { id: "plastic-artyval", family: "synthetic" },
+  { id: "textile-polyamide", family: "textile" },
+  { id: "material-unknown", family: "other" },
+  { id: "material-other", family: "other" }
 ];
 
-const ADHESIVES: AdhesiveInfo[] = [
-  {
-    id: "acrylic",
-    name: "Acrílic (base aigua)",
-    description: "Bona durabilitat en sec i aplicacions estables; no és l'opció ideal en humitat alta o fred extrem.",
-    uses: "Producte general, retail i etiquetatge interior."
-  },
-  {
-    id: "hotmelt",
-    name: "Hotmelt (base cautxú)",
-    description: "Excel·lent adherència inicial i bon rendiment en fred i humitat.",
-    uses: "Alimentació, logística de fresc, superfícies complexes."
-  },
-  {
-    id: "removable",
-    name: "Removible",
-    description: "Permet retirar l'etiqueta amb facilitat i minimitza residus d'adhesiu.",
-    uses: "Promocions, preus temporals i etiquetatge de curta durada."
-  }
-];
+const ADHESIVES: Array<WizardValues["adhesive"]> = ["acrylic", "hotmelt", "removable"];
 
-const FAMILIES: Array<MaterialInfo["family"]> = [
-  "Etiqueta de paper",
-  "Sintètic",
-  "Tèxtil",
-  "Altres"
-];
+const FAMILIES: FamilyKey[] = ["paper", "synthetic", "textile", "other"];
 
-export function StepMaterial({ register, errors, watch, setValue }: StepMaterialProps) {
+export function StepMaterial({ register, errors, watch }: StepMaterialProps) {
+  const { t } = useI18n();
   const [showMaterialGuide, setShowMaterialGuide] = useState(false);
   const [showAdhesiveGuide, setShowAdhesiveGuide] = useState(false);
   const selectedMaterialId = watch("materialType");
@@ -195,28 +53,28 @@ export function StepMaterial({ register, errors, watch, setValue }: StepMaterial
     selectedMaterialId === "material-other";
   const isIndeterminate =
     selectedMaterialId === "material-unknown" || selectedMaterialId === "material-other";
-  const selectedMaterial = MATERIALS.find((item) => item.id === selectedMaterialId) ?? MATERIALS[0];
-  const selectedAdhesive = ADHESIVES.find((item) => item.id === selectedAdhesiveId) ?? ADHESIVES[0];
+  const selectedMaterial = t.material.items[selectedMaterialId] ?? t.material.items["paper-thermal-eco"];
+  const selectedAdhesive = t.adhesive.items[selectedAdhesiveId] ?? t.adhesive.items.acrylic;
 
   return (
     <div className="space-y-4">
       <div>
         <div className="mb-2 flex items-center justify-between gap-2">
-          <label className="field-label !mb-0">Material de l'etiqueta</label>
+          <label className="field-label !mb-0">{t.material.label}</label>
           <button
             type="button"
             onClick={() => setShowMaterialGuide(true)}
             className="rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
           >
-            Guia de materials
+            {t.material.guideButton}
           </button>
         </div>
         <select className="field-input" {...register("materialType")}>
           {FAMILIES.map((family) => (
-            <optgroup key={family} label={family}>
+            <optgroup key={family} label={t.material.families[family]}>
               {MATERIALS.filter((item) => item.family === family).map((item) => (
                 <option key={item.id} value={item.id}>
-                  {item.name}
+                  {t.material.items[item.id].name}
                 </option>
               ))}
             </optgroup>
@@ -232,27 +90,28 @@ export function StepMaterial({ register, errors, watch, setValue }: StepMaterial
         <p className="mt-1">{selectedMaterial.description}</p>
         {!isIndeterminate && (
           <p className="mt-2 text-xs text-slate-600">
-            <strong className="text-[var(--sie-primary-dark)]">Usos recomanats:</strong> {selectedMaterial.uses}
+            <strong className="text-[var(--sie-primary-dark)]">{t.material.usesLabel}</strong>{" "}
+            {selectedMaterial.uses}
           </p>
         )}
       </div>
 
       {selectedMaterialId === "material-other" && (
         <div>
-          <label className="field-label">Descriu el material</label>
+          <label className="field-label">{t.material.describeLabel}</label>
           <textarea
             className="field-input min-h-[72px] resize-y"
-            placeholder="Ex. paper kraft, material tèrmic especial, PE expandit..."
+            placeholder={t.material.describePlaceholder}
             {...register("materialOtherDescription")}
           />
         </div>
       )}
 
       <div>
-        <label className="field-label">Observacions sobre el material (opcional)</label>
+        <label className="field-label">{t.material.observationsLabel}</label>
         <textarea
           className="field-input min-h-[72px] resize-y"
-          placeholder="Detalls o requisits específics del material..."
+          placeholder={t.material.observationsPlaceholder}
           {...register("materialObservations")}
         />
       </div>
@@ -261,19 +120,19 @@ export function StepMaterial({ register, errors, watch, setValue }: StepMaterial
         <>
           <div>
             <div className="mb-2 flex items-center justify-between gap-2">
-              <label className="field-label !mb-0">Tipus d'adhesiu</label>
+              <label className="field-label !mb-0">{t.adhesive.label}</label>
               <button
                 type="button"
                 onClick={() => setShowAdhesiveGuide(true)}
                 className="rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
               >
-                Guia d'adhesius
+                {t.adhesive.guideButton}
               </button>
             </div>
             <select className="field-input" {...register("adhesive")}>
-              {ADHESIVES.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.name}
+              {ADHESIVES.map((id) => (
+                <option key={id} value={id}>
+                  {t.adhesive.items[id].name}
                 </option>
               ))}
             </select>
@@ -283,29 +142,30 @@ export function StepMaterial({ register, errors, watch, setValue }: StepMaterial
             <p className="font-semibold text-[var(--sie-primary)]">{selectedAdhesive.name}</p>
             <p className="mt-1">{selectedAdhesive.description}</p>
             <p className="mt-2 text-xs text-slate-600">
-              <strong className="text-[var(--sie-primary-dark)]">Usos recomanats:</strong> {selectedAdhesive.uses}
+              <strong className="text-[var(--sie-primary-dark)]">{t.adhesive.usesLabel}</strong>{" "}
+              {selectedAdhesive.uses}
             </p>
           </div>
         </>
       ) : (
         <div className="rounded-xl border border-[var(--sie-primary-border)] bg-[var(--sie-primary-softer)] p-3 text-sm text-[var(--sie-ink)]">
-          Aquesta opció no porta adhesiu.
+          {t.adhesive.noAdhesive}
         </div>
       )}
 
       <div>
-        <label className="field-label">Nombre de tintes</label>
+        <label className="field-label">{t.material.colorCountLabel}</label>
         <select className="field-input" {...register("colorCount")}>
-          <option value="0">0 — Sense tintes</option>
-          <option value="1">1 — Fondejat (1 tinta)</option>
-          <option value="2">2 — Dos tintes</option>
-          <option value="3">3 — Tres tintes</option>
-          <option value="4">4 — Quatre tintes</option>
+          {(["0", "1", "2", "3", "4"] as WizardValues["colorCount"][]).map((value) => (
+            <option key={value} value={value}>
+              {t.material.colorCountOptions[value]}
+            </option>
+          ))}
         </select>
       </div>
 
       <div>
-        <label className="field-label">Quantitat estimada</label>
+        <label className="field-label">{t.material.quantityLabel}</label>
         <input
           className="field-input"
           type="number"
@@ -316,39 +176,43 @@ export function StepMaterial({ register, errors, watch, setValue }: StepMaterial
         {errors.quantity && (
           <p className="field-error">{errors.quantity.message as string}</p>
         )}
-        <p className="mt-2 text-xs text-slate-600">
-          Per circumstàncies de producció, el nombre final d'etiquetes pot variar +/- 10%.
-        </p>
+        <p className="mt-2 text-xs text-slate-600">{t.material.quantityNote}</p>
       </div>
 
       {showMaterialGuide && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
           <div className="max-h-[85vh] w-full max-w-4xl overflow-auto rounded-2xl border border-slate-200 bg-white p-4">
             <div className="mb-3 flex items-center justify-between">
-              <h3 className="text-base font-semibold text-slate-900">Guia de materials d'etiqueta</h3>
+              <h3 className="text-base font-semibold text-slate-900">{t.material.guideModalTitle}</h3>
               <button
                 type="button"
                 onClick={() => setShowMaterialGuide(false)}
                 className="rounded-lg border border-slate-300 px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
               >
-                Tancar
+                {t.material.close}
               </button>
             </div>
 
             <div className="space-y-4">
               {FAMILIES.map((family) => (
                 <section key={family}>
-                  <h4 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-700">{family}</h4>
+                  <h4 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-700">
+                    {t.material.families[family]}
+                  </h4>
                   <div className="grid gap-2">
-                    {MATERIALS.filter((item) => item.family === family).map((item) => (
-                      <article key={item.id} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-                        <p className="text-sm font-semibold text-[var(--sie-primary)]">{item.name}</p>
-                        <p className="mt-1 text-sm text-slate-700">{item.description}</p>
-                        <p className="mt-1 text-xs text-slate-600">
-                          <strong className="text-[var(--sie-primary-dark)]">Usos recomanats:</strong> {item.uses}
-                        </p>
-                      </article>
-                    ))}
+                    {MATERIALS.filter((item) => item.family === family).map((item) => {
+                      const text = t.material.items[item.id];
+                      return (
+                        <article key={item.id} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                          <p className="text-sm font-semibold text-[var(--sie-primary)]">{text.name}</p>
+                          <p className="mt-1 text-sm text-slate-700">{text.description}</p>
+                          <p className="mt-1 text-xs text-slate-600">
+                            <strong className="text-[var(--sie-primary-dark)]">{t.material.usesLabel}</strong>{" "}
+                            {text.uses}
+                          </p>
+                        </article>
+                      );
+                    })}
                   </div>
                 </section>
               ))}
@@ -361,26 +225,30 @@ export function StepMaterial({ register, errors, watch, setValue }: StepMaterial
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
           <div className="max-h-[85vh] w-full max-w-3xl overflow-auto rounded-2xl border border-slate-200 bg-white p-4">
             <div className="mb-3 flex items-center justify-between">
-              <h3 className="text-base font-semibold text-slate-900">Guia d'adhesius</h3>
+              <h3 className="text-base font-semibold text-slate-900">{t.adhesive.guideModalTitle}</h3>
               <button
                 type="button"
                 onClick={() => setShowAdhesiveGuide(false)}
                 className="rounded-lg border border-slate-300 px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
               >
-                Tancar
+                {t.material.close}
               </button>
             </div>
 
             <div className="grid gap-2">
-              {ADHESIVES.map((item) => (
-                <article key={item.id} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-                  <p className="text-sm font-semibold text-[var(--sie-primary)]">{item.name}</p>
-                  <p className="mt-1 text-sm text-slate-700">{item.description}</p>
-                  <p className="mt-1 text-xs text-slate-600">
-                    <strong className="text-[var(--sie-primary-dark)]">Usos recomanats:</strong> {item.uses}
-                  </p>
-                </article>
-              ))}
+              {ADHESIVES.map((id) => {
+                const text = t.adhesive.items[id];
+                return (
+                  <article key={id} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                    <p className="text-sm font-semibold text-[var(--sie-primary)]">{text.name}</p>
+                    <p className="mt-1 text-sm text-slate-700">{text.description}</p>
+                    <p className="mt-1 text-xs text-slate-600">
+                      <strong className="text-[var(--sie-primary-dark)]">{t.adhesive.usesLabel}</strong>{" "}
+                      {text.uses}
+                    </p>
+                  </article>
+                );
+              })}
             </div>
           </div>
         </div>

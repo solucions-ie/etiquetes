@@ -8,6 +8,7 @@ import {
   UseFormWatch
 } from "react-hook-form";
 import { WizardValues } from "@/lib/schemas/wizard";
+import { useI18n } from "@/lib/i18n/I18nProvider";
 
 type StepDimensionsProps = {
   register: UseFormRegister<WizardValues>;
@@ -64,6 +65,7 @@ export function StepDimensions({
   setValue,
   compact = false
 }: StepDimensionsProps) {
+  const { t } = useI18n();
   const printerType = watch("printerType");
   const rollCore = watch("rollCoreMm");
   const rollOuter = watch("rollOuterDiameterMm");
@@ -96,10 +98,10 @@ export function StepDimensions({
   return (
     <div className={compact ? "h-full" : "space-y-4"}>
       <div className={wrapperClass}>
-        <p className={titleClass}>Mida de la bobina i mandril</p>
+        <p className={titleClass}>{t.dimensions.title}</p>
         <div className={gridClass}>
           <div>
-            <label className="field-label">Canuto (nucli de bobina)</label>
+            <label className="field-label">{t.dimensions.coreLabel}</label>
             <select className="field-input" {...register("rollCoreMm")}>
               {coreOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -112,7 +114,7 @@ export function StepDimensions({
             )}
           </div>
           <div>
-            <label className="field-label">Diametre exterior bobina (mm)</label>
+            <label className="field-label">{t.dimensions.outerLabel}</label>
             <select
               className="field-input"
               {...register("rollOuterDiameterMm", { valueAsNumber: true })}
@@ -134,7 +136,7 @@ export function StepDimensions({
             preserveAspectRatio={compact ? "xMidYMid meet" : undefined}
             viewBox="0 0 520 240"
             role="img"
-            aria-label="Il-lustracio de mandril i diametre exterior"
+            aria-label={t.dimensions.svgAria}
           >
             {(() => {
               const outerOptions = outerOptionsMap[printerType].map((option) => option.value);
@@ -168,7 +170,7 @@ export function StepDimensions({
                   <line x1={cx - outerRx} y1={cy} x2={cx - outerRx} y2={cy + outerRy} stroke="#64748b" strokeWidth="1.2" />
                   <line x1={cx + outerRx} y1={cy} x2={cx + outerRx} y2={cy + outerRy} stroke="#64748b" strokeWidth="1.2" />
                   <text x={cx} y={cy - outerRy - 34} textAnchor="middle" fontSize="11" fill="#0f172a">
-                    Diametre exterior {rollOuter} mm
+                    {t.dimensions.svgOuter(rollOuter)}
                   </text>
 
                   <line x1={cx - innerRx} y1={cy} x2={cx + innerRx} y2={cy} stroke="#0f172a" strokeWidth="1.7" />
@@ -177,7 +179,7 @@ export function StepDimensions({
                   <line x1={cx - innerRx} y1={cy - 16} x2={cx - innerRx} y2={cy + 16} stroke="#334155" strokeWidth="1.1" strokeDasharray="4 3" />
                   <line x1={cx + innerRx} y1={cy - 16} x2={cx + innerRx} y2={cy + 16} stroke="#334155" strokeWidth="1.1" strokeDasharray="4 3" />
                   <text x={cx} y={cy - 20} textAnchor="middle" fontSize="10.5" fill="#0f172a">
-                    Mandril {rollCore} mm
+                    {t.dimensions.svgCore(rollCore)}
                   </text>
                 </>
               );
