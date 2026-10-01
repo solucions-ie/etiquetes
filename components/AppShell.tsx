@@ -2,6 +2,7 @@
 
 import { LabelWizard } from "@/components/wizard/LabelWizard";
 import { LanguageSelector } from "@/components/LanguageSelector";
+import { Locale } from "@/lib/i18n/dictionaries";
 import { I18nProvider, useI18n } from "@/lib/i18n/I18nProvider";
 
 function Header() {
@@ -25,9 +26,9 @@ function Header() {
   );
 }
 
-export function AppShell() {
+export function AppShell({ locale }: { locale: Locale }) {
   return (
-    <I18nProvider>
+    <I18nProvider locale={locale}>
       <main className="flex min-h-screen items-center bg-gradient-to-b from-[#f8ecec] via-[#f5f1ef] to-[#e8e1de] px-6 py-10 md:px-10">
         <div className="mx-auto w-full max-w-[1320px]">
           <section className="wizard-card">

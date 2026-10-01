@@ -1,5 +1,5 @@
 import { AppShell } from "@/components/AppShell";
 
 export default function HomePage() {
-  return <AppShell />;
+  return <AppShell locale="ca" />;
 }

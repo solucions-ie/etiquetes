@@ -1,12 +1,16 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { LOCALES, Locale } from "@/lib/i18n/dictionaries";
 import { useI18n } from "@/lib/i18n/I18nProvider";
 
 const SHORT_LABEL: Record<Locale, string> = { ca: "CA", es: "ES" };
+// Route for each locale: Catalan is the root, Spanish lives at /es.
+const LOCALE_PATH: Record<Locale, string> = { ca: "/", es: "/es" };
 
 export function LanguageSelector() {
-  const { locale, setLocale, t } = useI18n();
+  const { locale, t } = useI18n();
+  const router = useRouter();
 
   return (
     <div
@@ -20,7 +24,7 @@ export function LanguageSelector() {
           <button
             key={code}
             type="button"
-            onClick={() => setLocale(code)}
+            onClick={() => router.push(LOCALE_PATH[code])}
             aria-pressed={isActive}
             className={`rounded-md px-2.5 py-1 text-xs font-semibold transition ${
               isActive
