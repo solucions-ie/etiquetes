@@ -26,13 +26,19 @@ function isLocale(value: unknown): value is Locale {
 export function I18nProvider({ children }: { children: React.ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>(DEFAULT_LOCALE);
 
-  // Restore the saved choice on mount (localStorage is client-only).
+  // On mount, resolve the initial locale: a ?lang= URL param wins (so a link
+  // like /?lang=es can be shared with a client), then the saved choice.
   useEffect(() => {
     try {
+      const fromUrl = new URLSearchParams(window.location.search).get("lang");
+      if (isLocale(fromUrl)) {
+        setLocaleState(fromUrl);
+        return;
+      }
       const saved = window.localStorage.getItem(STORAGE_KEY);
       if (isLocale(saved)) setLocaleState(saved);
     } catch {
-      // Ignore storage access errors (private mode, blocked, etc.).
+      // Ignore storage / URL access errors (private mode, blocked, etc.).
     }
   }, []);
 
@@ -46,6 +52,14 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
       window.localStorage.setItem(STORAGE_KEY, next);
     } catch {
       // Ignore storage access errors.
+    }
+    // Keep the URL in sync so the current language is always shareable.
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set("lang", next);
+      window.history.replaceState({}, "", url);
+    } catch {
+      // Ignore history/URL errors.
     }
   }, []);
 
