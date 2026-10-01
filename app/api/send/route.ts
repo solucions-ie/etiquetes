@@ -12,6 +12,14 @@ import {
 import { renderHtmlToPdf } from "@/lib/email/pdf";
 import { wizardSchema } from "@/lib/schemas/wizard";
 import { generateLabelCode } from "@/lib/labelCode";
+import { DEFAULT_LOCALE, LOCALES, Locale } from "@/lib/i18n/dictionaries";
+import { EMAIL_STRINGS } from "@/lib/i18n/email";
+
+function resolveLocale(value: unknown): Locale {
+  return typeof value === "string" && (LOCALES as string[]).includes(value)
+    ? (value as Locale)
+    : DEFAULT_LOCALE;
+}
 
 // ──────────────────────────────────────────────
 // Label helpers
@@ -156,11 +164,12 @@ function getPublicSiteUrl() {
 
 async function buildEmailAttachments(
   data: ReturnType<typeof wizardSchema.parse>,
-  referenceCode: string
+  referenceCode: string,
+  locale: Locale
 ) {
   const logo = await readLogoAsset();
   const pdfHtml = buildHtmlDocument(
-    renderTechnicalSheetTemplate(data, { logoSrc: logo.dataUri, referenceCode })
+    renderTechnicalSheetTemplate(data, { logoSrc: logo.dataUri, referenceCode, locale })
   );
   const pdfBuffer = await renderHtmlToPdf(pdfHtml);
 
@@ -445,6 +454,8 @@ export async function POST(request: Request) {
   try {
     const json = await request.json();
     const data = wizardSchema.parse(json);
+    const locale = resolveLocale((json as { locale?: unknown }).locale);
+    const e = EMAIL_STRINGS[locale];
 
     const secretaryEmail = process.env.SECRETARY_EMAIL;
     const fromEmail = process.env.FROM_EMAIL;
@@ -459,7 +470,7 @@ export async function POST(request: Request) {
 
     const resend = new Resend(process.env.RESEND_API_KEY);
     const referenceCode = generateLabelCode(data);
-    const attachments = await buildEmailAttachments(data, referenceCode);
+    const attachments = await buildEmailAttachments(data, referenceCode, locale);
     const logoSrc = `${getPublicSiteUrl()}/logo-sie.png`;
 
     const [customerResult, internalResult] = await Promise.all([
@@ -467,22 +478,22 @@ export async function POST(request: Request) {
         from: fromEmail,
         to: data.email,
         replyTo: replyToEmail,
-        subject: "Confirmació: sol·licitud d'etiqueta rebuda",
+        subject: e.customerSubject,
         attachments: attachments,
         html: renderCompactEmailHtml({
-          title: "INFORME DE SOLLICITUD D'ETIQUETA",
-          intro:
-            "Aquest és el resum tècnic de la configuració enviada. La fitxa tècnica completa s'adjunta en PDF.",
+          title: e.customerTitle,
+          intro: e.customerIntro,
           data,
           showGreeting: true,
-          logoSrc
+          logoSrc,
+          locale
         })
       }),
       resend.emails.send({
         from: fromEmail,
         to: secretaryEmail,
         replyTo: replyToEmail,
-        subject: `Nova sol·licitud d'etiqueta - ${data.company}`,
+        subject: `Nueva solicitud de etiqueta - ${data.company}`,
         attachments: attachments,
         html: renderInternalSummaryHtml({
           data,

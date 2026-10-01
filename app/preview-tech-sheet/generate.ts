@@ -1,11 +1,12 @@
 import { defaultWizardValues, type WizardValues } from "@/lib/schemas/wizard";
 import { renderTechnicalSheetHtml } from "@/lib/email/mailTemplates";
 import { generateLabelCode } from "@/lib/labelCode";
+import { DEFAULT_LOCALE, Locale } from "@/lib/i18n/dictionaries";
 
 // Representative sample so the preview reflects the real PDF attached to the
 // email. It delegates to the same template used for the attachment, so any
 // change to the technical sheet shows up here automatically.
-export function generateTechnicalSheetHtml(): string {
+export function generateTechnicalSheetHtml(locale: Locale = DEFAULT_LOCALE): string {
   const sample: WizardValues = {
     ...defaultWizardValues,
     company: "Distribucions Pla, S.L.",
@@ -29,6 +30,7 @@ export function generateTechnicalSheetHtml(): string {
 
   return renderTechnicalSheetHtml(sample, {
     logoSrc: "/logo-sie.png",
-    referenceCode: generateLabelCode(sample)
+    referenceCode: generateLabelCode(sample),
+    locale
   });
 }

@@ -1,5 +1,7 @@
 import { generateLabelIllustrationSvg } from "@/lib/email/labelIllustration";
 import { wizardSchema } from "@/lib/schemas/wizard";
+import { DEFAULT_LOCALE, Locale, dictionaries } from "@/lib/i18n/dictionaries";
+import { EMAIL_STRINGS } from "@/lib/i18n/email";
 
 export type WizardData = ReturnType<typeof wizardSchema.parse>;
 
@@ -12,71 +14,33 @@ function escapeHtml(value: string) {
     .replaceAll("'", "&#39;");
 }
 
-function printerLabel(printerType: WizardData["printerType"]) {
-  if (printerType === "desktop") return "Sobretaula";
-  if (printerType === "portable") return "Portàtil";
-  return "Industrial";
+function printerLabel(printerType: WizardData["printerType"], locale: Locale) {
+  return EMAIL_STRINGS[locale].printer[printerType];
 }
 
-function printerWidthClassLabel(widthClass: WizardData["printerWidthClass"]) {
-  return widthClass ? `${widthClass}"` : "No especificada";
+function printerWidthClassLabel(widthClass: WizardData["printerWidthClass"], locale: Locale) {
+  return widthClass ? `${widthClass}"` : EMAIL_STRINGS[locale].widthNotSpecified;
 }
 
-function materialLabel(materialType: WizardData["materialType"]) {
-  const map: Record<WizardData["materialType"], string> = {
-    "paper-thermal-eco": "Etiqueta tèrmica eco",
-    "paper-thermal-protected": "Etiqueta tèrmica protegida",
-    "paper-thermal-direct-ticket": "Paper tèrmic - Tiquet (sense adhesiu)",
-    "paper-couche": "Etiqueta couche",
-    "paper-matte": "Etiqueta mate",
-    "paper-inkjet-gloss": "Etiqueta inkjet brillant",
-    "paper-inkjet-matte": "Etiqueta inkjet mate",
-    "plastic-pp-gloss": "PP brillant (polipropilè)",
-    "plastic-pp-matte": "PP mate (polipropilè)",
-    "plastic-pe-gloss": "PE brillant (polietilè)",
-    "plastic-pe-matte": "PE mate (polietilè)",
-    "plastic-pet-gloss": "PET brillant (polièster)",
-    "plastic-pet-matte": "PET mate (polièster)",
-    "plastic-pvc": "PVC (vinil)",
-    "plastic-artyval": "Sintètic Artyval (sense adhesiu)",
-    "textile-polyamide": "Poliamida (nylon)",
-    "material-unknown": "Desconegut",
-    "material-other": "Altre (especificat pel client)"
-  };
-  return map[materialType];
+function materialLabel(materialType: WizardData["materialType"], locale: Locale) {
+  const e = EMAIL_STRINGS[locale];
+  if (materialType === "material-other") return e.materialOther;
+  if (materialType === "material-unknown") return e.materialUnknown;
+  return dictionaries[locale].material.items[materialType].name;
 }
 
-function adhesiveLabel(adhesive: WizardData["adhesive"]) {
-  const map: Record<WizardData["adhesive"], string> = {
-    acrylic: "Acrylic (base aigua)",
-    hotmelt: "Hotmelt (base cautxú)",
-    removable: "Removible"
-  };
-  return map[adhesive];
+function adhesiveLabel(adhesive: WizardData["adhesive"], locale: Locale) {
+  return dictionaries[locale].adhesive.items[adhesive].name;
 }
 
-function flowTypeLabel(type: WizardData["labelFlowType"]) {
-  const map: Record<WizardData["labelFlowType"], string> = {
-    gap: "Gap",
-    "black-mark": "Marca negra",
-    continuous: "Continu"
-  };
-  return map[type];
+function flowTypeLabel(type: WizardData["labelFlowType"], locale: Locale) {
+  return EMAIL_STRINGS[locale].flow[type];
 }
 
-function cutTypeLabel(data: WizardData) {
-  if (!data.hasCut) return "Sense tall";
-  const map: Record<string, string> = {
-    none: "Sense tall",
-    trepat: "Trepat",
-    troquelat: "Troquelat",
-    "tall-italia": "Tall Italia",
-    "tall-linia-recte": "Tall linia recte",
-    "tall-perforat": "Tall perforat",
-    "etiqueta-desmallada": "Etiqueta desmallada",
-    linerless: "Linerless"
-  };
-  return map[data.cutType] ?? data.cutType;
+function cutTypeLabel(data: WizardData, locale: Locale) {
+  const cut = EMAIL_STRINGS[locale].cut;
+  if (!data.hasCut) return cut.none;
+  return cut[data.cutType] ?? data.cutType;
 }
 
 function specBlock(title: string, rows: Array<[string, string]>) {
@@ -98,58 +62,62 @@ function specBlock(title: string, rows: Array<[string, string]>) {
   </div>`;
 }
 
-function buildSpecBlocksHtml(data: WizardData) {
+function buildSpecBlocksHtml(data: WizardData, locale: Locale) {
+  const e = EMAIL_STRINGS[locale];
   const adhesiveText =
     data.materialType === "paper-thermal-direct-ticket" ||
     data.materialType === "plastic-artyval"
-      ? "No aplica (sense adhesiu)"
-      : adhesiveLabel(data.adhesive);
+      ? e.noAdhesive
+      : adhesiveLabel(data.adhesive, locale);
 
   const backgroundColorText = data.hasBackgroundColor
     ? `${data.backgroundColorHex}${data.backgroundColorNotes ? ` (${data.backgroundColorNotes})` : ""}`
-    : "Sense color de fons";
+    : e.noBackground;
 
-  const midesRows: Array<[string, string]> = [["A) Amplada", `${data.labelWidthMm} mm`]];
+  const midesRows: Array<[string, string]> = [[e.rows.widthA, `${data.labelWidthMm} mm`]];
   if (data.labelFlowType !== "continuous") {
-    midesRows.push(["B) Avanç", `${data.labelHeightMm} mm`]);
+    midesRows.push([e.rows.advanceB, `${data.labelHeightMm} mm`]);
   }
 
   const impressoraRows: Array<[string, string]> = [
-    ["Tipus", printerLabel(data.printerType)],
-    ["Polzada", printerWidthClassLabel(data.printerWidthClass)]
+    [e.rows.type, printerLabel(data.printerType, locale)],
+    [e.rows.inches, printerWidthClassLabel(data.printerWidthClass, locale)]
   ];
 
   const bobinaRows: Array<[string, string]> = [
-    ["Avançament", flowTypeLabel(data.labelFlowType)],
-    ["Mandril", data.rollCoreMm === "external" ? "Bobinat extern" : `${data.rollCoreMm} mm`],
-    ["Diàmetre màx", `${data.rollOuterDiameterMm} mm`],
-    ["Tall", cutTypeLabel(data)]
+    [e.rows.flow, flowTypeLabel(data.labelFlowType, locale)],
+    [e.rows.core, data.rollCoreMm === "external" ? e.externalCore : `${data.rollCoreMm} mm`],
+    [e.rows.outerMax, `${data.rollOuterDiameterMm} mm`],
+    [e.rows.cut, cutTypeLabel(data, locale)]
   ];
   if (data.labelFlowType !== "continuous") {
-    bobinaRows.splice(1, 0, ["Gap", `${data.gapMm} mm`]);
+    bobinaRows.splice(1, 0, [e.rows.gap, `${data.gapMm} mm`]);
   }
   if (data.hasBlackMark) {
-    bobinaRows.push(["Marca negra", `Sí (${data.blackMarkPosition})`]);
+    bobinaRows.push([
+      e.rows.blackMark,
+      e.blackMarkValue(e.blackMarkPos[data.blackMarkPosition])
+    ]);
   }
 
   return [
-    specBlock("MIDES", midesRows),
-    specBlock("MATERIAL I MANIPULAT", [
-      ["Material", materialLabel(data.materialType)],
+    specBlock(e.specTitles.mides, midesRows),
+    specBlock(e.specTitles.material, [
+      [e.rows.material, materialLabel(data.materialType, locale)],
       ...(data.materialType === "material-other" && data.materialOtherDescription
-        ? [["Descripció", data.materialOtherDescription] as [string, string]]
+        ? [[e.rows.description, data.materialOtherDescription] as [string, string]]
         : []),
-      ["Adhesiu", adhesiveText],
-      ["Color de fons", backgroundColorText]
+      [e.rows.adhesive, adhesiveText],
+      [e.rows.backgroundColor, backgroundColorText]
     ]),
-    specBlock("IMPRESSORA", impressoraRows),
-    specBlock("BOBINA", bobinaRows),
-    specBlock("QUANTITAT", [["Unitats sol·licitades", String(data.quantity)]])
+    specBlock(e.specTitles.printer, impressoraRows),
+    specBlock(e.specTitles.bobina, bobinaRows),
+    specBlock(e.specTitles.quantity, [[e.rows.units, String(data.quantity)]])
   ].join("");
 }
 
-function renderContactBlockHtml(data: WizardData) {
-  return `<div style="background:#8a1c22;color:#ffffff;font-size:10px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;padding:6px 10px;border-radius:6px 6px 0 0;display:inline-block;">DADES DE CONTACTE</div>
+function renderContactBlockHtml(data: WizardData, locale: Locale) {
+  return `<div style="background:#8a1c22;color:#ffffff;font-size:10px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;padding:6px 10px;border-radius:6px 6px 0 0;display:inline-block;">${escapeHtml(EMAIL_STRINGS[locale].contactTitle)}</div>
   <table role="presentation" cellspacing="0" cellpadding="0" style="border:1px solid #e2e8f0;border-radius:0 6px 6px 6px;overflow:hidden;background:#ffffff;min-width:300px;">
     <tr>
       <td style="padding:6px 12px;font-size:12px;font-weight:700;color:#0f172a;border-bottom:1px solid #f1f5f9;border-right:1px solid #f1f5f9;">${escapeHtml(data.company)}</td>
@@ -290,18 +258,18 @@ export function renderInternalSummaryHtml(params: {
 
   const extras: Array<[string, string]> = [];
   if (data.materialObservations?.trim()) {
-    extras.push(["Observacions del material", data.materialObservations.trim()]);
+    extras.push(["Observaciones del material", data.materialObservations.trim()]);
   }
   if (data.comments?.trim()) {
-    extras.push(["Comentaris del client", data.comments.trim()]);
+    extras.push(["Comentarios del cliente", data.comments.trim()]);
   }
   if (data.hasBackgroundColor && data.backgroundColorNotes?.trim()) {
-    extras.push(["Notes del color de fons", data.backgroundColorNotes.trim()]);
+    extras.push(["Notas del color de fondo", data.backgroundColorNotes.trim()]);
   }
 
   const extrasHtml = extras.length
     ? `<div style="margin-top:16px;">
-        <div style="background:#8a1c22;color:#ffffff;font-size:10px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;padding:6px 10px;border-radius:6px 6px 0 0;">Informació addicional del client</div>
+        <div style="background:#8a1c22;color:#ffffff;font-size:10px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;padding:6px 10px;border-radius:6px 6px 0 0;">Información adicional del cliente</div>
         <div style="border:1px solid #e2e8f0;border-top:none;border-radius:0 0 6px 6px;background:#fff;padding:10px 12px;">
           ${extras
             .map(
@@ -317,17 +285,17 @@ export function renderInternalSummaryHtml(params: {
 
   return `<div style="margin:0;padding:20px;background:#f1f5f9;font-family:Arial,Helvetica,sans-serif;color:#0f172a;">
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:720px;margin:0 auto;background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
-    ${renderHeader("NOVA SOL·LICITUD D'ETIQUETA", date, logoSrc)}
+    ${renderHeader("NUEVA SOLICITUD DE ETIQUETA", date, logoSrc)}
     <tr>
       <td style="padding:20px;">
-        <p style="margin:0 0 12px 0;font-size:12px;color:#475569;">Resum per copiar i enganxar (la fitxa tècnica completa s&apos;adjunta en PDF):</p>
+        <p style="margin:0 0 12px 0;font-size:12px;color:#475569;">Resumen para copiar y pegar (la ficha técnica completa se adjunta en PDF):</p>
         <div style="font-family:'Courier New',Courier,monospace;font-size:13px;line-height:1.7;color:#0f172a;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px;">${summaryHtml}</div>
         ${extrasHtml}
       </td>
     </tr>
     <tr>
       <td style="padding:16px 20px;border-top:1px solid #e2e8f0;background:#f8fafc;">
-        ${renderContactBlockHtml(data)}
+        ${renderContactBlockHtml(data, "es")}
       </td>
     </tr>
   </table>
@@ -341,8 +309,18 @@ export function renderCompactEmailHtml(params: {
   showGreeting?: boolean;
   logoSrc?: string;
   referenceCode?: string;
+  locale?: Locale;
 }) {
-  const { title, intro, data, showGreeting = false, logoSrc = "/logo-sie.png", referenceCode } = params;
+  const {
+    title,
+    intro,
+    data,
+    showGreeting = false,
+    logoSrc = "/logo-sie.png",
+    referenceCode,
+    locale = DEFAULT_LOCALE
+  } = params;
+  const e = EMAIL_STRINGS[locale];
   const date = new Date().toLocaleDateString("ca-ES", {
     day: "2-digit",
     month: "2-digit",
@@ -361,25 +339,25 @@ export function renderCompactEmailHtml(params: {
         }
         <p style="margin:0 0 18px 0;font-size:12px;line-height:1.55;color:#475569;">${escapeHtml(intro)}</p>
         ${referenceCode ? `<div style="margin-bottom:16px;background:#0f172a;border-radius:8px;padding:10px 14px;">
-          <p style="margin:0 0 2px 0;font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#94a3b8;">Referència interna</p>
+          <p style="margin:0 0 2px 0;font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#94a3b8;">${escapeHtml(e.observationsTitle)}</p>
           <p style="margin:0;font-size:18px;font-weight:700;letter-spacing:0.06em;color:#ffffff;font-family:monospace;">${escapeHtml(referenceCode)}</p>
         </div>` : ""}
         ${data.materialObservations ? `<div style="margin-bottom:16px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px;">
-          <p style="margin:0 0 2px 0;font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#8a1c22;">Observacions sobre el material</p>
+          <p style="margin:0 0 2px 0;font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#8a1c22;">${escapeHtml(e.observationsTitle)}</p>
           <p style="margin:0;font-size:12px;line-height:1.5;color:#0f172a;">${escapeHtml(data.materialObservations)}</p>
         </div>` : ""}
-        ${buildSpecBlocksHtml(data)}
+        ${buildSpecBlocksHtml(data, locale)}
       </td>
     </tr>
     <tr>
       <td style="padding:16px 20px;border-top:1px solid #e2e8f0;background:#f8fafc;">
-        ${renderContactBlockHtml(data)}
+        ${renderContactBlockHtml(data, locale)}
       </td>
     </tr>
     <tr>
       <td style="padding:10px 20px;border-top:1px solid #e2e8f0;text-align:center;">
-        <p style="margin:0;font-size:10px;color:#94a3b8;">La fitxa tècnica s&apos;adjunta en PDF.</p>
-        ${data.comments ? `<p style="margin:8px 0 0 0;font-size:11px;color:#475569;"><strong style="color:#0f172a;">Comentaris:</strong> ${escapeHtml(data.comments)}</p>` : ""}
+        <p style="margin:0;font-size:10px;color:#94a3b8;">${escapeHtml(e.pdfAttached)}</p>
+        ${data.comments ? `<p style="margin:8px 0 0 0;font-size:11px;color:#475569;"><strong style="color:#0f172a;">${escapeHtml(e.commentsLabel)}</strong> ${escapeHtml(data.comments)}</p>` : ""}
       </td>
     </tr>
   </table>
@@ -388,8 +366,10 @@ export function renderCompactEmailHtml(params: {
 
 export function renderTechnicalSheetHtml(
   data: WizardData,
-  options?: { logoSrc?: string; referenceCode?: string }
+  options?: { logoSrc?: string; referenceCode?: string; locale?: Locale }
 ) {
+  const locale = options?.locale ?? DEFAULT_LOCALE;
+  const e = EMAIL_STRINGS[locale];
   const date = new Date().toLocaleDateString("ca-ES", {
     day: "2-digit",
     month: "2-digit",
@@ -400,7 +380,8 @@ export function renderTechnicalSheetHtml(
   const outerD =
     typeof data.rollOuterDiameterMm === "number" ? data.rollOuterDiameterMm : 100;
   const coreM = data.rollCoreMm === "external" ? 40 : Number(data.rollCoreMm);
-  const coreLabel = data.rollCoreMm === "external" ? "extern" : `${coreM} mm`;
+  const coreLabel =
+    data.rollCoreMm === "external" ? (locale === "es" ? "externo" : "extern") : `${coreM} mm`;
 
   const labelSvg = generateLabelIllustrationSvg({
     labelWidthMm: data.labelWidthMm,
@@ -433,7 +414,7 @@ export function renderTechnicalSheetHtml(
               <span style="color:#f3d9db;font-size:10px;display:block;line-height:1.35;">${escapeHtml(data.email)}${data.phone ? ` · ${escapeHtml(data.phone)}` : ""}</span>
             </td>
             <td style="padding:14px 20px;text-align:right;vertical-align:middle;white-space:nowrap;">
-              <span style="color:#e2e8f0;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;display:block;">FITXA TÈCNICA D&apos;ETIQUETA</span>
+              <span style="color:#e2e8f0;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;display:block;">${escapeHtml(e.techSheetTitle)}</span>
               <span style="color:#f3d9db;font-size:10px;">Data: ${date}</span>
               ${referenceCode ? `<span style="display:inline-block;margin-top:5px;padding:3px 8px;border-radius:5px;background:#ffffff;color:#8a1c22;font-family:monospace;font-size:12px;font-weight:700;letter-spacing:0.04em;">${escapeHtml(referenceCode)}</span>` : ""}
             </td>
@@ -444,13 +425,13 @@ export function renderTechnicalSheetHtml(
     <tr><td colspan="2" style="background:#6f151a;height:3px;font-size:1px;line-height:1px;padding:0;">&nbsp;</td></tr>
     <tr>
       <td style="width:42%;padding:20px;vertical-align:top;border-right:1px solid #e2e8f0;background:#f8fafc;">
-        <p style="margin:0 0 12px 0;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#8a1c22;">Configuració visual</p>
+        <p style="margin:0 0 12px 0;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#8a1c22;">${escapeHtml(e.visualConfig)}</p>
         ${labelSvg}
       </td>
       <td style="width:58%;padding:20px;vertical-align:top;">
-        ${buildSpecBlocksHtml(data)}
+        ${buildSpecBlocksHtml(data, locale)}
         ${data.materialObservations ? `<div style="margin-bottom:12px;">
-          <div style="background:#8a1c22;color:#ffffff;font-size:10px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;padding:6px 10px;border-radius:6px 6px 0 0;">Observacions del material</div>
+          <div style="background:#8a1c22;color:#ffffff;font-size:10px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;padding:6px 10px;border-radius:6px 6px 0 0;">${escapeHtml(e.observationsTitle)}</div>
           <div style="border:1px solid #e2e8f0;border-top:none;border-radius:0 0 6px 6px;background:#fff;padding:8px 10px;font-size:12px;color:#0f172a;line-height:1.5;">${escapeHtml(data.materialObservations)}</div>
         </div>` : ""}
       </td>
