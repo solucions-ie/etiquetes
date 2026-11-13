@@ -48,6 +48,8 @@ function materialLabel(
     "paper-matte": "Etiqueta mate",
     "paper-inkjet-gloss": "Etiqueta inkjet brillant",
     "paper-inkjet-matte": "Etiqueta inkjet mate",
+    "plastic-inkjet-gloss": "Etiqueta Inkjet sintètica brillant",
+    "plastic-inkjet-matte": "Etiqueta Inkjet sintètica mate",
     "plastic-pp-gloss": "PP brillant (polipropile)",
     "plastic-pp-matte": "PP mate (polipropile)",
     "plastic-pe-gloss": "PE brillant (polietile)",
