@@ -8,6 +8,12 @@ export function buildWizardSchema(m: WizardMessages) {
     contactName: z.string().min(2, m.contactName),
     email: z.string().email(m.email),
     phone: z.string().min(6, m.phone).optional().or(z.literal("")),
+    attachmentNames: z.array(z.string().max(200)).max(3).optional(),
+    printerModel: z.string().max(200).optional(),
+    needsAdvice: z.boolean().optional(),
+    application: z.string().max(3000).optional(),
+    requiredDate: z.string().regex(/^$|^\d{4}-\d{2}-\d{2}$/).optional(),
+    printMode: z.enum(["blank", "preprinted", "advice"]).optional(),
     printerType: z.enum(["desktop", "portable", "industrial"]),
     printerWidthClass: z.enum(["", "2", "3", "4", "6", "8"]),
     materialType: z.enum([
@@ -95,7 +101,7 @@ export function buildWizardSchema(m: WizardMessages) {
       industrial: [150, 180, 190]
     };
 
-    if (data.labelWidthMm > maxWidthByPrinter[data.printerType]) {
+    if (!data.needsAdvice && data.labelWidthMm > maxWidthByPrinter[data.printerType]) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["labelWidthMm"],
@@ -120,7 +126,7 @@ export function buildWizardSchema(m: WizardMessages) {
     }
 
     if (
-      data.printerWidthClass &&
+      !data.needsAdvice && data.printerWidthClass &&
       !widthClassesByPrinter[data.printerType].includes(data.printerWidthClass)
     ) {
       ctx.addIssue({
@@ -131,7 +137,7 @@ export function buildWizardSchema(m: WizardMessages) {
     }
 
     if (
-      data.printerWidthClass &&
+      !data.needsAdvice && data.printerWidthClass &&
       data.labelWidthMm > maxWidthByClass[data.printerWidthClass]
     ) {
       ctx.addIssue({
@@ -141,7 +147,7 @@ export function buildWizardSchema(m: WizardMessages) {
       });
     }
 
-    if (!coreByPrinter[data.printerType].includes(data.rollCoreMm)) {
+    if (!data.needsAdvice && !coreByPrinter[data.printerType].includes(data.rollCoreMm)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["rollCoreMm"],
@@ -149,7 +155,7 @@ export function buildWizardSchema(m: WizardMessages) {
       });
     }
 
-    if (!outerRollOptionsByPrinter[data.printerType].includes(data.rollOuterDiameterMm)) {
+    if (!data.needsAdvice && !outerRollOptionsByPrinter[data.printerType].includes(data.rollOuterDiameterMm)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["rollOuterDiameterMm"],
@@ -188,6 +194,11 @@ export const wizardSchema = buildWizardSchema(VALIDATION_MESSAGES.ca);
 export type WizardValues = z.infer<typeof wizardSchema>;
 
 export const defaultWizardValues: WizardValues = {
+  printerModel: "",
+  needsAdvice: false,
+  application: "",
+  requiredDate: "",
+  printMode: "blank",
   company: "",
   contactName: "",
   email: "",
