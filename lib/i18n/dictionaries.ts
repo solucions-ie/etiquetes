@@ -241,6 +241,11 @@ const ca: Dictionary = {
           "Molt durable i resistent a la temperatura i al desgast; orientat a entorns exigents.",
         uses: "Industrial, laboratoris, traçabilitat de llarga durada."
       },
+      "plastic-pet-clear": {
+        name: "PET transparent (polièster)",
+        description: "Polièster (PET) transparent per a etiquetes que deixen visible l’envàs o la superfície d’aplicació.",
+        uses: "Etiquetatge d’envasos i productes amb acabat transparent."
+      },
       "plastic-pet-matte": {
         name: "PET mate (polièster)",
         description:
@@ -486,6 +491,11 @@ const es: Dictionary = {
         description:
           "Muy durable y resistente a la temperatura y al desgaste; orientado a entornos exigentes.",
         uses: "Industrial, laboratorios, trazabilidad de larga duración."
+      },
+      "plastic-pet-clear": {
+        name: "PET transparente (poliéster)",
+        description: "Poliéster (PET) transparente para etiquetas que dejan visible el envase o la superficie de aplicación.",
+        uses: "Etiquetado de envases y productos con acabado transparente."
       },
       "plastic-pet-matte": {
         name: "PET mate (poliéster)",
