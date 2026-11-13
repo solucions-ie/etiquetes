@@ -46,6 +46,9 @@ export type Dictionary = {
     colorCountOptions: Record<WizardValues["colorCount"], string>;
     quantityLabel: string;
     quantityNote: string;
+    quantitySupplyNote: string;
+    quantityExample: string;
+    quantityEquivalent: (quantity: number) => string;
     guideModalTitle: string;
     close: string;
     families: Record<FamilyKey, string>;
@@ -148,7 +151,10 @@ const ca: Dictionary = {
       "3": "3 — Tres tintes",
       "4": "4 — Quatre tintes"
     },
-    quantityLabel: "Quantitat estimada",
+    quantityLabel: "Quantitat total d’etiquetes (unitats)",
+    quantitySupplyNote: "Les etiquetes se subministren i es cotitzen per milers, no per bobines. 1 miler = 1.000 etiquetes.",
+    quantityExample: "Indica el total d’etiquetes. Exemple: per demanar 10 milers, escriu 10000 (10.000 etiquetes).",
+    quantityEquivalent: (quantity) => `${new Intl.NumberFormat("de-DE").format(quantity)} etiquetes = ${new Intl.NumberFormat("de-DE", { maximumFractionDigits: 3 }).format(quantity / 1000)} ${quantity === 1000 ? "miler" : "milers"}`,
     quantityNote:
       "Per circumstàncies de producció, el nombre final d'etiquetes pot variar +/- 10%.",
     guideModalTitle: "Guia de materials d'etiqueta",
@@ -399,7 +405,10 @@ const es: Dictionary = {
       "3": "3 — Tres tintas",
       "4": "4 — Cuatro tintas"
     },
-    quantityLabel: "Cantidad estimada",
+    quantityLabel: "Cantidad total de etiquetas (unidades)",
+    quantitySupplyNote: "Las etiquetas se suministran y se cotizan por millares, no por bobinas. 1 millar = 1.000 etiquetas.",
+    quantityExample: "Indica el total de etiquetas. Ejemplo: para pedir 10 millares, escribe 10000 (10.000 etiquetas).",
+    quantityEquivalent: (quantity) => `${new Intl.NumberFormat("de-DE").format(quantity)} etiquetas = ${new Intl.NumberFormat("de-DE", { maximumFractionDigits: 3 }).format(quantity / 1000)} ${quantity === 1000 ? "millar" : "millares"}`,
     quantityNote:
       "Por circunstancias de producción, el número final de etiquetas puede variar +/- 10%.",
     guideModalTitle: "Guía de materiales de etiqueta",
