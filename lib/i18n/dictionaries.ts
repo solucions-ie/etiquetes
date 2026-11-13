@@ -202,6 +202,16 @@ const ca: Dictionary = {
           "Recobriment per a impressió a color amb acabat mat i bona llegibilitat; menor resistència a l'aigua i al fregament.",
         uses: "Promocions, packaging visual i etiquetes a color sense reflex."
       },
+      "plastic-inkjet-gloss": {
+        name: "Inkjet brillant",
+        description: "Material sintètic amb recobriment per a impressió d’injecció de tinta i acabat brillant.",
+        uses: "Etiquetes de producte i envasos impreses a color amb equips Inkjet compatibles."
+      },
+      "plastic-inkjet-matte": {
+        name: "Inkjet mate",
+        description: "Material sintètic amb recobriment per a impressió d’injecció de tinta i acabat mat.",
+        uses: "Etiquetes de producte i envasos impreses a color amb equips Inkjet compatibles."
+      },
       "plastic-pp-gloss": {
         name: "PP brillant (polipropilè)",
         description:
@@ -437,6 +447,16 @@ const es: Dictionary = {
         description:
           "Recubrimiento para impresión a color con acabado mate y buena legibilidad; menor resistencia al agua y al roce.",
         uses: "Promociones, packaging visual y etiquetas a color sin reflejo."
+      },
+      "plastic-inkjet-gloss": {
+        name: "Inkjet brillante",
+        description: "Material sintético con recubrimiento para impresión por inyección de tinta y acabado brillante.",
+        uses: "Etiquetas de producto y envases impresas a color con equipos Inkjet compatibles."
+      },
+      "plastic-inkjet-matte": {
+        name: "Inkjet mate",
+        description: "Material sintético con recubrimiento para impresión por inyección de tinta y acabado mate.",
+        uses: "Etiquetas de producto y envases impresas a color con equipos Inkjet compatibles."
       },
       "plastic-pp-gloss": {
         name: "PP brillo (polipropileno)",
