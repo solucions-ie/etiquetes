@@ -31,6 +31,7 @@ const MATERIALS: Array<{ id: WizardValues["materialType"]; family: FamilyKey }> 
   { id: "plastic-pe-matte", family: "synthetic" },
   { id: "plastic-pet-gloss", family: "synthetic" },
   { id: "plastic-pet-matte", family: "synthetic" },
+  { id: "plastic-pet-clear", family: "synthetic" },
   { id: "plastic-pvc", family: "synthetic" },
   { id: "plastic-artyval", family: "synthetic" },
   { id: "textile-polyamide", family: "textile" },

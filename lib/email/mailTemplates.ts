@@ -178,6 +178,7 @@ function materialLabelEs(data: WizardData): string {
     "plastic-pe-matte": "PE mate (polietileno)",
     "plastic-pet-gloss": "PET brillo (poliéster)",
     "plastic-pet-matte": "PET mate (poliéster)",
+    "plastic-pet-clear": "PET transparente (poliéster)",
     "plastic-pvc": "PVC (vinilo)",
     "plastic-artyval": "Sintético Artyval (sin adhesivo)",
     "textile-polyamide": "Poliamida (nylon)",

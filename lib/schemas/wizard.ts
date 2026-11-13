@@ -26,6 +26,7 @@ export function buildWizardSchema(m: WizardMessages) {
       "plastic-pe-matte",
       "plastic-pet-gloss",
       "plastic-pet-matte",
+      "plastic-pet-clear",
       "plastic-pvc",
       "plastic-artyval",
       "textile-polyamide",

@@ -16,6 +16,7 @@ const MATERIAL_CODE: Record<WizardValues["materialType"], string> = {
   "plastic-pe-matte": "PEM",
   "plastic-pet-gloss": "PBB",
   "plastic-pet-matte": "PBM",
+  "plastic-pet-clear": "PBT",
   "plastic-pvc": "PVC",
   "plastic-artyval": "ART",
   "textile-polyamide": "ETP",
