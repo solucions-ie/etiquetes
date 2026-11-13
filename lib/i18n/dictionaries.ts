@@ -203,13 +203,13 @@ const ca: Dictionary = {
         uses: "Promocions, packaging visual i etiquetes a color sense reflex."
       },
       "plastic-inkjet-gloss": {
-        name: "Inkjet brillant",
-        description: "Material sintètic amb recobriment per a impressió d’injecció de tinta i acabat brillant.",
+        name: "PP Inkjet brillant (polipropilè)",
+        description: "Polipropilè (PP) amb recobriment per a impressió d’injecció de tinta i acabat brillant.",
         uses: "Etiquetes de producte i envasos impreses a color amb equips Inkjet compatibles."
       },
       "plastic-inkjet-matte": {
-        name: "Inkjet mate",
-        description: "Material sintètic amb recobriment per a impressió d’injecció de tinta i acabat mat.",
+        name: "PP Inkjet mate (polipropilè)",
+        description: "Polipropilè (PP) amb recobriment per a impressió d’injecció de tinta i acabat mat.",
         uses: "Etiquetes de producte i envasos impreses a color amb equips Inkjet compatibles."
       },
       "plastic-pp-gloss": {
@@ -449,13 +449,13 @@ const es: Dictionary = {
         uses: "Promociones, packaging visual y etiquetas a color sin reflejo."
       },
       "plastic-inkjet-gloss": {
-        name: "Inkjet brillante",
-        description: "Material sintético con recubrimiento para impresión por inyección de tinta y acabado brillante.",
+        name: "PP Inkjet brillante (polipropileno)",
+        description: "Polipropileno (PP) con recubrimiento para impresión por inyección de tinta y acabado brillante.",
         uses: "Etiquetas de producto y envases impresas a color con equipos Inkjet compatibles."
       },
       "plastic-inkjet-matte": {
-        name: "Inkjet mate",
-        description: "Material sintético con recubrimiento para impresión por inyección de tinta y acabado mate.",
+        name: "PP Inkjet mate (polipropileno)",
+        description: "Polipropileno (PP) con recubrimiento para impresión por inyección de tinta y acabado mate.",
         uses: "Etiquetas de producto y envases impresas a color con equipos Inkjet compatibles."
       },
       "plastic-pp-gloss": {
