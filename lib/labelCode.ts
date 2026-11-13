@@ -8,6 +8,8 @@ const MATERIAL_CODE: Record<WizardValues["materialType"], string> = {
   "paper-matte": "PMR",
   "paper-inkjet-gloss": "PIB",
   "paper-inkjet-matte": "EPI",
+  "plastic-inkjet-gloss": "SIB",
+  "plastic-inkjet-matte": "SIM",
   "plastic-pp-gloss": "HBB",
   "plastic-pp-matte": "HBM",
   "plastic-pe-gloss": "EPL",

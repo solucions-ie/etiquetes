@@ -18,6 +18,8 @@ export function buildWizardSchema(m: WizardMessages) {
       "paper-matte",
       "paper-inkjet-gloss",
       "paper-inkjet-matte",
+      "plastic-inkjet-gloss",
+      "plastic-inkjet-matte",
       "plastic-pp-gloss",
       "plastic-pp-matte",
       "plastic-pe-gloss",
