@@ -112,7 +112,11 @@ function buildSpecBlocksHtml(data: WizardData, locale: Locale) {
     ]),
     specBlock(e.specTitles.printer, impressoraRows),
     specBlock(e.specTitles.bobina, bobinaRows),
-    specBlock(e.specTitles.quantity, [[e.rows.units, String(data.quantity)]])
+    specBlock(e.specTitles.quantity, [
+      [e.rows.units, dictionaries[locale].material.quantityEquivalent(data.quantity)],
+      [locale === "es" ? "Unidad de suministro y cotización" : "Unitat de subministrament i cotització", dictionaries[locale].material.quantitySupplyNote],
+      [locale === "es" ? "Tolerancia de producción" : "Tolerància de producció", dictionaries[locale].material.quantityNote]
+    ])
   ].join("");
 }
 
@@ -229,11 +233,9 @@ export function buildInternalSummaryText(data: WizardData, referenceCode: string
   lines.push(`Mandril: ${coreEs}.`);
   lines.push(`Diámetro bobina: ${data.rollOuterDiameterMm} mm.`);
   lines.push(`Apto para ${printerEs(data.printerType)}`);
-  if (!isContinuous) {
-    lines.push(
-      "Este producto se vende en millares (Nota: por circunstancias de producción el número final de etiquetas puede variar +/- 10%)"
-    );
-  }
+  lines.push(`Cantidad total: ${dictionaries.es.material.quantityEquivalent(data.quantity)}.`);
+  lines.push(dictionaries.es.material.quantitySupplyNote);
+  lines.push(dictionaries.es.material.quantityNote);
   lines.push("Notas:");
 
   return `PRODUCTE: ${desc}. ${dims}\n\nDESCRIPCIÓ: ${desc}\n${lines.join(
