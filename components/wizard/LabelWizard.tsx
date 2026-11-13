@@ -38,12 +38,13 @@ const printerWidthClasses: Record<
 
 export function LabelWizard() {
   const { t, locale } = useI18n();
+  const [files, setFiles] = useState<File[]>([]);
+  const [fileError, setFileError] = useState<string | null>(null);
   const [isSending, setIsSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
   const [codeInput, setCodeInput] = useState("");
   const [codeMessage, setCodeMessage] = useState<"ok" | "error" | null>(null);
-  const previousPrinterType = useRef<WizardValues["printerType"] | null>(null);
 
   // Keep the latest locale messages in a ref so a single stable resolver can
   // validate with the current language without re-initialising the form.
@@ -123,26 +124,20 @@ export function LabelWizard() {
   }, [setValue, values.hasCut, values.cutType, values.labelFlowType]);
 
   useEffect(() => {
-    if (previousPrinterType.current && previousPrinterType.current !== values.printerType) {
-      setValue("printerWidthClass", "", { shouldValidate: true });
-    } else if (
+    if (
       values.printerWidthClass &&
       !printerWidthClasses[values.printerType].includes(values.printerWidthClass)
     ) {
       setValue("printerWidthClass", "", { shouldValidate: true });
     }
 
-    previousPrinterType.current = values.printerType;
   }, [setValue, values.printerType, values.printerWidthClass]);
 
   useEffect(() => {
-    const selectedMaxWidth = values.printerWidthClass
-      ? printerWidthClassMaxMm[values.printerWidthClass]
-      : printerMaxWidthMm[values.printerType];
-
-    setValue("labelWidthMm", selectedMaxWidth, { shouldValidate: true });
-    setValue("labelHeightMm", 50, { shouldValidate: true });
-  }, [setValue, values.printerType, values.printerWidthClass]);
+    if (values.printMode === "blank" && values.colorCount !== "0") {
+      setValue("colorCount", "0");
+    }
+  }, [setValue, values.printMode, values.colorCount]);
 
   const handleApplyCode = () => {
     const parsed = parseLabelCode(codeInput);
@@ -152,6 +147,7 @@ export function LabelWizard() {
     }
 
     setValue("materialType", parsed.materialType, { shouldValidate: true, shouldTouch: true });
+    setValue("printMode", parsed.colorCount === "0" ? "blank" : "preprinted");
     setValue("colorCount", parsed.colorCount, { shouldValidate: true });
     setValue("rollCoreMm", parsed.rollCoreMm, { shouldValidate: true });
     setValue("rollOuterDiameterMm", parsed.rollOuterDiameterMm, { shouldValidate: true });
@@ -173,10 +169,13 @@ export function LabelWizard() {
     setSendError(null);
     setIsSending(true);
     try {
+      if (fileError) { setIsSending(false); return; }
+      const payload = new FormData();
+      payload.append("data", JSON.stringify({ ...formData, locale }));
+      files.forEach((file) => payload.append("files", file));
       const response = await fetch("/api/send", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, locale })
+        body: payload
       });
 
       if (!response.ok) {
@@ -309,6 +308,20 @@ export function LabelWizard() {
           {t.sections.contact}
         </h2>
         <StepContact register={register} errors={errors} />
+        <div className="mt-4 space-y-2">
+          <label htmlFor="quote-files" className="field-label">{locale === "es" ? "Fotos, muestra o diseño (opcional)" : "Fotos, mostra o disseny (opcional)"}</label>
+          <input id="quote-files" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" multiple className="field-input" onChange={(event) => {
+            const selected = Array.from(event.target.files ?? []);
+            const allowed = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
+            const invalid = selected.length > 3 || selected.reduce((sum, file) => sum + file.size, 0) > 3 * 1024 * 1024 || selected.some((file) => !allowed.includes(file.type) || file.size === 0);
+            setFiles(invalid ? [] : selected);
+            setFileError(invalid ? (locale === "es" ? "Adjunta hasta 3 archivos JPG, PNG, WebP o PDF, con un máximo de 3 MB en total." : "Adjunta fins a 3 fitxers JPG, PNG, WebP o PDF, amb un màxim de 3 MB en total.") : null);
+            if (invalid) event.target.value = "";
+          }} />
+          <p className="text-xs text-slate-600">{locale === "es" ? "Hasta 3 archivos JPG, PNG, WebP o PDF. Máximo 3 MB en total. Se enviarán a S-IE con tu solicitud." : "Fins a 3 fitxers JPG, PNG, WebP o PDF. Màxim 3 MB en total. S’enviaran a S-IE amb la sol·licitud."}</p>
+          {files.length > 0 && <p className="text-sm">{files.map((file) => file.name).join(", ")}</p>}
+          {fileError && <p role="alert" className="field-error">{fileError}</p>}
+        </div>
       </section>
 
       {sendError && (
@@ -320,7 +333,7 @@ export function LabelWizard() {
       <div className="flex gap-3">
         <button
           type="submit"
-          disabled={isSending}
+          disabled={isSending || !!fileError}
           className="rounded-xl bg-[var(--sie-primary)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--sie-primary-dark)] disabled:opacity-70"
         >
           {isSending ? t.actions.submitting : t.actions.submit}
