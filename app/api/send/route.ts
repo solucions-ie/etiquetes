@@ -56,6 +56,7 @@ function materialLabel(
     "plastic-pe-matte": "PE mate (polietile)",
     "plastic-pet-gloss": "PET brillant (poliester)",
     "plastic-pet-matte": "PET mate (poliester)",
+    "plastic-pet-clear": "PET transparent (polièster)",
     "plastic-pvc": "PVC (vinil)",
     "plastic-artyval": "Sintetic Artyval (sense adhesiu)",
     "textile-polyamide": "Poliamida (nylon)",
