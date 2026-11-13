@@ -23,6 +23,8 @@ const MATERIALS: Array<{ id: WizardValues["materialType"]; family: FamilyKey }> 
   { id: "paper-matte", family: "paper" },
   { id: "paper-inkjet-gloss", family: "paper" },
   { id: "paper-inkjet-matte", family: "paper" },
+  { id: "plastic-inkjet-gloss", family: "synthetic" },
+  { id: "plastic-inkjet-matte", family: "synthetic" },
   { id: "plastic-pp-gloss", family: "synthetic" },
   { id: "plastic-pp-matte", family: "synthetic" },
   { id: "plastic-pe-gloss", family: "synthetic" },
