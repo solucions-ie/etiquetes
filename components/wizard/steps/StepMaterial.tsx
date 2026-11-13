@@ -44,7 +44,7 @@ const ADHESIVES: Array<WizardValues["adhesive"]> = ["acrylic", "hotmelt", "remov
 const FAMILIES: FamilyKey[] = ["paper", "synthetic", "textile", "other"];
 
 export function StepMaterial({ register, errors, watch }: StepMaterialProps) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [showMaterialGuide, setShowMaterialGuide] = useState(false);
   const [showAdhesiveGuide, setShowAdhesiveGuide] = useState(false);
   const quantity = watch("quantity");
@@ -153,11 +153,23 @@ export function StepMaterial({ register, errors, watch }: StepMaterialProps) {
         </>
       ) : (
         <div className="rounded-xl border border-[var(--sie-primary-border)] bg-[var(--sie-primary-softer)] p-3 text-sm text-[var(--sie-ink)]">
-          {t.adhesive.noAdhesive}
+          {isIndeterminate ? (locale === "es" ? "Material y adhesivo pendientes de determinar. Te asesoraremos según la aplicación." : "Material i adhesiu pendents de determinar. T’assessorarem segons l’aplicació.") : t.adhesive.noAdhesive}
         </div>
       )}
 
       <div>
+        <label htmlFor="label-application" className="field-label">{locale === "es" ? "¿Dónde se pegará y en qué condiciones?" : "On s’enganxarà i en quines condicions?"}</label>
+        <textarea id="label-application" maxLength={3000} className="field-input min-h-[90px]" placeholder={locale === "es" ? "Ej. botella de plástico, caja de cartón, exterior, humedad, congelación, calor..." : "Ex. ampolla de plàstic, caixa de cartró, exterior, humitat, congelació, calor..."} {...register("application")} />
+      </div>
+      <div>
+        <label htmlFor="print-mode" className="field-label">{locale === "es" ? "¿Cómo necesitas las etiquetas?" : "Com necessites les etiquetes?"}</label>
+        <select id="print-mode" className="field-input" {...register("printMode")}>
+          <option value="blank">{locale === "es" ? "En blanco, para imprimirlas yo" : "En blanc, per imprimir-les jo"}</option>
+          <option value="preprinted">{locale === "es" ? "Ya impresas por S-IE" : "Ja impreses per S-IE"}</option>
+          <option value="advice">{locale === "es" ? "Necesito asesoramiento" : "Necessito assessorament"}</option>
+        </select>
+      </div>
+      {watch("printMode") === "preprinted" && <div>
         <label className="field-label">{t.material.colorCountLabel}</label>
         <select className="field-input" {...register("colorCount")}>
           {(["0", "1", "2", "3", "4"] as WizardValues["colorCount"][]).map((value) => (
@@ -166,8 +178,7 @@ export function StepMaterial({ register, errors, watch }: StepMaterialProps) {
             </option>
           ))}
         </select>
-      </div>
-
+      </div>}
       <div>
         <label htmlFor="label-quantity" className="field-label">{t.material.quantityLabel}</label>
         <div className="mb-3 rounded-xl border border-[var(--sie-primary-border)] bg-[var(--sie-primary-softer)] p-3 text-sm font-semibold text-[var(--sie-primary-dark)]">

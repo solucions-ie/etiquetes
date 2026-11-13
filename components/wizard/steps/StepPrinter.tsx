@@ -55,13 +55,23 @@ const printerWidthOptions: Record<
 };
 
 export function StepPrinter({ register, setValue, errors, watch }: StepPrinterProps) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const needsAdvice = watch("needsAdvice");
   const selectedPrinter = watch("printerType");
   const selectedWidthClass = watch("printerWidthClass");
 
   return (
     <div className="grid gap-2.5">
-      {printerOptions.map((option) => {
+      <div>
+        <label htmlFor="printer-model" className="field-label">{locale === "es" ? "Marca y modelo de impresora (si lo conoces)" : "Marca i model d’impressora (si el coneixes)"}</label>
+        <input id="printer-model" maxLength={200} className="field-input" placeholder="Ex. Zebra ZD421, Epson CW-C6000..." {...register("printerModel")} />
+      </div>
+      <label className="flex items-start gap-2 text-sm">
+        <input type="checkbox" {...register("needsAdvice")} />
+        {locale === "es" ? "No lo sé / necesito asesoramiento" : "No ho sé / necessito assessorament"}
+      </label>
+      {needsAdvice && <p className="text-sm text-slate-600">{locale === "es" ? "Confirmaremos contigo la impresora y los datos de bobinado. Las medidas de la etiqueta son las que tú indiques." : "Confirmarem amb tu la impressora i les dades de bobinat. Les mides de l’etiqueta són les que tu indiquis."}</p>}
+      {!needsAdvice && printerOptions.map((option) => {
         const isSelected = selectedPrinter === option.value;
         return (
           <div

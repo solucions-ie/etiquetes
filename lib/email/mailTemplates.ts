@@ -48,7 +48,7 @@ function specBlock(title: string, rows: Array<[string, string]>) {
     .map(
       ([label, value]) =>
         `<tr>
-          <td style="padding:6px 8px 6px 10px;color:#64748b;font-size:12px;font-weight:600;white-space:nowrap;vertical-align:top;border-bottom:1px solid #f1f5f9;">${escapeHtml(label)}</td>
+          <td style="padding:6px 8px 6px 10px;color:#64748b;font-size:12px;font-weight:600;vertical-align:top;border-bottom:1px solid #f1f5f9;">${escapeHtml(label)}</td>
           <td style="padding:6px 10px 6px 8px;color:#0f172a;font-size:12px;vertical-align:top;border-bottom:1px solid #f1f5f9;">${escapeHtml(value)}</td>
         </tr>`
     )
@@ -68,7 +68,9 @@ function buildSpecBlocksHtml(data: WizardData, locale: Locale) {
     data.materialType === "paper-thermal-direct-ticket" ||
     data.materialType === "plastic-artyval"
       ? e.noAdhesive
-      : adhesiveLabel(data.adhesive, locale);
+      : data.materialType === "material-unknown" || data.materialType === "material-other"
+        ? (locale === "es" ? "Pendiente de determinar" : "Pendent de determinar")
+        : adhesiveLabel(data.adhesive, locale);
 
   const backgroundColorText = data.hasBackgroundColor
     ? `${data.backgroundColorHex}${data.backgroundColorNotes ? ` (${data.backgroundColorNotes})` : ""}`
@@ -80,8 +82,9 @@ function buildSpecBlocksHtml(data: WizardData, locale: Locale) {
   }
 
   const impressoraRows: Array<[string, string]> = [
-    [e.rows.type, printerLabel(data.printerType, locale)],
-    [e.rows.inches, printerWidthClassLabel(data.printerWidthClass, locale)]
+    [e.rows.type, data.needsAdvice ? (locale === "es" ? "Pendiente de asesoramiento" : "Pendent d’assessorament") : printerLabel(data.printerType, locale)],
+    [e.rows.inches, data.needsAdvice ? "—" : printerWidthClassLabel(data.printerWidthClass, locale)],
+    [locale === "es" ? "Marca y modelo" : "Marca i model", data.printerModel || (locale === "es" ? "No indicado" : "No indicat")]
   ];
 
   const bobinaRows: Array<[string, string]> = [
@@ -111,7 +114,14 @@ function buildSpecBlocksHtml(data: WizardData, locale: Locale) {
       [e.rows.backgroundColor, backgroundColorText]
     ]),
     specBlock(e.specTitles.printer, impressoraRows),
-    specBlock(e.specTitles.bobina, bobinaRows),
+    specBlock(e.specTitles.bobina, data.needsAdvice ? [[locale === "es" ? "Bobinado" : "Bobinat", locale === "es" ? "Datos pendientes de confirmar con S-IE" : "Dades pendents de confirmar amb S-IE"]] : bobinaRows),
+    specBlock(locale === "es" ? "APLICACIÓN Y ENTREGA" : "APLICACIÓ I LLIURAMENT", [
+      [locale === "es" ? "Aplicación" : "Aplicació", data.application || "—"],
+      [locale === "es" ? "Impresión" : "Impressió", data.printMode === "blank" ? (locale === "es" ? "En blanco" : "En blanc") : data.printMode === "preprinted" ? (locale === "es" ? "Impresas por S-IE" : "Impreses per S-IE") : (locale === "es" ? "A confirmar" : "A confirmar")],
+      [locale === "es" ? "Colores" : "Colors", data.printMode === "preprinted" ? data.colorCount : "—"],
+      [locale === "es" ? "Fecha deseada" : "Data desitjada", data.requiredDate ? data.requiredDate.split("-").reverse().join("/") : "—"],
+      [locale === "es" ? "Documentos" : "Documents", data.attachmentNames?.join(", ") || "—"]
+    ]),
     specBlock(e.specTitles.quantity, [
       [e.rows.units, dictionaries[locale].material.quantityEquivalent(data.quantity)],
       [locale === "es" ? "Unidad de suministro y cotización" : "Unitat de subministrament i cotització", dictionaries[locale].material.quantitySupplyNote],
@@ -194,6 +204,7 @@ function materialLabelEs(data: WizardData): string {
 
 function productDescriptionEs(data: WizardData): string {
   const base = materialLabelEs(data);
+  if (data.materialType === "material-unknown" || data.materialType === "material-other") return `${base}; adhesivo pendiente de determinar`;
   if (MATERIALS_WITHOUT_ADHESIVE.includes(data.materialType)) return base;
   const adhesiveEs = data.adhesive === "removable" ? "removible" : "permanente";
   return `${base} con adhesivo ${adhesiveEs}`;
@@ -230,9 +241,19 @@ export function buildInternalSummaryText(data: WizardData, referenceCode: string
   const lines: string[] = [`Ancho ${data.labelWidthMm} mm.`];
   if (!isContinuous) lines.push(`Salida ${data.labelHeightMm} mm.`);
   lines.push(cutLineEs(data));
-  lines.push(`Mandril: ${coreEs}.`);
-  lines.push(`Diámetro bobina: ${data.rollOuterDiameterMm} mm.`);
-  lines.push(`Apto para ${printerEs(data.printerType)}`);
+  if (data.needsAdvice) {
+    lines.push("Impresora y bobinado: pendientes de asesoramiento. No confirmar valores por defecto.");
+  } else {
+    lines.push(`Mandril: ${coreEs}.`);
+    lines.push(`Diámetro bobina: ${data.rollOuterDiameterMm} mm.`);
+    lines.push(`Apto para ${printerEs(data.printerType)}`);
+  }
+  if (data.printerModel) lines.push(`Marca y modelo: ${data.printerModel}.`);
+  if (data.application) lines.push(`Aplicación: ${data.application}`);
+  lines.push(`Impresión: ${data.printMode === "blank" ? "en blanco" : data.printMode === "preprinted" ? "impresas por S-IE" : "a confirmar"}.`);
+  if (data.printMode === "preprinted") lines.push(`Colores: ${data.colorCount}.`);
+  if (data.requiredDate) lines.push(`Fecha deseada: ${data.requiredDate.split("-").reverse().join("/")} (a confirmar).`);
+  if (data.attachmentNames?.length) lines.push(`Documentos adjuntos: ${data.attachmentNames.join(", ")}.`);
   lines.push(`Cantidad total: ${dictionaries.es.material.quantityEquivalent(data.quantity)}.`);
   lines.push(dictionaries.es.material.quantitySupplyNote);
   lines.push(dictionaries.es.material.quantityNote);
