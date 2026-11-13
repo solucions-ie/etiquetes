@@ -585,7 +585,7 @@ const es: Dictionary = {
     widthMm: "Ancho (mm)",
     advanceMm: "Alto de la etiqueta (mm)",
     advanceLateral: "Avance (lateral)",
-    flowGap: "Separació entre etiquetes (gap)",
+    flowGap: "Separación entre etiquetas (gap)",
     flowBlackMark: "Marca negra",
     flowContinuous: "Continuo",
     cutCheckbox: "Troquelado",
