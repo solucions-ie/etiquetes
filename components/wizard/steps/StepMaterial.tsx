@@ -47,6 +47,7 @@ export function StepMaterial({ register, errors, watch }: StepMaterialProps) {
   const { t } = useI18n();
   const [showMaterialGuide, setShowMaterialGuide] = useState(false);
   const [showAdhesiveGuide, setShowAdhesiveGuide] = useState(false);
+  const quantity = watch("quantity");
   const selectedMaterialId = watch("materialType");
   const selectedAdhesiveId = watch("adhesive");
   const hideAdhesive =
@@ -168,18 +169,27 @@ export function StepMaterial({ register, errors, watch }: StepMaterialProps) {
       </div>
 
       <div>
-        <label className="field-label">{t.material.quantityLabel}</label>
+        <label htmlFor="label-quantity" className="field-label">{t.material.quantityLabel}</label>
+        <div className="mb-3 rounded-xl border border-[var(--sie-primary-border)] bg-[var(--sie-primary-softer)] p-3 text-sm font-semibold text-[var(--sie-primary-dark)]">
+          {t.material.quantitySupplyNote}
+        </div>
         <input
           className="field-input"
           type="number"
           min={100}
           step={100}
+          id="label-quantity"
+          aria-describedby="quantity-help quantity-equivalent quantity-tolerance"
           {...register("quantity", { valueAsNumber: true })}
         />
         {errors.quantity && (
           <p className="field-error">{errors.quantity.message as string}</p>
         )}
-        <p className="mt-2 text-xs text-slate-600">{t.material.quantityNote}</p>
+        <p id="quantity-help" className="mt-2 text-sm text-slate-600">{t.material.quantityExample}</p>
+        <p id="quantity-equivalent" aria-live="polite" className="mt-2 text-base font-semibold text-[var(--sie-primary)]">
+          {Number.isFinite(quantity) && quantity > 0 ? t.material.quantityEquivalent(quantity) : ""}
+        </p>
+        <p id="quantity-tolerance" className="mt-2 text-xs text-slate-600">{t.material.quantityNote}</p>
       </div>
 
       {showMaterialGuide && (
