@@ -44,7 +44,7 @@ const ADHESIVES: Array<WizardValues["adhesive"]> = ["acrylic", "hotmelt", "remov
 const FAMILIES: FamilyKey[] = ["paper", "synthetic", "textile", "other"];
 
 export function StepMaterial({ register, errors, watch }: StepMaterialProps) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [showMaterialGuide, setShowMaterialGuide] = useState(false);
   const [showAdhesiveGuide, setShowAdhesiveGuide] = useState(false);
   const quantity = watch("quantity");
@@ -61,7 +61,7 @@ export function StepMaterial({ register, errors, watch }: StepMaterialProps) {
   const selectedAdhesive = t.adhesive.items[selectedAdhesiveId] ?? t.adhesive.items.acrylic;
 
   return (
-    <div className="space-y-4">
+    <div className="grid gap-3 md:grid-cols-2">
       <div>
         <div className="mb-2 flex items-center justify-between gap-2">
           <label className="field-label !mb-0">{t.material.label}</label>
@@ -89,17 +89,6 @@ export function StepMaterial({ register, errors, watch }: StepMaterialProps) {
         )}
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-700">
-        <p className="font-semibold text-[var(--sie-primary)]">{selectedMaterial.name}</p>
-        <p className="mt-1">{selectedMaterial.description}</p>
-        {!isIndeterminate && (
-          <p className="mt-2 text-xs text-slate-600">
-            <strong className="text-[var(--sie-primary-dark)]">{t.material.usesLabel}</strong>{" "}
-            {selectedMaterial.uses}
-          </p>
-        )}
-      </div>
-
       {selectedMaterialId === "material-other" && (
         <div>
           <label className="field-label">{t.material.describeLabel}</label>
@@ -110,15 +99,6 @@ export function StepMaterial({ register, errors, watch }: StepMaterialProps) {
           />
         </div>
       )}
-
-      <div>
-        <label className="field-label">{t.material.observationsLabel}</label>
-        <textarea
-          className="field-input min-h-[72px] resize-y"
-          placeholder={t.material.observationsPlaceholder}
-          {...register("materialObservations")}
-        />
-      </div>
 
       {!hideAdhesive ? (
         <>
@@ -142,22 +122,26 @@ export function StepMaterial({ register, errors, watch }: StepMaterialProps) {
             </select>
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-700">
-            <p className="font-semibold text-[var(--sie-primary)]">{selectedAdhesive.name}</p>
-            <p className="mt-1">{selectedAdhesive.description}</p>
-            <p className="mt-2 text-xs text-slate-600">
-              <strong className="text-[var(--sie-primary-dark)]">{t.adhesive.usesLabel}</strong>{" "}
-              {selectedAdhesive.uses}
-            </p>
-          </div>
         </>
       ) : (
         <div className="rounded-xl border border-[var(--sie-primary-border)] bg-[var(--sie-primary-softer)] p-3 text-sm text-[var(--sie-ink)]">
-          {t.adhesive.noAdhesive}
+          {isIndeterminate ? (locale === "es" ? "Material y adhesivo pendientes de determinar. Te asesoraremos según la aplicación." : "Material i adhesiu pendents de determinar. T’assessorarem segons l’aplicació.") : t.adhesive.noAdhesive}
         </div>
       )}
 
       <div>
+        <label htmlFor="label-application" className="field-label">{locale === "es" ? "¿Dónde se pegará y en qué condiciones?" : "On s’enganxarà i en quines condicions?"}</label>
+        <textarea id="label-application" maxLength={3000} className="field-input min-h-[64px]" placeholder={locale === "es" ? "Ej. botella de plástico, caja de cartón, exterior, humedad, congelación, calor..." : "Ex. ampolla de plàstic, caixa de cartró, exterior, humitat, congelació, calor..."} {...register("application")} />
+      </div>
+      <div>
+        <label htmlFor="print-mode" className="field-label">{locale === "es" ? "¿Cómo necesitas las etiquetas?" : "Com necessites les etiquetes?"}</label>
+        <select id="print-mode" className="field-input" {...register("printMode")}>
+          <option value="blank">{locale === "es" ? "En blanco, para imprimirlas yo" : "En blanc, per imprimir-les jo"}</option>
+          <option value="preprinted">{locale === "es" ? "Ya impresas por S-IE" : "Ja impreses per S-IE"}</option>
+          <option value="advice">{locale === "es" ? "Necesito asesoramiento" : "Necessito assessorament"}</option>
+        </select>
+      </div>
+      {watch("printMode") === "preprinted" && <div>
         <label className="field-label">{t.material.colorCountLabel}</label>
         <select className="field-input" {...register("colorCount")}>
           {(["0", "1", "2", "3", "4"] as WizardValues["colorCount"][]).map((value) => (
@@ -166,9 +150,8 @@ export function StepMaterial({ register, errors, watch }: StepMaterialProps) {
             </option>
           ))}
         </select>
-      </div>
-
-      <div>
+      </div>}
+      <div className="md:col-span-2">
         <label htmlFor="label-quantity" className="field-label">{t.material.quantityLabel}</label>
         <div className="mb-3 rounded-xl border border-[var(--sie-primary-border)] bg-[var(--sie-primary-softer)] p-3 text-sm font-semibold text-[var(--sie-primary-dark)]">
           {t.material.quantitySupplyNote}
@@ -185,12 +168,21 @@ export function StepMaterial({ register, errors, watch }: StepMaterialProps) {
         {errors.quantity && (
           <p className="field-error">{errors.quantity.message as string}</p>
         )}
-        <p id="quantity-help" className="mt-2 text-sm text-slate-600">{t.material.quantityExample}</p>
+        <p id="quantity-help" className="mt-1 text-xs text-slate-500">{t.material.quantityExample}</p>
         <p id="quantity-equivalent" aria-live="polite" className="mt-2 text-base font-semibold text-[var(--sie-primary)]">
           {Number.isFinite(quantity) && quantity > 0 ? t.material.quantityEquivalent(quantity) : ""}
         </p>
         <p id="quantity-tolerance" className="mt-2 text-xs text-slate-600">{t.material.quantityNote}</p>
       </div>
+
+      <details className="md:col-span-2 text-sm">
+        <summary className="cursor-pointer font-medium text-slate-600">{t.material.observationsLabel}</summary>
+        <textarea
+          className="field-input min-h-[72px] resize-y"
+          placeholder={t.material.observationsPlaceholder}
+          {...register("materialObservations")}
+        />
+      </details>
 
       {showMaterialGuide && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">

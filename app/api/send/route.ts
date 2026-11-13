@@ -455,8 +455,34 @@ function renderTechnicalSheetHtml(data: ReturnType<typeof wizardSchema.parse>) {
 
 export async function POST(request: Request) {
   try {
-    const json = await request.json();
-    const data = wizardSchema.parse(json);
+    const multipart = request.headers.get("content-type")?.includes("multipart/form-data");
+    const form = multipart ? await request.formData() : null;
+    const json = form ? JSON.parse(String(form.get("data") ?? "{}")) : await request.json();
+    const localeForFiles = resolveLocale((json as { locale?: unknown }).locale);
+    const fileMessage = localeForFiles === "es"
+      ? "Adjunta hasta 3 archivos JPG, PNG, WebP o PDF, con un máximo de 3 MB en total."
+      : "Adjunta fins a 3 fitxers JPG, PNG, WebP o PDF, amb un màxim de 3 MB en total.";
+    const uploaded = form?.getAll("files") ?? [];
+    if (uploaded.some((file) => typeof file === "string") || uploaded.length > 3) {
+      return NextResponse.json({ error: fileMessage }, { status: 400 });
+    }
+    const files = uploaded as File[];
+    if (files.reduce((sum, file) => sum + file.size, 0) > 3 * 1024 * 1024 || files.some((file) => file.size === 0)) {
+      return NextResponse.json({ error: fileMessage }, { status: 400 });
+    }
+    const userAttachments = [];
+    for (const file of files) {
+      const content = Buffer.from(await file.arrayBuffer());
+      const isPdf = file.type === "application/pdf" && content.subarray(0, 5).toString() === "%PDF-";
+      const isJpeg = file.type === "image/jpeg" && content[0] === 0xff && content[1] === 0xd8 && content[2] === 0xff;
+      const isPng = file.type === "image/png" && content.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
+      const isWebp = file.type === "image/webp" && content.subarray(0, 4).toString() === "RIFF" && content.subarray(8, 12).toString() === "WEBP";
+      if (!isPdf && !isJpeg && !isPng && !isWebp) return NextResponse.json({ error: fileMessage }, { status: 400 });
+      const extension = isPdf ? "pdf" : isJpeg ? "jpg" : isPng ? "png" : "webp";
+      const safeName = file.name.replace(/\.[^.]+$/, "").replace(/[^a-zA-Z0-9_\-]/g, "_").slice(0, 100) || "mostra";
+      userAttachments.push({ filename: `${safeName}.${extension}`, content });
+    }
+    const data = wizardSchema.parse({ ...json, attachmentNames: userAttachments.map((file) => file.filename) });
     const locale = resolveLocale((json as { locale?: unknown }).locale);
     const e = EMAIL_STRINGS[locale];
 
@@ -496,8 +522,8 @@ export async function POST(request: Request) {
         from: fromEmail,
         to: secretaryEmail,
         replyTo: replyToEmail,
-        subject: `Nueva solicitud de etiqueta - ${data.company}`,
-        attachments: attachments,
+        subject: `Nueva solicitud de presupuesto de etiquetas - ${data.company}`,
+        attachments: [...attachments, ...userAttachments],
         html: renderInternalSummaryHtml({
           data,
           referenceCode,

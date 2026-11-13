@@ -105,13 +105,13 @@ export type Dictionary = {
 const ca: Dictionary = {
   localeName: "Català",
   page: {
-    title: "Formulari d'identificació d'etiquetes",
+    title: "Demana pressupost d’etiquetes",
     subtitle:
-      "Completa el formulari i t'ajudarem a definir el format exacte de l'etiqueta que necessites."
+      "Explica’ns què necessites. Revisarem la configuració i et contactarem per confirmar els detalls i preparar el pressupost, sense compromís."
   },
   languageSelector: { label: "Idioma", ca: "Català", es: "Español" },
   codeCard: {
-    heading: "Tens un codi d'etiqueta?",
+    heading: "Ja tens una referència S-IE? (opcional)",
     help: "Enganxa un codi de referència i omplirem automàticament el material, les tintes, el mandril, el diàmetre i les mides.",
     placeholder: "Ex. PTE0025100050030",
     apply: "Aplicar codi",
@@ -122,11 +122,11 @@ const ca: Dictionary = {
     material: "1. Material de l'etiqueta",
     config: "2. Configuració i vista prèvia",
     configLead1: "Vista prèvia de l'etiqueta",
-    configLead2: "Es recalcula automàticament segons les opcions seleccionades.",
+    configLead2: "Indica les mides reals. Si necessites assessorament, confirmarem amb tu la impressora i el bobinat abans de cotitzar.",
     printerTitle: "Tipus d'impressora",
     contact: "3. Dades de contacte"
   },
-  actions: { submit: "Enviar sol·licitud", submitting: "Enviant..." },
+  actions: { submit: "Sol·licitar pressupost", submitting: "Enviant..." },
   sent: {
     title: "Sol·licitud enviada correctament",
     body: "Hem enviat un correu de confirmació al client i una notificació interna a secretaria."
@@ -143,13 +143,13 @@ const ca: Dictionary = {
     describePlaceholder: "Ex. paper kraft, material tèrmic especial, PE expandit...",
     observationsLabel: "Observacions sobre el material (opcional)",
     observationsPlaceholder: "Detalls o requisits específics del material...",
-    colorCountLabel: "Nombre de tintes",
+    colorCountLabel: "Colors del disseny que imprimirem",
     colorCountOptions: {
       "0": "0 — Sense tintes",
-      "1": "1 — Fondejat (1 tinta)",
+      "1": "1 — Un color",
       "2": "2 — Dos tintes",
       "3": "3 — Tres tintes",
-      "4": "4 — Quatre tintes"
+      "4": "4 — Quatricromia (impressió a tot color)"
     },
     quantityLabel: "Quantitat total d’etiquetes (unitats)",
     quantitySupplyNote: "Les etiquetes se subministren i es cotitzen per milers, no per bobines. 1 miler = 1.000 etiquetes.",
@@ -321,17 +321,17 @@ const ca: Dictionary = {
   },
   dimensions: {
     title: "Mida de la bobina i mandril",
-    coreLabel: "Canuto (nucli de bobina)",
-    outerLabel: "Diametre exterior bobina (mm)",
+    coreLabel: "Diàmetre interior del tub (mandril)",
+    outerLabel: "Diàmetre exterior de la bobina (mm)",
     svgAria: "Il·lustració de mandril i diàmetre exterior",
     svgOuter: (mm) => `Diametre exterior ${mm} mm`,
     svgCore: (mm) => `Mandril ${mm} mm`
   },
   preview: {
     widthMm: "Amplada (mm)",
-    advanceMm: "Avanç (mm)",
+    advanceMm: "Alçada de l’etiqueta (mm)",
     advanceLateral: "Avanç (lateral)",
-    flowGap: "Gap",
+    flowGap: "Separació entre etiquetes (gap)",
     flowBlackMark: "Marca negra",
     flowContinuous: "Continu",
     cutCheckbox: "Tall trepat",
@@ -359,13 +359,13 @@ const ca: Dictionary = {
 const es: Dictionary = {
   localeName: "Español",
   page: {
-    title: "Formulario de identificación de etiquetas",
+    title: "Solicita presupuesto de etiquetas",
     subtitle:
-      "Completa el formulario y te ayudaremos a definir el formato exacto de la etiqueta que necesitas."
+      "Cuéntanos qué necesitas. Revisaremos la configuración y te contactaremos para confirmar los detalles y preparar el presupuesto, sin compromiso."
   },
   languageSelector: { label: "Idioma", ca: "Català", es: "Español" },
   codeCard: {
-    heading: "¿Tienes un código de etiqueta?",
+    heading: "¿Ya tienes una referencia S-IE? (opcional)",
     help: "Pega un código de referencia y rellenaremos automáticamente el material, las tintas, el mandril, el diámetro y las medidas.",
     placeholder: "Ej. PTE0025100050030",
     apply: "Aplicar código",
@@ -376,11 +376,11 @@ const es: Dictionary = {
     material: "1. Material de la etiqueta",
     config: "2. Configuración y vista previa",
     configLead1: "Vista previa de la etiqueta",
-    configLead2: "Se recalcula automáticamente según las opciones seleccionadas.",
+    configLead2: "Indica las medidas reales. Si necesitas asesoramiento, confirmaremos contigo la impresora y el bobinado antes de cotizar.",
     printerTitle: "Tipo de impresora",
     contact: "3. Datos de contacto"
   },
-  actions: { submit: "Enviar solicitud", submitting: "Enviando..." },
+  actions: { submit: "Solicitar presupuesto", submitting: "Enviando..." },
   sent: {
     title: "Solicitud enviada correctamente",
     body: "Hemos enviado un correo de confirmación al cliente y una notificación interna a secretaría."
@@ -397,13 +397,13 @@ const es: Dictionary = {
     describePlaceholder: "Ej. papel kraft, material térmico especial, PE expandido...",
     observationsLabel: "Observaciones sobre el material (opcional)",
     observationsPlaceholder: "Detalles o requisitos específicos del material...",
-    colorCountLabel: "Número de tintas",
+    colorCountLabel: "Colores del diseño que imprimiremos",
     colorCountOptions: {
       "0": "0 — Sin tintas",
       "1": "1 — Fondo (1 tinta)",
       "2": "2 — Dos tintas",
       "3": "3 — Tres tintas",
-      "4": "4 — Cuatro tintas"
+      "4": "4 — Cuatricromía (impresión a todo color)"
     },
     quantityLabel: "Cantidad total de etiquetas (unidades)",
     quantitySupplyNote: "Las etiquetas se suministran y se cotizan por millares, no por bobinas. 1 millar = 1.000 etiquetas.",
@@ -575,17 +575,17 @@ const es: Dictionary = {
   },
   dimensions: {
     title: "Medida de la bobina y mandril",
-    coreLabel: "Mandril (núcleo de bobina)",
-    outerLabel: "Diámetro exterior bobina (mm)",
+    coreLabel: "Diámetro interior del tubo (mandril)",
+    outerLabel: "Diámetro exterior de la bobina (mm)",
     svgAria: "Ilustración de mandril y diámetro exterior",
     svgOuter: (mm) => `Diámetro exterior ${mm} mm`,
     svgCore: (mm) => `Mandril ${mm} mm`
   },
   preview: {
     widthMm: "Ancho (mm)",
-    advanceMm: "Avance (mm)",
+    advanceMm: "Alto de la etiqueta (mm)",
     advanceLateral: "Avance (lateral)",
-    flowGap: "Gap",
+    flowGap: "Separación entre etiquetas (gap)",
     flowBlackMark: "Marca negra",
     flowContinuous: "Continuo",
     cutCheckbox: "Troquelado",

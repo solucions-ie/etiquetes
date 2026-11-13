@@ -62,7 +62,7 @@ const printerHeadConfig: Record<
 };
 
 function PrinterMaxInfo({ values }: { values: PreviewValues }) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const maxWidth = printerMaxWidthMm[values.printerType];
   const selectedWidthLimit = values.printerWidthClass
     ? printerWidthClassMm[values.printerWidthClass]
@@ -90,7 +90,7 @@ function PrinterMaxInfo({ values }: { values: PreviewValues }) {
 }
 
 function SupportLabelPreview({ values }: { values: PreviewValues }) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const scrollerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -302,7 +302,7 @@ export function WizardStagePreview({
   setValue,
   errors
 }: WizardStagePreviewProps) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const handleBackgroundColorChange = (event: ChangeEvent<HTMLInputElement>) => {
     setValue("backgroundColorHex", event.target.value.toUpperCase(), {
       shouldValidate: true,
@@ -366,6 +366,8 @@ export function WizardStagePreview({
           )}
         </div>
 
+        <details className="border-t border-slate-200">
+          <summary className="cursor-pointer px-3 py-2 text-sm font-medium text-slate-600">{locale === "es" ? "Ver vista previa y tipo de corte" : "Veure vista prèvia i tipus de tall"}</summary>
         <div className="grid gap-0 lg:grid-cols-[minmax(0,1fr)_150px]">
           <div className="p-3">
             <SupportLabelPreview values={values} />
@@ -408,12 +410,13 @@ export function WizardStagePreview({
             )}
           </aside>
         </div>
+        </details>
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white p-3">
-        <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-600">
-          {t.preview.backgroundTitle}
-        </p>
+      <details className="rounded-xl border border-slate-200 bg-white p-3" open={!!errors.backgroundColorHex}>
+        <summary className="cursor-pointer text-sm font-medium text-slate-600">
+          {t.preview.backgroundTitle} {locale === "es" ? "(opcional)" : "(opcional)"}
+        </summary>
         <div className="mt-2 grid gap-2 sm:grid-cols-2">
           <label className="flex items-center gap-2 rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-700">
             <input
@@ -469,7 +472,7 @@ export function WizardStagePreview({
             </div>
           </div>
         )}
-      </div>
+      </details>
 
       {!errors.labelWidthMm && <PrinterMaxInfo values={values} />}
     </div>

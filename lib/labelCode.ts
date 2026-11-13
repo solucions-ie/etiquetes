@@ -29,8 +29,12 @@ function pad3(n: number): string {
 }
 
 export function generateLabelCode(data: WizardValues): string {
+  // Do not issue an orderable reference using unconfirmed/default technical data.
+  if (data.needsAdvice || data.printMode === "advice" || data.materialType === "material-unknown" || data.materialType === "material-other") {
+    return "PENDENT";
+  }
   const material = MATERIAL_CODE[data.materialType];
-  const color = data.colorCount;
+  const color = data.printMode === "blank" ? "0" : data.colorCount;
   const core = data.rollCoreMm === "external" ? "000" : pad3(Number(data.rollCoreMm));
   const outerDiameter = pad3(data.rollOuterDiameterMm);
   const width = pad3(data.labelWidthMm);
