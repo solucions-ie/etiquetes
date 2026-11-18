@@ -9,19 +9,15 @@ function Header() {
   const { t } = useI18n();
   return (
     <>
-      <div className="mb-5 flex items-start justify-between gap-4">
+      <div className="mb-3 flex items-center justify-between gap-3">
         <img
           src="/logo-sie.png"
           alt="Logo S-IE"
-          className="h-14 w-auto rounded-md bg-[#8a1c22] p-1"
+          className="h-10 w-auto rounded-md bg-[#8a1c22] p-1"
         />
         <LanguageSelector />
       </div>
-      <p className="text-xs font-semibold uppercase tracking-wider text-[#8a1c22]">
-        etiquetes.s-ie.cat
-      </p>
-      <h1 className="mt-2 text-2xl font-bold text-ink md:text-3xl">{t.page.title}</h1>
-      <p className="mt-3 max-w-2xl text-sm text-slate-600">{t.page.subtitle}</p>
+      <h1 className="text-2xl font-bold text-ink md:text-3xl">{t.page.title}</h1>
     </>
   );
 }
@@ -29,11 +25,11 @@ function Header() {
 export function AppShell({ locale }: { locale: Locale }) {
   return (
     <I18nProvider locale={locale}>
-      <main className="flex min-h-screen items-center bg-gradient-to-b from-[#f8ecec] via-[#f5f1ef] to-[#e8e1de] px-6 py-10 md:px-10">
+      <main className="flex min-h-screen items-center bg-gradient-to-b from-[#f8ecec] via-[#f5f1ef] to-[#e8e1de] px-2 py-3 sm:px-5 sm:py-5">
         <div className="mx-auto w-full max-w-[1320px]">
           <section className="wizard-card">
             <Header />
-            <div className="mt-8">
+            <div className="mt-4">
               <LabelWizard />
             </div>
           </section>

@@ -13,7 +13,7 @@ type ItemText = { name: string; description: string; uses: string };
 
 export type Dictionary = {
   localeName: string;
-  page: { title: string; subtitle: string };
+  page: { title: string };
   languageSelector: { label: string; ca: string; es: string };
   codeCard: {
     heading: string;
@@ -27,7 +27,6 @@ export type Dictionary = {
     material: string;
     config: string;
     configLead1: string;
-    configLead2: string;
     printerTitle: string;
     contact: string;
   };
@@ -47,7 +46,6 @@ export type Dictionary = {
     quantityLabel: string;
     quantityNote: string;
     quantitySupplyNote: string;
-    quantityExample: string;
     quantityEquivalent: (quantity: number) => string;
     guideModalTitle: string;
     close: string;
@@ -105,13 +103,11 @@ export type Dictionary = {
 const ca: Dictionary = {
   localeName: "Català",
   page: {
-    title: "Formulari d'identificació d'etiquetes",
-    subtitle:
-      "Completa el formulari i t'ajudarem a definir el format exacte de l'etiqueta que necessites."
+    title: "Configura les teves etiquetes"
   },
   languageSelector: { label: "Idioma", ca: "Català", es: "Español" },
   codeCard: {
-    heading: "Tens un codi d'etiqueta?",
+    heading: "Tens un codi?",
     help: "Enganxa un codi de referència i omplirem automàticament el material, les tintes, el mandril, el diàmetre i les mides.",
     placeholder: "Ex. PTE0025100050030",
     apply: "Aplicar codi",
@@ -122,7 +118,6 @@ const ca: Dictionary = {
     material: "1. Material de l'etiqueta",
     config: "2. Configuració i vista prèvia",
     configLead1: "Vista prèvia de l'etiqueta",
-    configLead2: "Es recalcula automàticament segons les opcions seleccionades.",
     printerTitle: "Tipus d'impressora",
     contact: "3. Dades de contacte"
   },
@@ -152,8 +147,7 @@ const ca: Dictionary = {
       "4": "4 — Quatre tintes"
     },
     quantityLabel: "Quantitat total d’etiquetes (unitats)",
-    quantitySupplyNote: "Les etiquetes se subministren i es cotitzen per milers, no per bobines. 1 miler = 1.000 etiquetes.",
-    quantityExample: "Indica el total d’etiquetes. Exemple: per demanar 10 milers, escriu 10000 (10.000 etiquetes).",
+    quantitySupplyNote: "Es subministren i es cotitzen per milers, no per bobines.",
     quantityEquivalent: (quantity) => `${new Intl.NumberFormat("de-DE").format(quantity)} etiquetes = ${new Intl.NumberFormat("de-DE", { maximumFractionDigits: 3 }).format(quantity / 1000)} ${quantity === 1000 ? "miler" : "milers"}`,
     quantityNote:
       "Per circumstàncies de producció, el nombre final d'etiquetes pot variar +/- 10%.",
@@ -359,13 +353,11 @@ const ca: Dictionary = {
 const es: Dictionary = {
   localeName: "Español",
   page: {
-    title: "Formulario de identificación de etiquetas",
-    subtitle:
-      "Completa el formulario y te ayudaremos a definir el formato exacto de la etiqueta que necesitas."
+    title: "Configura tus etiquetas"
   },
   languageSelector: { label: "Idioma", ca: "Català", es: "Español" },
   codeCard: {
-    heading: "¿Tienes un código de etiqueta?",
+    heading: "¿Tienes un código?",
     help: "Pega un código de referencia y rellenaremos automáticamente el material, las tintas, el mandril, el diámetro y las medidas.",
     placeholder: "Ej. PTE0025100050030",
     apply: "Aplicar código",
@@ -376,7 +368,6 @@ const es: Dictionary = {
     material: "1. Material de la etiqueta",
     config: "2. Configuración y vista previa",
     configLead1: "Vista previa de la etiqueta",
-    configLead2: "Se recalcula automáticamente según las opciones seleccionadas.",
     printerTitle: "Tipo de impresora",
     contact: "3. Datos de contacto"
   },
@@ -406,8 +397,7 @@ const es: Dictionary = {
       "4": "4 — Cuatro tintas"
     },
     quantityLabel: "Cantidad total de etiquetas (unidades)",
-    quantitySupplyNote: "Las etiquetas se suministran y se cotizan por millares, no por bobinas. 1 millar = 1.000 etiquetas.",
-    quantityExample: "Indica el total de etiquetas. Ejemplo: para pedir 10 millares, escribe 10000 (10.000 etiquetas).",
+    quantitySupplyNote: "Se suministran y se cotizan por millares, no por bobinas.",
     quantityEquivalent: (quantity) => `${new Intl.NumberFormat("de-DE").format(quantity)} etiquetas = ${new Intl.NumberFormat("de-DE", { maximumFractionDigits: 3 }).format(quantity / 1000)} ${quantity === 1000 ? "millar" : "millares"}`,
     quantityNote:
       "Por circunstancias de producción, el número final de etiquetas puede variar +/- 10%.",

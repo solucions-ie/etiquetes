@@ -139,7 +139,7 @@ function SupportLabelPreview({ values }: { values: PreviewValues }) {
       className="overflow-auto rounded-xl border border-slate-200 bg-slate-50"
     >
       <svg
-        className="mx-auto block h-auto w-full max-w-[390px]"
+        className="mx-auto block h-auto w-full max-w-[340px]"
         viewBox="30 40 500 430"
         role="img"
         aria-label={t.preview.aria}
@@ -324,16 +324,18 @@ export function WizardStagePreview({
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
+      <h3 className="text-sm font-semibold text-slate-800">{t.sections.configLead1}</h3>
       <div className="overflow-hidden rounded-2xl border border-slate-200">
         <div className="border-b border-slate-200 bg-slate-50 p-3">
-          <div className="grid gap-2 md:grid-cols-2">
+          <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-slate-600">
+              <label htmlFor="label-width" className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-slate-600">
                 {t.preview.widthMm}
               </label>
               <input
                 className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs"
+                id="label-width"
                 type="number"
                 min={15}
                 max={
@@ -345,11 +347,12 @@ export function WizardStagePreview({
               />
             </div>
             <div>
-              <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-slate-600">
+              <label htmlFor="label-advance" className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-slate-600">
                 {t.preview.advanceMm}
               </label>
               <input
                 className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs"
+                id="label-advance"
                 type="number"
                 min={10}
                 disabled={values.labelFlowType === "continuous"}

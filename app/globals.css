@@ -17,7 +17,7 @@ body {
 }
 
 .wizard-card {
-  @apply rounded-2xl border border-slate-200 bg-white p-6 shadow-panel md:p-8;
+  @apply rounded-2xl border border-slate-200 bg-white p-3 shadow-panel sm:p-5 lg:p-6;
 }
 
 .field-label {

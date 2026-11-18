@@ -207,13 +207,13 @@ export function LabelWizard() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-      <section className="rounded-2xl border border-[var(--sie-primary-border)] bg-[var(--sie-primary-softer)] p-4">
-        <h2 className="mb-1 text-sm font-semibold uppercase tracking-wide text-[var(--sie-primary)]">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+      <details className="rounded-xl border border-[var(--sie-primary-border)] bg-[var(--sie-primary-softer)] px-3">
+        <summary className="min-h-10 cursor-pointer py-2.5 text-sm font-semibold text-[var(--sie-primary)]">
           {t.codeCard.heading}
-        </h2>
-        <p className="mb-3 text-xs text-slate-600">{t.codeCard.help}</p>
-        <div className="flex flex-col gap-2 sm:flex-row">
+        </summary>
+        <p className="mb-2 text-xs text-slate-600">{t.codeCard.help}</p>
+        <div className="mb-3 flex flex-col gap-2 sm:flex-row">
           <input
             type="text"
             value={codeInput}
@@ -221,8 +221,9 @@ export function LabelWizard() {
               setCodeInput(event.target.value);
               if (codeMessage) setCodeMessage(null);
             }}
+            aria-label={t.codeCard.heading}
             placeholder={t.codeCard.placeholder}
-            className="field-input font-mono uppercase sm:flex-1"
+            className="field-input min-w-0 font-mono uppercase sm:flex-1"
           />
           <button
             type="button"
@@ -234,77 +235,73 @@ export function LabelWizard() {
         </div>
         {codeMessage && (
           <p
-            className={`mt-2 text-xs ${
+            role="status"
+            className={`mb-3 text-xs ${
               codeMessage === "ok" ? "text-emerald-700" : "text-red-600"
             }`}
           >
             {codeMessage === "ok" ? t.codeCard.ok : t.codeCard.error}
           </p>
         )}
-      </section>
+      </details>
 
-      <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+      <section className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-700">
           {t.sections.material}
         </h2>
-        <StepMaterial register={register} errors={errors} watch={watch} setValue={setValue} />
+        <StepMaterial register={register} errors={errors} watch={watch} />
       </section>
 
-      <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+      <section className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-700">
           {t.sections.config}
         </h2>
-        <p className="text-sm font-medium text-slate-800">{t.sections.configLead1}</p>
-        <p className="mt-1 text-xs text-slate-500">{t.sections.configLead2}</p>
-        <div className="mt-4 grid gap-4 xl:grid-cols-12 xl:items-stretch">
-          <div className="rounded-2xl border border-slate-200 bg-white p-3 xl:col-span-2 xl:h-full">
+        <div className="grid items-start gap-3 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:grid-rows-[auto_1fr]">
+          <div className="rounded-2xl border border-slate-200 bg-white p-3">
             <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-700">
               {t.sections.printerTitle}
             </h3>
             <StepPrinter register={register} setValue={setValue} errors={errors} watch={watch} />
           </div>
 
-          <div className="xl:col-span-6">
-            <div className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-3">
-              <WizardStagePreview
-                register={register}
-                setValue={setValue}
-                errors={errors}
-                values={{
-                  printerType: values.printerType,
-                  printerWidthClass: values.printerWidthClass,
-                  labelFlowType: values.labelFlowType,
-                  hasCut: values.hasCut,
-                  cutType: values.cutType,
-                  labelWidthMm: values.labelWidthMm,
-                  labelHeightMm: values.labelHeightMm,
-                  gapMm: values.gapMm,
-                  hasBlackMark: values.hasBlackMark,
-                  blackMarkPosition: values.blackMarkPosition,
-                  hasBackgroundColor: values.hasBackgroundColor,
-                  backgroundColorHex: values.backgroundColorHex,
-                  rollCoreMm: values.rollCoreMm,
-                  rollOuterDiameterMm: values.rollOuterDiameterMm,
-                  adhesive: values.adhesive,
-                  quantity: values.quantity
-                }}
-              />
-            </div>
+          <div className="min-w-0 rounded-2xl border border-slate-200 bg-white p-3 lg:col-start-2 lg:row-start-1 lg:row-span-2">
+            <WizardStagePreview
+              register={register}
+              setValue={setValue}
+              errors={errors}
+              values={{
+                printerType: values.printerType,
+                printerWidthClass: values.printerWidthClass,
+                labelFlowType: values.labelFlowType,
+                hasCut: values.hasCut,
+                cutType: values.cutType,
+                labelWidthMm: values.labelWidthMm,
+                labelHeightMm: values.labelHeightMm,
+                gapMm: values.gapMm,
+                hasBlackMark: values.hasBlackMark,
+                blackMarkPosition: values.blackMarkPosition,
+                hasBackgroundColor: values.hasBackgroundColor,
+                backgroundColorHex: values.backgroundColorHex,
+                rollCoreMm: values.rollCoreMm,
+                rollOuterDiameterMm: values.rollOuterDiameterMm,
+                adhesive: values.adhesive,
+                quantity: values.quantity
+              }}
+            />
           </div>
 
-          <div className="xl:col-span-4">
+          <div className="lg:col-start-1">
             <StepDimensions
               register={register}
               errors={errors}
               watch={watch}
               setValue={setValue}
-              compact
             />
           </div>
         </div>
       </section>
 
-      <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+      <section className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-700">
           {t.sections.contact}
         </h2>

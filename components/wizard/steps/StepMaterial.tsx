@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FieldErrors, UseFormRegister, UseFormSetValue, UseFormWatch } from "react-hook-form";
+import { FieldErrors, UseFormRegister, UseFormWatch } from "react-hook-form";
 import { WizardValues } from "@/lib/schemas/wizard";
 import { useI18n } from "@/lib/i18n/I18nProvider";
 
@@ -9,7 +9,6 @@ type StepMaterialProps = {
   register: UseFormRegister<WizardValues>;
   errors: FieldErrors<WizardValues>;
   watch: UseFormWatch<WizardValues>;
-  setValue: UseFormSetValue<WizardValues>;
 };
 
 type FamilyKey = "paper" | "synthetic" | "textile" | "other";
@@ -49,22 +48,16 @@ export function StepMaterial({ register, errors, watch }: StepMaterialProps) {
   const [showAdhesiveGuide, setShowAdhesiveGuide] = useState(false);
   const quantity = watch("quantity");
   const selectedMaterialId = watch("materialType");
-  const selectedAdhesiveId = watch("adhesive");
   const hideAdhesive =
     selectedMaterialId === "paper-thermal-direct-ticket" ||
     selectedMaterialId === "plastic-artyval" ||
     selectedMaterialId === "material-unknown" ||
     selectedMaterialId === "material-other";
-  const isIndeterminate =
-    selectedMaterialId === "material-unknown" || selectedMaterialId === "material-other";
-  const selectedMaterial = t.material.items[selectedMaterialId] ?? t.material.items["paper-thermal-eco"];
-  const selectedAdhesive = t.adhesive.items[selectedAdhesiveId] ?? t.adhesive.items.acrylic;
-
   return (
-    <div className="space-y-4">
-      <div>
-        <div className="mb-2 flex items-center justify-between gap-2">
-          <label className="field-label !mb-0">{t.material.label}</label>
+    <div className="grid items-start gap-x-4 gap-y-3 sm:grid-cols-2">
+      <div className="min-w-0">
+        <div className="mb-1.5 flex items-center justify-between gap-2">
+          <label htmlFor="label-material" className="field-label !mb-0">{t.material.label}</label>
           <button
             type="button"
             onClick={() => setShowMaterialGuide(true)}
@@ -73,7 +66,7 @@ export function StepMaterial({ register, errors, watch }: StepMaterialProps) {
             {t.material.guideButton}
           </button>
         </div>
-        <select className="field-input" {...register("materialType")}>
+        <select id="label-material" className="field-input" {...register("materialType")}>
           {FAMILIES.map((family) => (
             <optgroup key={family} label={t.material.families[family]}>
               {MATERIALS.filter((item) => item.family === family).map((item) => (
@@ -89,68 +82,26 @@ export function StepMaterial({ register, errors, watch }: StepMaterialProps) {
         )}
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-700">
-        <p className="font-semibold text-[var(--sie-primary)]">{selectedMaterial.name}</p>
-        <p className="mt-1">{selectedMaterial.description}</p>
-        {!isIndeterminate && (
-          <p className="mt-2 text-xs text-slate-600">
-            <strong className="text-[var(--sie-primary-dark)]">{t.material.usesLabel}</strong>{" "}
-            {selectedMaterial.uses}
-          </p>
-        )}
-      </div>
-
-      {selectedMaterialId === "material-other" && (
-        <div>
-          <label className="field-label">{t.material.describeLabel}</label>
-          <textarea
-            className="field-input min-h-[72px] resize-y"
-            placeholder={t.material.describePlaceholder}
-            {...register("materialOtherDescription")}
-          />
-        </div>
-      )}
-
-      <div>
-        <label className="field-label">{t.material.observationsLabel}</label>
-        <textarea
-          className="field-input min-h-[72px] resize-y"
-          placeholder={t.material.observationsPlaceholder}
-          {...register("materialObservations")}
-        />
-      </div>
-
       {!hideAdhesive ? (
-        <>
-          <div>
-            <div className="mb-2 flex items-center justify-between gap-2">
-              <label className="field-label !mb-0">{t.adhesive.label}</label>
-              <button
-                type="button"
-                onClick={() => setShowAdhesiveGuide(true)}
-                className="rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
-              >
-                {t.adhesive.guideButton}
-              </button>
-            </div>
-            <select className="field-input" {...register("adhesive")}>
-              {ADHESIVES.map((id) => (
-                <option key={id} value={id}>
-                  {t.adhesive.items[id].name}
-                </option>
-              ))}
-            </select>
+        <div className="min-w-0">
+          <div className="mb-1.5 flex items-center justify-between gap-2">
+            <label htmlFor="label-adhesive" className="field-label !mb-0">{t.adhesive.label}</label>
+            <button
+              type="button"
+              onClick={() => setShowAdhesiveGuide(true)}
+              className="rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
+            >
+              {t.adhesive.guideButton}
+            </button>
           </div>
-
-          <div className="rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-700">
-            <p className="font-semibold text-[var(--sie-primary)]">{selectedAdhesive.name}</p>
-            <p className="mt-1">{selectedAdhesive.description}</p>
-            <p className="mt-2 text-xs text-slate-600">
-              <strong className="text-[var(--sie-primary-dark)]">{t.adhesive.usesLabel}</strong>{" "}
-              {selectedAdhesive.uses}
-            </p>
-          </div>
-        </>
+          <select id="label-adhesive" className="field-input" {...register("adhesive")}>
+            {ADHESIVES.map((id) => (
+              <option key={id} value={id}>
+                {t.adhesive.items[id].name}
+              </option>
+            ))}
+          </select>
+        </div>
       ) : (
         <div className="rounded-xl border border-[var(--sie-primary-border)] bg-[var(--sie-primary-softer)] p-3 text-sm text-[var(--sie-ink)]">
           {t.adhesive.noAdhesive}
@@ -158,8 +109,8 @@ export function StepMaterial({ register, errors, watch }: StepMaterialProps) {
       )}
 
       <div>
-        <label className="field-label">{t.material.colorCountLabel}</label>
-        <select className="field-input" {...register("colorCount")}>
+        <label htmlFor="label-inks" className="field-label">{t.material.colorCountLabel}</label>
+        <select id="label-inks" className="field-input" {...register("colorCount")}>
           {(["0", "1", "2", "3", "4"] as WizardValues["colorCount"][]).map((value) => (
             <option key={value} value={value}>
               {t.material.colorCountOptions[value]}
@@ -170,9 +121,6 @@ export function StepMaterial({ register, errors, watch }: StepMaterialProps) {
 
       <div>
         <label htmlFor="label-quantity" className="field-label">{t.material.quantityLabel}</label>
-        <div className="mb-3 rounded-xl border border-[var(--sie-primary-border)] bg-[var(--sie-primary-softer)] p-3 text-sm font-semibold text-[var(--sie-primary-dark)]">
-          {t.material.quantitySupplyNote}
-        </div>
         <input
           className="field-input"
           type="number"
@@ -185,12 +133,36 @@ export function StepMaterial({ register, errors, watch }: StepMaterialProps) {
         {errors.quantity && (
           <p className="field-error">{errors.quantity.message as string}</p>
         )}
-        <p id="quantity-help" className="mt-2 text-sm text-slate-600">{t.material.quantityExample}</p>
-        <p id="quantity-equivalent" aria-live="polite" className="mt-2 text-base font-semibold text-[var(--sie-primary)]">
+        <p id="quantity-help" className="mt-1.5 text-xs text-slate-700">{t.material.quantitySupplyNote}</p>
+        <p id="quantity-equivalent" aria-live="polite" className="mt-1 text-sm font-semibold text-[var(--sie-primary)]">
           {Number.isFinite(quantity) && quantity > 0 ? t.material.quantityEquivalent(quantity) : ""}
         </p>
-        <p id="quantity-tolerance" className="mt-2 text-xs text-slate-600">{t.material.quantityNote}</p>
+        <p id="quantity-tolerance" className="mt-1 text-xs text-slate-600">{t.material.quantityNote}</p>
       </div>
+
+      {selectedMaterialId === "material-other" && (
+        <div className="sm:col-span-2">
+          <label htmlFor="material-other" className="field-label">{t.material.describeLabel}</label>
+          <textarea
+            id="material-other"
+            className="field-input min-h-[72px] resize-y"
+            placeholder={t.material.describePlaceholder}
+            {...register("materialOtherDescription")}
+          />
+        </div>
+      )}
+
+      <details className="rounded-lg border border-slate-200 bg-white px-2.5 sm:col-span-2">
+        <summary className="cursor-pointer py-2 text-sm font-medium text-slate-700">
+          {t.material.observationsLabel}
+        </summary>
+        <textarea
+          aria-label={t.material.observationsLabel}
+          className="field-input mb-2 min-h-[64px] resize-y"
+          placeholder={t.material.observationsPlaceholder}
+          {...register("materialObservations")}
+        />
+      </details>
 
       {showMaterialGuide && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">

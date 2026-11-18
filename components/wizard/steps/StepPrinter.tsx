@@ -60,13 +60,13 @@ export function StepPrinter({ register, setValue, errors, watch }: StepPrinterPr
   const selectedWidthClass = watch("printerWidthClass");
 
   return (
-    <div className="grid gap-2.5">
+    <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
       {printerOptions.map((option) => {
         const isSelected = selectedPrinter === option.value;
         return (
           <div
             key={option.value}
-            className={`cursor-pointer rounded-xl border p-2.5 transition ${
+            className={`cursor-pointer min-w-0 rounded-xl border p-1.5 transition focus-within:ring-2 focus-within:ring-[var(--sie-primary)] ${
               isSelected
                 ? "border-[var(--sie-primary)] bg-[var(--sie-primary-soft)] ring-2 ring-[#ead0d2]"
                 : "border-slate-300 bg-white hover:border-slate-400"
@@ -82,22 +82,22 @@ export function StepPrinter({ register, setValue, errors, watch }: StepPrinterPr
               <div className="overflow-hidden rounded-lg border border-slate-200 bg-slate-100">
                 <img
                   src={option.photo}
-                  alt={t.printer.labels[option.value]}
-                  className="h-24 w-full object-contain bg-white p-1.5"
+                  alt=""
+                  className="h-10 w-full sm:h-14 object-contain bg-white p-1.5"
                   onError={(e) => {
                     const el = e.currentTarget;
                     el.style.display = "none";
                   }}
                 />
               </div>
-              <p className="mt-2 text-sm font-semibold text-slate-800">
+              <p className="mt-1 text-xs font-semibold text-slate-800">
                 {t.printer.labels[option.value]}
               </p>
             </label>
-            <p className="mt-2 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+            <p className="sr-only">
               {t.printer.compatibleInches}
             </p>
-            <div className="mt-1.5 flex flex-wrap gap-1.5">
+            <div className="mt-1 flex flex-wrap gap-1">
               {printerWidthOptions[option.value].map((widthOption) => {
                 const isActive =
                   isSelected && selectedWidthClass === widthOption.value;
@@ -115,7 +115,9 @@ export function StepPrinter({ register, setValue, errors, watch }: StepPrinterPr
                         shouldTouch: true
                       });
                     }}
-                    className={`rounded-md border px-2 py-1 text-xs font-medium transition ${
+                    aria-pressed={isActive}
+                    aria-label={`${t.printer.labels[option.value]} ${widthOption.label}`}
+                    className={`min-h-7 rounded-md border px-1 py-0.5 text-xs sm:px-1.5 font-medium transition ${
                       isActive
                         ? "border-[var(--sie-primary)] bg-[#f3d9db] text-[var(--sie-primary-dark)]"
                         : "border-slate-300 bg-white text-slate-700 hover:border-slate-400"
@@ -129,9 +131,9 @@ export function StepPrinter({ register, setValue, errors, watch }: StepPrinterPr
           </div>
         );
       })}
-      {errors.printerType && <p className="field-error">{errors.printerType.message as string}</p>}
+      {errors.printerType && <p className="field-error col-span-3">{errors.printerType.message as string}</p>}
       {errors.printerWidthClass && (
-        <p className="field-error">{errors.printerWidthClass.message as string}</p>
+        <p className="field-error col-span-3">{errors.printerWidthClass.message as string}</p>
       )}
     </div>
   );
