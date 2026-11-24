@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FieldErrors, UseFormRegister, UseFormSetValue, UseFormWatch } from "react-hook-form";
+import { Control, FieldErrors, UseFormRegister, UseFormWatch, useController } from "react-hook-form";
 import { WizardValues } from "@/lib/schemas/wizard";
 import { useI18n } from "@/lib/i18n/I18nProvider";
 
@@ -9,7 +9,7 @@ type StepMaterialProps = {
   register: UseFormRegister<WizardValues>;
   errors: FieldErrors<WizardValues>;
   watch: UseFormWatch<WizardValues>;
-  setValue: UseFormSetValue<WizardValues>;
+  control: Control<WizardValues>;
 };
 
 type FamilyKey = "paper" | "synthetic" | "textile" | "other";
@@ -43,11 +43,12 @@ const ADHESIVES: Array<WizardValues["adhesive"]> = ["acrylic", "hotmelt", "remov
 
 const FAMILIES: FamilyKey[] = ["paper", "synthetic", "textile", "other"];
 
-export function StepMaterial({ register, errors, watch }: StepMaterialProps) {
+export function StepMaterial({ register, errors, watch, control }: StepMaterialProps) {
   const { t } = useI18n();
   const [showMaterialGuide, setShowMaterialGuide] = useState(false);
   const [showAdhesiveGuide, setShowAdhesiveGuide] = useState(false);
-  const quantity = watch("quantity");
+  const { field: quantityField } = useController({ control, name: "quantity" });
+  const quantity = quantityField.value;
   const selectedMaterialId = watch("materialType");
   const selectedAdhesiveId = watch("adhesive");
   const hideAdhesive =
@@ -176,11 +177,16 @@ export function StepMaterial({ register, errors, watch }: StepMaterialProps) {
         <input
           className="field-input"
           type="number"
-          min={100}
-          step={100}
+          inputMode="decimal"
+          min={0.1}
+          step={0.1}
           id="label-quantity"
           aria-describedby="quantity-help quantity-equivalent quantity-tolerance"
-          {...register("quantity", { valueAsNumber: true })}
+          name={quantityField.name}
+          ref={quantityField.ref}
+          value={Number.isFinite(quantity) ? quantity / 1000 : ""}
+          onBlur={quantityField.onBlur}
+          onChange={(event) => quantityField.onChange(Math.round(event.currentTarget.valueAsNumber * 1000))}
         />
         {errors.quantity && (
           <p className="field-error">{errors.quantity.message as string}</p>

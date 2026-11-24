@@ -56,6 +56,7 @@ export function LabelWizard() {
   );
 
   const {
+    control,
     register,
     handleSubmit,
     setValue,
@@ -247,7 +248,7 @@ export function LabelWizard() {
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-700">
           {t.sections.material}
         </h2>
-        <StepMaterial register={register} errors={errors} watch={watch} setValue={setValue} />
+        <StepMaterial register={register} errors={errors} watch={watch} control={control} />
       </section>
 
       <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
